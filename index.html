@@ -66,14 +66,7 @@
     h2{font-size:24px;margin:0 0 14px}
     .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
 
-    /* About */
-    .about{grid-column:span 12}
-    .about .card{
-      display: grid;
-      grid-template-columns: 120px auto; /* avatar fixed width, text fills remaining */
-      gap: 18px;
-      align-items: start;
-    }
+    /* Avatar styling */
     .avatar {
       width: 120px;
       height: 120px;
@@ -118,6 +111,15 @@
       .project-grid{grid-template-columns:1fr}
       .two-col{grid-template-columns:1fr}
     }
+
+    /* === ABOUT FIX: put this last so it overrides properly === */
+    section#about .card{
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr); /* avatar fixed, text fills rest */
+      gap: 18px;
+      align-items: start;
+      border: 2px dashed #4caf50; /* TEMP: sanity check — remove later */
+    }
   </style>
 
   <!-- SEO / Schema -->
@@ -131,7 +133,7 @@
     "affiliation": {"@type":"CollegeOrUniversity","name":"Purdue University"},
     "sameAs": [
       "https://github.com/alexleeza",
-      "https://www.linkedin.com/"
+      "https://www.linkedin.com/alexleeza"
     ]
   }
   </script>
@@ -155,22 +157,23 @@
     <!-- HERO -->
     <section class="hero">
       <div>
-        <span class="pill">Industrial Engineering @ Purdue · OR · Data · Ops</span>
         <h1><span style="text-decoration:underline;color:var(--primary)">Industrial Engineer</span></h1>
         <p>
-          Hello! Welcome to the best website. I’m Alex, a Purdue Industrial Engineer that hopes to specialize in Operations Research or Machine Learning. I love to build solutions using statistics and algorithims for everyday tasks. 
+          Hello! Welcome to the best website. I’m Alex, a Purdue Industrial Engineer that hopes to specialize in Operations Research or Machine Learning. I love to build solutions using statistics and algorithims for everyday tasks.
         </p>
         <div class="cta">
-          <a class="btn" href="#projects">See Projects</a>
-          <a class="btn secondary" href="#contact">Get in touch</a>
+          <a class="btn" href="#projects">Projects</a>
+          <a class="btn secondary" href="#contact">Contact Me</a>
         </div>
       </div>
       <div class="card">
-        <h3 style="margin:6px 0 8px">Quick Stats</h3>
+        <h3 style="margin:6px 0 8px">Stats</h3>
         <ul style="margin:0;padding-left:18px;color:var(--muted)">
-          <li>GPA 3.17 · LSAT target 178</li>
-          <li>Favorite stack: Python (pandas), R (ggplot2), Git/GitHub</li>
-          <li>Clubs: IISE · student-led events & research visibility</li>
+          <li>High School GPA 3.43</li>
+          <li>BSIE GPA: 3.43</li>
+          <li>SAT: 1540</li>
+          <li>GRE: TBD</li>
+          <li>LSAT: TBD</li>
         </ul>
       </div>
     </section>
@@ -185,6 +188,7 @@
             <p>
               I enjoy solving ambiguous operations problems with data and human-centered design. Recently, I built <strong>ORIES</strong>, a scheduling/onboarding tool for IE students that streamlines course planning and reduces advisor workload.
             </p>
+            <p class="note">✱ Replace <code>assets/alex.jpg</code> with your actual image path if you use a different folder or filename.</p>
           </div>
         </div>
       </div>
@@ -240,8 +244,15 @@
         <div class="item">
           <div class="dot"></div>
           <div class="content">
-            <div class="title"><span>Systems Validation Intern · FLANDERS</span><span class="subtitle">Evansville, IN — 2025</span></div>
-            <div class="subtitle">Test cases · wiring documentation · process improvement</div>
+            <div class="title"><span>Systems Validation Intern | FLANDERS</span><span class="subtitle">Carmel, IN: June 2025 - Present</span></div>
+            <div class="subtitle">Testing/Validating · Test Case Creation · I/O Module Simulation Creation · Optimization</div>
+          </div>
+        </div>
+        <div class="item">
+          <div class="dot"></div>
+          <div class="content">
+            <div class="title"><span>Undergraduate Research Assistant | DC Lab (Purdue)</span><span class="subtitle">West Lafayette, IN: May 2025 - June 2025</span></div>
+            <div class="subtitle">Collaboration · Scheduling Algorithim · Presentations</div>
           </div>
         </div>
         <div class="item">
@@ -260,7 +271,6 @@
       <div class="two-col">
         <div class="card">
           <h3 style="margin:6px 0 10px">Resume</h3>
-          <p class="note">Drop your <code>Alex_Lee_Resume.pdf</code> into this repo and link it below.</p>
           <p><a href="./Alex_Lee_Resume.pdf" download>Download my resume (PDF)</a></p>
         </div>
         <div class="card" id="contact">
