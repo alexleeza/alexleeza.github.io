@@ -68,7 +68,12 @@
 
     /* About */
     .about{grid-column:span 12}
-    .about .card{display:grid;grid-template-columns:1fr 2fr;gap:18px;align-items:start}
+    .about .card{
+      display: grid;
+      grid-template-columns: 120px auto; /* avatar fixed width, text fills remaining */
+      gap: 18px;
+      align-items: start;
+    }
     .avatar {
       width: 120px;
       height: 120px;
