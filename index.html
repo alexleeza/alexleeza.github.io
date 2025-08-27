@@ -72,6 +72,7 @@
       height: 120px;
       border-radius: 16px;
       object-fit: cover;
+      flex-shrink: 0; /* keep avatar from shrinking */
     }
 
     /* Skills */
@@ -107,18 +108,21 @@
     /* Responsive */
     @media (max-width: 900px){
       .hero{grid-template-columns:1fr}
-      .about .card{grid-template-columns:1fr}
+      /* About stacks vertically on small screens */
+      .about .card{flex-direction:column}
       .project-grid{grid-template-columns:1fr}
       .two-col{grid-template-columns:1fr}
     }
 
-    /* === ABOUT FIX: put this last so it overrides properly === */
+    /* === ABOUT LAYOUT: placed last so it overrides properly === */
+    /* Remove the grid constraints from the wrapper that has both classes */
+    .grid.about{display:block;}
+
+    /* Let the card control the layout with flex so text fills horizontally */
     section#about .card{
-      display: grid;
-      grid-template-columns: 120px minmax(0, 1fr); /* avatar fixed, text fills rest */
-      gap: 18px;
-      align-items: start;
-      border: 2px dashed #4caf50; /* TEMP: sanity check — remove later */
+      display:flex;
+      align-items:flex-start;  /* top aligned */
+      gap:18px;
     }
   </style>
 
