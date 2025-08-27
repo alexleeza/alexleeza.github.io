@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -16,16 +16,6 @@
       --primary: #4caf50;   /* soft green accent */
       --ring: rgba(76,175,80,0.15);
       --border: #dce5dc;    /* light greenish border */
-      --code: #f4f9f4;
-    }
-    [data-theme="light"]{
-      --bg: #f9fff9;
-      --panel: #ffffff;
-      --text: #1e2a1e;
-      --muted: #5f6f5f;
-      --primary: #4caf50;
-      --ring: rgba(76,175,80,0.15);
-      --border: #dce5dc;
       --code: #f4f9f4;
     }
 
@@ -55,10 +45,6 @@
     .nav a{font-weight:600;color:var(--text);opacity:.85}
     .nav a:hover{opacity:1}
     .menu{display:flex;gap:18px;align-items:center}
-    .theme-btn{
-      border:1px solid var(--border);background:var(--panel);color:var(--text);
-      padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:600
-    }
 
     /* Hero */
     .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center;padding:38px 0 22px}
@@ -68,13 +54,11 @@
     .cta{display:flex;gap:12px;flex-wrap:wrap}
     .btn{
       background: var(--primary);color:white;border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;
-      /* no shadow */
     }
     .btn.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
 
     .card{
       background: var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px
-      /* no shadow */
     }
 
     /* Grid sections */
@@ -85,7 +69,12 @@
     /* About */
     .about{grid-column:span 12}
     .about .card{display:grid;grid-template-columns:1fr 2fr;gap:18px;align-items:start}
-    .avatar{width:120px;height:120px;border-radius:16px;background:var(--primary);display:grid;place-items:center;color:#fff;font-weight:800;font-size:28px}
+    .avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 16px;
+      object-fit: cover;
+    }
 
     /* Skills */
     .chips{display:flex;flex-wrap:wrap;gap:10px}
@@ -126,23 +115,6 @@
     }
   </style>
 
-  <script>
-    // Theme toggle and persistence
-    const storageKey = 'pref-theme';
-    function setTheme(mode){
-      document.documentElement.setAttribute('data-theme', mode);
-      try{ localStorage.setItem(storageKey, mode); }catch(e){}
-    }
-    (function initTheme(){
-      const saved = localStorage.getItem(storageKey);
-      if(saved){ setTheme(saved); }
-    })();
-    function toggleTheme(){
-      const cur = document.documentElement.getAttribute('data-theme') || 'light';
-      setTheme(cur === 'dark' ? 'light' : 'dark');
-    }
-  </script>
-
   <!-- SEO / Schema -->
   <script type="application/ld+json">
   {
@@ -170,7 +142,6 @@
         <a href="#experience">Experience</a>
         <a href="#resume">Resume</a>
         <a href="#contact">Contact</a>
-        <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">Toggle Theme</button>
       </nav>
     </div>
   </header>
@@ -205,12 +176,12 @@
       <h2>About</h2>
       <div class="grid about">
         <div class="card">
-          <div class="avatar" aria-hidden="true">AL</div>
+          <img src="assets/alex.jpg" alt="Alex Lee photo" class="avatar">
           <div>
             <p>
               I enjoy solving ambiguous operations problems with data and human-centered design. Recently, I built <strong>ORIES</strong>, a scheduling/onboarding tool for IE students that streamlines course planning and reduces advisor workload.
             </p>
-            <p class="note">✱ Edit this text in <code>index.html</code>. Replace the avatar with an image by swapping the <code>.avatar</code> div for an <code>&lt;img&gt;</code>.</p>
+            <p class="note">✱ Replace <code>assets/alex.jpg</code> with your actual image path if you use a different folder or filename.</p>
           </div>
         </div>
       </div>
