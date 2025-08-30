@@ -34,6 +34,11 @@
     a:hover{text-decoration:underline}
     .container{max-width:1600px;margin:0 auto;padding:24px}
 
+    /* Make container use more of the screen on large displays */
+    @media (min-width: 1200px){
+      .container{ max-width: min(96vw, 1600px); }
+    }
+
     /* Header */
     header{
       position:sticky;top:0;z-index:50;background:var(--bg);
@@ -96,9 +101,9 @@
 
     /* Resume & Contact */
     .two-col{grid-column:span 12;display:grid;grid-template-columns:1fr 1fr;gap:18px}
-    .contact-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .contact-row{display:grid;grid-template-columns:1fr 1fr;gap:10px; margin-bottom:14px;}
     input, textarea{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--text)}
-    textarea{min-height:110px}
+    textarea{min-height:110px; margin-top:4px;}
     .note{color:var(--muted);font-size:14px}
 
     /* Footer */
@@ -123,6 +128,34 @@
       display:flex;
       align-items:flex-start;  /* top aligned */
       gap:18px;
+    }
+
+    /* === Stats expandable pill === */
+    details.stats{
+      border:1px solid var(--border);
+      background:var(--panel);
+      border-radius:16px;
+      padding:6px;
+    }
+    details.stats[open]{ box-shadow: 0 0 0 3px var(--ring); }
+    details.stats summary{ list-style:none; cursor:pointer; outline:none; }
+    details.stats summary::-webkit-details-marker{ display:none; }
+    details.stats .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid var(--border);
+      background:var(--panel);
+      padding:10px 14px;
+      border-radius:999px;
+      font-weight:700;
+      color:var(--text);
+    }
+    details.stats .chev{ display:inline-block; transition: transform .18s ease; }
+    details.stats[open] .chev{ transform: rotate(180deg); }
+    .stats-body{
+      margin-top:10px;
+      padding:10px 12px;
+      border-top:1px dashed var(--border);
+      color:var(--muted);
     }
   </style>
 
@@ -170,16 +203,21 @@
           <a class="btn secondary" href="#contact">Contact Me</a>
         </div>
       </div>
-      <div class="card">
-        <h3 style="margin:6px 0 8px">Stats</h3>
-        <ul style="margin:0;padding-left:18px;color:var(--muted)">
-          <li>High School GPA: 3.68</li>
-          <li>BSIE GPA: 3.43</li>
-          <li>SAT: 1540</li>
-          <li>GRE: TBD</li>
-          <li>LSAT: TBD</li>
-        </ul>
-      </div>
+      <!-- Stats expandable pill -->
+      <details class="stats">
+        <summary class="pill">
+          <span class="chev">▾</span> Stats
+        </summary>
+        <div class="stats-body">
+          <ul style="margin:0;padding-left:18px">
+            <li>High School GPA: 3.68</li>
+            <li>BSIE GPA: 3.43</li>
+            <li>SAT: 1540</li>
+            <li>GRE: TBD</li>
+            <li>LSAT: TBD</li>
+          </ul>
+        </div>
+      </details>
     </section>
 
     <!-- ABOUT -->
@@ -190,7 +228,7 @@
           <img src="assets/alex.jpg" alt="Alex Lee photo" class="avatar">
           <div>
             <p>
-              My name is Alex K. Lee, a Purdue Industrial Engineer that hopes to specialize in Operations Research or Machine Learning. I love to build solutions using statistics and algorithims for everyday tasks.I enjoy solving ambiguous operations problems with data and human-centered design. Recently, I built <strong>ORIES</strong>, a scheduling/onboarding tool for IE students that streamlines course planning and reduces advisor workload.
+              My name is Alex K. Lee, a Purdue Industrial Engineer who hopes to specialize in Operations Research or Machine Learning. I love to build solutions using statistics and algorithms for everyday tasks. I enjoy solving ambiguous operations problems with data and human-centered design. Recently, I built <strong>ORIES</strong>, a scheduling/onboarding tool for IE students that streamlines course planning and reduces advisor workload.
             </p>
           </div>
         </div>
@@ -205,8 +243,8 @@
           <span class="chip">Python</span>
           <span class="chip">R</span>
           <span class="chip">SQL</span>
-          <span class="chip">Operations Research: Optimization - Stochastic Modeling</span>
-          <span class="chip">Statistics: Linear Regreesion - Multi-Linear Regression - Box–Cox Transformations - Ridge Regression</span>
+          <span class="chip">Operations Research: Optimization · Stochastic Modeling</span>
+          <span class="chip">Statistics: Linear Regression · Multiple Linear Regression · Box–Cox Transformations · Ridge Regression</span>
           <span class="chip">CAD</span>
           <span class="chip">PLC</span>
         </div>
@@ -255,7 +293,7 @@
           <div class="dot"></div>
           <div class="content">
             <div class="title"><span>Undergraduate Research Assistant | DC Lab (Purdue)</span><span class="subtitle">West Lafayette, IN: May 2025 - June 2025</span></div>
-            <div class="subtitle">Collaboration · Scheduling Algorithim · Presentations</div>
+            <div class="subtitle">Collaboration · Scheduling Algorithm · Presentations</div>
           </div>
         </div>
         <div class="item">
