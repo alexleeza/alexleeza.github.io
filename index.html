@@ -131,26 +131,36 @@
     }
 
     /* === Stats expandable pill === */
-    details.stats{
+    /* Closed state: small pill only */
+    details.stats {
+      border: none;
+      background: transparent;
+      padding: 0;
+      display: inline-block;
+    }
+    details.stats summary{ list-style:none; cursor:pointer; outline:none; }
+    details.stats summary::-webkit-details-marker{ display:none; }
+    details.stats summary .pill{
+      border:1px solid var(--border);
+      background:var(--panel);
+      padding:8px 14px;
+      border-radius:999px;
+      font-weight:700;
+      color:var(--text);
+      cursor: pointer;
+    }
+    details.stats .chev{ display:inline-block; transition: transform .18s ease; }
+    details.stats[open] .chev{ transform: rotate(180deg); }
+
+    /* Expanded state */
+    details.stats[open]{
       border:1px solid var(--border);
       background:var(--panel);
       border-radius:16px;
       padding:6px;
+      display:block;
+      box-shadow:0 0 0 3px var(--ring);
     }
-    details.stats[open]{ box-shadow: 0 0 0 3px var(--ring); }
-    details.stats summary{ list-style:none; cursor:pointer; outline:none; }
-    details.stats summary::-webkit-details-marker{ display:none; }
-    details.stats .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      border:1px solid var(--border);
-      background:var(--panel);
-      padding:10px 14px;
-      border-radius:999px;
-      font-weight:700;
-      color:var(--text);
-    }
-    details.stats .chev{ display:inline-block; transition: transform .18s ease; }
-    details.stats[open] .chev{ transform: rotate(180deg); }
     .stats-body{
       margin-top:10px;
       padding:10px 12px;
@@ -205,9 +215,7 @@
       </div>
       <!-- Stats expandable pill -->
       <details class="stats">
-        <summary class="pill">
-          <span class="chev">▾</span> Stats
-        </summary>
+        <summary><span class="pill"><span class="chev">▾</span> Stats</span></summary>
         <div class="stats-body">
           <ul style="margin:0;padding-left:18px">
             <li>High School GPA: 3.68</li>
@@ -330,39 +338,4 @@
             </div>
             <textarea placeholder="Your message"></textarea>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-              <span class="note">Or email: <a href="mailto:alex@example.com">alex@example.com</a></span>
-              <button class="btn" type="submit">Send</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- WRITING -->
-    <section id="writing">
-      <h2>Writing</h2>
-      <div class="card">
-        <ul style="margin:0;padding-left:18px">
-          <li><a href="#">How I built ORIES for IE onboarding</a> — scope, tradeoffs, and roadmap</li>
-          <li><a href="#">Diagnostics in regression (WLS, Box–Cox, bootstrap)</a> — lessons learned</li>
-        </ul>
-      </div>
-    </section>
-
-    <footer class="container">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-        <div>© <span id="year"></span> Alex Lee. All rights reserved.</div>
-        <div class="social">
-          <a href="https://github.com/alexleeza" target="_blank" rel="noopener">GitHub</a>
-          <a href="https://www.linkedin.com/in/alexleeza/" target="_blank" rel="noopener">LinkedIn</a>
-          <a href="#" target="_blank" rel="noopener">Resume</a>
-        </div>
-      </div>
-    </footer>
-  </main>
-
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
-</body>
-</html>
+              <span class="note">Or email: <a href="mailto
