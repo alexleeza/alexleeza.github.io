@@ -93,12 +93,12 @@
 
     /* === LEVER === (drag to pull) */
     .lever-wrap{
-      --pull: 0;            /* 0..1 based on drag distance */
+      --pull: 0;
       display:flex; align-items:flex-start; justify-content:center;
       height: 160px; width: 100px;
       position:relative;
       user-select:none;
-      touch-action: none;    /* so vertical drags don’t scroll */
+      touch-action: none;
     }
     .lever-base{
       position:absolute; bottom:0; left:50%; transform:translateX(-50%);
@@ -108,7 +108,6 @@
       position:absolute; bottom: 70px; left: 50%;
       width: 12px; height: 78px; background:#c7d9c7; border:1px solid var(--border); border-radius: 8px;
       transform-origin: bottom center;
-      /* rotate with pull progress (max 35deg) */
       transform: translateX(-50%) rotate(calc(var(--pull) * 35deg));
       transition: transform 140ms cubic-bezier(.2,.9,.2,1);
     }
@@ -126,10 +125,8 @@
     .lever-wrap[aria-disabled="true"] .lever-hit{ cursor:not-allowed; }
     .lever-hit:active{ cursor:grabbing; }
 
-    /* spring back animation (after release) */
     .lever-wrap.spring .lever-arm{
       transition: transform 220ms cubic-bezier(.15,1.4,.35,1);
-      /* during spring we animate back to 0 via CSS transition */
     }
 
     /* Leaderboard */
@@ -163,15 +160,8 @@
     .footer{ color:var(--muted); font-size:12px; margin-top:6px; }
     code{ background:#eef7ee; padding:2px 6px; border-radius:6px; }
 
-    /* Chart card tweaks */
-    .chart-wrap{
-      display:grid;
-      gap:12px;
-    }
-    .chart-note{
-      color:var(--muted);
-      font-size:12px;
-    }
+    .chart-wrap{ display:grid; gap:12px; }
+    .chart-note{ color:var(--muted); font-size:12px; }
   </style>
 </head>
 <body>
@@ -181,21 +171,16 @@
       <p class="sub">Pull the lever to get a cool random number!</p>
 
       <div class="slot">
-        <!-- Reels -->
         <div>
-          <div class="reels" id="reels" aria-live="polite" aria-label="slot reels">
-            <!-- JS builds 10 reels -->
-          </div>
+          <div class="reels" id="reels" aria-live="polite" aria-label="slot reels"></div>
         </div>
 
-        <!-- Lever -->
         <div class="lever-wrap" id="lever" role="button" tabindex="0" aria-label="Pull lever to spin" aria-disabled="false">
           <div class="lever-base"></div>
           <div class="lever-arm"><div class="lever-knob"></div></div>
           <button class="lever-hit" aria-hidden="true"></button>
         </div>
 
-        <!-- Result + note (full width) -->
         <div class="result" id="resultLabel" aria-live="polite"></div>
         <div class="note">Trust me its random XD</div>
       </div>
@@ -207,19 +192,15 @@
         <input id="nameInput" type="text" placeholder="Your name (post after a spin)" aria-label="Your name" />
         <button id="postBtn" disabled>Post Result</button>
       </div>
-      <div class="board" id="board" role="table" aria-label="Leaderboard">
-        <!-- rows inserted by JS -->
-      </div>
-      <div class="footer">
-        GET ON THE LEADERBOARD
-      </div>
+      <div class="board" id="board" role="table" aria-label="Leaderboard"></div>
+      <div class="footer">GET ON THE LEADERBOARD</div>
     </section>
 
     <!-- Histogram -->
     <section class="card chart-wrap">
-      <h2>Distribution by 0.5B bins</h2>
+      <h2>Slot Distribution</h2>
       <canvas id="histogram" height="140"></canvas>
-      <div class="chart-note">Counts of all scores, bucketed into 20 equal ranges of 500,000,000. Updates live on new posts.</div>
+      <div class="chart-note">Increments by 0.5 billion</div>
     </section>
   </main>
 
@@ -250,6 +231,17 @@
     function formatDate(t){ try{ return new Date(t).toLocaleString(); }catch{ return ''; } }
     function msDelay(ms){ return new Promise(res => setTimeout(res, ms)); }
     function pad10(n){ let s = String(n); while (s.length < 10) s = '0' + s; return s; }
+
+    // NEW: CSS var helpers for chart theming
+    function cssVar(name){
+      return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    }
+    function hexToRGBA(hex, a=1){
+      const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      if (!m) return hex;
+      const r = parseInt(m[1], 16), g = parseInt(m[2], 16), b = parseInt(m[3], 16);
+      return `rgba(${r}, ${g}, ${b}, ${a})`;
+    }
 
     // RNG constants
     const MAX = 10_000_000_000;
@@ -381,8 +373,7 @@
       canPostForThisSpin = false;
       postBtn.disabled = true;
       await renderBoard();
-      // refresh histogram after a successful post
-      await loadHistogram();
+      await loadHistogram(); // refresh chart
     });
 
     // Persist name locally
@@ -392,21 +383,19 @@
 
     // === Lever interactions (pointer-driven pull) ===
     let pullStartY = null;
-    const PULL_MAX = 80;     // px to reach full angle
-    const TRIGGER = 55;      // px threshold to actually spin
+    const PULL_MAX = 80;
+    const TRIGGER = 55;
 
     function setLeverDisabled(disabled){
       leverEl.setAttribute('aria-disabled', disabled ? 'true' : 'false');
     }
 
     function setPullProgress(p){
-      // p in [0,1]
       leverEl.style.setProperty('--pull', String(Math.max(0, Math.min(1, p))));
     }
 
     function clearPull(withSpring=true){
       if (withSpring) leverEl.classList.add('spring');
-      // remove progress (springs to 0 via CSS transition)
       leverEl.style.removeProperty('--pull');
       if (withSpring) setTimeout(()=> leverEl.classList.remove('spring'), 260);
     }
@@ -441,17 +430,14 @@
       e.preventDefault();
     }
 
-    // Pointer listeners
     const hit = leverEl.querySelector('.lever-hit');
     hit.addEventListener('pointerdown', onPointerDown);
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp);
-    // Touch fallback
     hit.addEventListener('touchstart', (e)=> onPointerDown(e), {passive:false});
     window.addEventListener('touchmove', (e)=> onPointerMove(e), {passive:false});
     window.addEventListener('touchend', (e)=> onPointerUp(e), {passive:false});
 
-    // Keyboard (Space/Enter) – treat as full pull
     leverEl.addEventListener('keydown', (e)=>{
       if (e.key === ' ' || e.key === 'Enter'){
         e.preventDefault();
@@ -474,32 +460,60 @@
 
     function buildChart(){
       const ctx = document.getElementById('histogram');
+
+      // Theme colors
+      const primary = cssVar('--primary') || '#4caf50';
+      const primaryFill = hexToRGBA(primary, 0.25);
+      const primaryHover = hexToRGBA(primary, 0.4);
+      const textColor = cssVar('--text') || '#1e2a1e';
+      const gridColor = cssVar('--border') || '#dce7dc';
+
       histChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: [],            // filled by loadHistogram()
-          datasets: [{ label: 'Count', data: [], borderWidth: 1 }]
+          labels: [],
+          datasets: [{
+            label: 'Count',
+            data: [],
+            backgroundColor: primaryFill,
+            hoverBackgroundColor: primaryHover,
+            borderColor: primary,
+            hoverBorderColor: primary,
+            borderWidth: 1.5,
+            borderRadius: 6
+          }]
         },
         options: {
           maintainAspectRatio: true,
           scales: {
-            y: { beginAtZero: true, ticks: { precision: 0 } },
-            x: { ticks: { maxRotation: 0, autoSkip: true } }
+            x: {
+              ticks: { maxRotation: 0, autoSkip: true, color: textColor },
+              grid: { color: gridColor }
+            },
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0, color: textColor },
+              grid: { color: gridColor }
+            }
           },
           plugins: {
+            legend: {
+              display: false,
+              labels: { color: textColor }
+            },
             tooltip: {
+              titleColor: textColor,
+              bodyColor: textColor,
               callbacks: {
                 title: (items)=> items[0]?.label ?? '',
                 label: (item)=> ` ${item.raw} scores`
               }
-            },
-            legend: { display: false }
+            }
           }
         }
       });
     }
 
-    // Pulls pre-aggregated bins from the view
     async function loadHistogram(){
       const { data, error } = await supabase
         .from('slot_histogram_500m')
@@ -520,7 +534,6 @@
       histChart.update();
     }
 
-    // Realtime: simply refetch the view on new inserts
     function enableRealtime(){
       supabase.channel('slot_scores_inserts_viewrefresh')
         .on('postgres_changes', {
@@ -534,11 +547,8 @@
         .subscribe();
     }
 
-    // Initializers
     (async function init(){
       await renderBoard();
-
-      // Histogram init
       buildChart();
       await loadHistogram();
       enableRealtime();
