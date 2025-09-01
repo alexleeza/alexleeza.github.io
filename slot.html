@@ -187,12 +187,12 @@
 
         <!-- Result + note (full width) -->
         <div class="result" id="resultLabel" aria-live="polite"></div>
-        <div class="note">Randomness from <code>crypto.getRandomValues</code> (uniform with rejection sampling).</div>
+        <div class="note">Trust me its random XD</div>
       </div>
     </section>
 
     <section class="card leader">
-      <h2>🏆 Leaderboard (Top 10)</h2>
+      <h2>Leaderboard (Top 10)</h2>
       <div class="entry">
         <input id="nameInput" type="text" placeholder="Your name (post after a spin)" aria-label="Your name" />
         <button id="postBtn" disabled>Post Result</button>
@@ -201,7 +201,7 @@
         <!-- rows inserted by JS -->
       </div>
       <div class="footer">
-        Global board via Supabase. Namespace: <code>alex-lee-slot</code>.
+        GET ON THE LEADERBOARD
       </div>
     </section>
   </main>
@@ -272,7 +272,7 @@
         .eq('site', SITE_KEY)
         .order('score', { ascending: false })
         .order('created_at', { ascending: true })
-        .limit(10);
+        .limit(42);
 
       if (error) {
         console.error(error);
