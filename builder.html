@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Purdue IE · Schedule Builder</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #f9fff9;
+      --panel: #ffffff;
+      --text: #1e2a1e;
+      --muted: #5f6f5f;
+      --primary: #4caf50; /* matches your site’s soft green */
+      --ring: #a8d5b9;
+      --warn: #b83b3b;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    header{position:sticky;top:0;background:linear-gradient(180deg,var(--bg),rgba(255,255,255,0));z-index:20;padding:.75rem 1rem;border-bottom:1px solid color-mix(in oklab, var(--primary) 20%, #ffffff)}
+    .container{display:grid;grid-template-columns:320px 1fr;gap:16px;padding:16px}
+    .panel{background:var(--panel);border:1px solid color-mix(in oklab, var(--primary) 25%, #ffffff);border-radius:16px;padding:12px}
+    h1{font-size:1.25rem;margin:.25rem 0 .5rem 0;color:var(--primary)}
+    h2{font-size:1.05rem;margin:.5rem 0;color:color-mix(in oklab, var(--primary) 60%, #1e2a1e)}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .btn{border:1px solid var(--primary);background:var(--bg);border-radius:999px;padding:.45rem .75rem;font-weight:600;cursor:pointer;color:var(--primary)}
+    .btn.primary{background:var(--primary);border-color:var(--primary);color:white}
+    .btn.ghost{background:transparent;color:var(--muted);border:1px solid color-mix(in oklab, var(--primary) 25%, #ffffff)}
+    .btn.small{padding:.25rem .5rem;font-size:.85rem}
+    .btn:focus{outline:2px solid var(--ring);outline-offset:2px}
+    .pill{display:inline-flex;align-items:center;gap:6px;padding:.25rem .5rem;border-radius:999px;background:color-mix(in oklab, var(--primary) 15%, #ffffff);border:1px solid color-mix(in oklab, var(--primary) 25%, #ffffff);font-size:.85rem;color:var(--text)}
+
+    .card{background:#ffffff;border:1px solid color-mix(in oklab, var(--primary) 20%, #ffffff);border-radius:12px;padding:.5rem .6rem;display:flex;gap:8px;align-items:center;justify-content:space-between}
+    .card[data-locked="true"]{background:color-mix(in oklab, var(--primary) 8%, #ffffff)}
+    .card-header{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+    .code{font-weight:700;color:var(--primary)}
+    .name{color:var(--text)}
+    .credits{font-variant-numeric:tabular-nums;background:color-mix(in oklab, var(--primary) 15%, #ffffff);border:1px solid color-mix(in oklab, var(--primary) 30%, #ffffff);border-radius:8px;padding:2px 6px}
+    .tools{display:flex;gap:6px}
+    .tool{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;border:1px solid color-mix(in oklab, var(--primary) 25%, #ffffff);background:var(--bg);cursor:pointer;color:var(--text)}
+    .tool:hover{background:color-mix(in oklab, var(--primary) 15%, #ffffff)}
+    .tool[aria-disabled="true"]{opacity:.45;pointer-events:none}
+
+    .pool{display:grid;gap:8px}
+    .pool + .pool{margin-top:10px}
+    .grid{display:grid;grid-template-columns:repeat(4,minmax(240px,1fr));gap:12px}
+    .term{display:flex;flex-direction:column;gap:8px}
+    .term-head{display:flex;align-items:center;justify-content:space-between}
+    .drop{min-height:120px;padding:8px;background:color-mix(in oklab, var(--primary) 10%, #ffffff);border:1px dashed color-mix(in oklab, var(--primary) 40%, #ffffff);border-radius:12px;display:grid;gap:8px}
+    .drop.dragover{background:color-mix(in oklab, var(--primary) 20%, #ffffff)}
+    .sum{font-weight:600}
+
+    .status{display:grid;gap:8px}
+    .ok{color:var(--primary)}
+    .bad{color:var(--warn)}
+    .muted{color:var(--muted)}
+
+    @media (max-width: 1100px){.grid{grid-template-columns:repeat(2,minmax(240px,1fr))}.container{grid-template-columns:1fr}}
+
+    dialog#dlg{border:1px solid color-mix(in oklab, var(--primary) 25%, #ffffff);border-radius:12px;padding:0;max-width:520px}
+    dialog#dlg form{padding:12px 12px 0 12px}
+    dialog#dlg input[type="text"], dialog#dlg input[type="number"]{width:100%;padding:.6rem;border:1px solid color-mix(in oklab, var(--primary) 25%, #ffffff);border-radius:10px}
+    dialog#dlg .row{gap:8px}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="row" style="justify-content:space-between">
+      <div class="row">
+        <h1>🎓 Purdue IE · Schedule Builder</h1>
+        <span class="pill" title="Data saved in your browser">Autosaves</span>
+      </div>
+      <div class="row">
+        <button class="btn small" id="btn-export" title="Download your plan as JSON">Export</button>
+        <button class="btn small" id="btn-import" title="Load a plan from JSON">Import</button>
+        <button class="btn small ghost" id="btn-reset" title="Start fresh (keeps required courses)">Reset</button>
+        <button class="btn primary" id="btn-help">Quick Guide</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Left: Pools -->
+    <aside class="panel" aria-label="Course pools">
+      <h2>Required IE (fixed titles)</h2>
+      <div id="pool-required-ie" class="pool" aria-live="polite"></div>
+
+      <h2 style="margin-top:12px">Other Required (fixed titles)</h2>
+      <div id="pool-other-req" class="pool"></div>
+
+      <div class="panel" style="margin-top:12px;background:color-mix(in oklab, var(--primary) 8%, #ffffff)">
+        <div class="row" style="justify-content:space-between">
+          <h2 style="margin:0">IE Selectives (6 cr)</h2>
+          <label class="row" style="gap:6px;font-size:.9rem">
+            <input type="radio" name="ieSelMode" value="opt1" checked /> Option I
+          </label>
+          <label class="row" style="gap:6px;font-size:.9rem">
+            <input type="radio" name="ieSelMode" value="opt2" /> Option II
+          </label>
+        </div>
+        <div id="pool-ie-sel" class="pool" style="margin-top:8px"></div>
+        <div class="row" style="margin-top:6px">
+          <button class="btn small" id="add-ie-sel" title="Add a custom 3‑credit IE selective (Option II)">+ IE Selective (3)</button>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:12px;background:color-mix(in oklab, var(--primary) 8%, #ffffff)">
+        <div class="row" style="justify-content:space-between">
+          <h2 style="margin:0">Technical Selectives (9 cr)</h2>
+          <button class="btn small" id="add-tech">+ Add Tech Selective</button>
+        </div>
+        <div id="pool-tech" class="pool" style="margin-top:8px"></div>
+      </div>
+
+      <div class="panel" style="margin-top:12px;background:color-mix(in oklab, var(--primary) 8%, #ffffff)">
+        <div class="row" style="justify-content:space-between">
+          <h2 style="margin:0">General Education (18 cr)</h2>
+          <label class="row" style="gap:6px;font-size:.9rem" title="If 6 credits counted in FYE, reduce on‑site requirement by 6.">
+            <input type="checkbox" id="fye-credit" checked /> Count 6 cr from FYE
+          </label>
+        </div>
+        <div id="pool-gened" class="pool" style="margin-top:8px"></div>
+        <div class="row" style="margin-top:6px">
+          <button class="btn small" id="add-gened">+ Add Gen Ed</button>
+        </div>
+        <p class="muted" style="margin:.5rem 0 0 0;font-size:.85rem">Mark non‑intro inside the card for at least 6 credits.</p>
+      </div>
+    </aside>
+
+    <!-- Right: Terms grid -->
+    <section class="panel">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <h2 style="margin:0">Your 8‑Semester Plan</h2>
+        <div class="row">
+          <span class="pill"><strong id="total-credits">0</strong> total credits planned</span>
+          <span class="pill">Per‑term target ~ <input id="term-target" type="number" value="15" min="0" max="25" style="width:3.5rem;border:0;background:transparent;text-align:center"> cr</span>
+        </div>
+      </div>
+      <div id="terms" class="grid" style="margin-top:8px"></div>
+      <div class="panel" style="margin-top:12px">
+        <h2 style="margin:0 0 8px 0">Progress & Checks</h2>
+        <div id="status" class="status"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Simple dialog -->
+  <dialog id="dlg">
+    <form method="dialog">
+      <h2 id="dlg-title" style="margin:12px 12px 8px 12px">Edit</h2>
+      <div class="row" style="gap:8px;margin:0 12px 8px 12px">
+        <label style="flex:1">
+          <div class="muted" style="font-size:.85rem">Title</div>
+          <input id="dlg-title-input" type="text" />
+        </label>
+        <label>
+          <div class="muted" style="font-size:.85rem">Credits</div>
+          <input id="dlg-credits-input" type="number" min="0" max="18" step="0.5" style="width:6.2rem" />
+        </label>
+      </div>
+      <label class="row" style="gap:8px;margin:0 12px 8px 12px">
+        <input id="dlg-nonintro" type="checkbox" /> Count as Non‑Intro (Gen Ed)
+      </label>
+      <div class="row" style="justify-content:flex-end;border-top:1px solid color-mix(in oklab, var(--primary) 25%, #ffffff);padding:10px 12px 12px 12px">
+        <button class="btn small ghost" value="cancel">Cancel</button>
+        <button class="btn small primary" value="ok">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+  // ---------- Data ----------
+  const REQUIRED_IE = [
+    ["IE 20000","Industrial Engineering Seminar",0],
+    ["IE 23000","Probability And Statistics In Engineering I",3],
+    ["IE 33000","Probability And Statistics In Engineering II",3],
+    ["IE 33200","Computing In Industrial Engineering",3],
+    ["IE 33500","Operations Research – Optimization",3],
+    ["IE 33600","Operations Research – Stochastic Models",3],
+    ["IE 34300","Engineering Economics",3],
+    ["IE 37000","Manufacturing Processes I",3],
+    ["IE 38300","Integrated Production Systems I",3],
+    ["IE 38600","Work Analysis And Design I",3],
+    ["IE 43100","Industrial Engineering Design",3],
+    ["IE 47400","Industrial Control Systems",3],
+    ["IE 48600","Work Analysis And Design II",3],
+  ];
+
+  const OTHER_REQ = [
+    ["CS 15900","C Programming",3],
+    ["MA 26100","Multivariate Calculus",4],
+    ["MA 26500","Linear Algebra",3],
+    ["MA 26600","Ordinary Differential Equations",3],
+    ["ME 27000","Basic Mechanics I",3],
+    ["ME 20000","Thermodynamics I",3],
+    ["NUCL 27300","Mechanics Of Materials",3],
+    ["PHYS 24100","Electricity And Optics",3],
+    ["ECE 20001","Electrical Engineering Fundamentals I",3],
+  ];
+
+  const IE_SEL_FIXED = [
+    ["IE 47000","Manufacturing Processes II",3],
+    ["IE 48400","Integrated Production Systems II",3],
+  ];
+
+  // ---------- State ----------
+  const uid = () => Math.random().toString(36).slice(2,10);
+
+  // course instance: {id, code, name, credits, cat, locked, nonIntro}
+  const state = {
+    pools: { requiredIE: [], otherReq: [], ieSel: [], tech: [], gened: [] },
+    terms: Array.from({length:8}, () => []),
+    settings: { ieSelMode: 'opt1', fyeCredit: true, termTarget: 15 }
+  };
+
+  function seedInitial(){
+    state.pools.requiredIE = REQUIRED_IE.map(([code,name,cr])=>({id:uid(),code,name,credits:cr,cat:'requiredIE',locked:true,nonIntro:false}));
+    state.pools.otherReq   = OTHER_REQ.map(([code,name,cr])=>({id:uid(),code,name,credits:cr,cat:'otherReq',locked:true,nonIntro:false}));
+    // IE Selectives start with 47000 + 48400 in pool (user places per chosen option)
+    state.pools.ieSel = IE_SEL_FIXED.map(([code,name,cr])=>({id:uid(),code,name,credits:cr,cat:'ieSel',locked:false,nonIntro:false, fixedIE:true}));
+    state.pools.tech = [];
+    state.pools.gened = [];
+  }
+
+  // ---------- Persistence ----------
+  const KEY='ie-schedule-v1';
+  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
+  function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s){Object.assign(state,s);} else seedInitial(); }catch{ seedInitial(); } }
+
+  // ---------- Rendering ----------
+  const elRequired = document.getElementById('pool-required-ie');
+  const elOther = document.getElementById('pool-other-req');
+  const elIESel = document.getElementById('pool-ie-sel');
+  const elTech = document.getElementById('pool-tech');
+  const elGen = document.getElementById('pool-gened');
+  const elTerms = document.getElementById('terms');
+  const elStatus = document.getElementById('status');
+
+  function courseCard(c){
+    const div=document.createElement('div');
+    div.className='card';
+    div.draggable=true;
+    div.id=c.id;
+    div.dataset.locked = c.locked ? 'true' : 'false';
+    div.dataset.cat = c.cat;
+    div.addEventListener('dragstart', e=>{
+      e.dataTransfer.setData('text/plain', JSON.stringify({id:c.id}));
+      e.dataTransfer.effectAllowed='move';
+    });
+
+    const head=document.createElement('div'); head.className='card-header';
+    const code=document.createElement('span'); code.className='code'; code.textContent=c.code || labelForCat(c.cat);
+    const name=document.createElement('span'); name.className='name'; name.textContent=c.name;
+    const cr=document.createElement('span'); cr.className='credits'; cr.textContent=`${Number(c.credits)} cr`;
+    head.append(code,name,cr);
+
+    const tools=document.createElement('div'); tools.className='tools';
+
+    const btnEdit=document.createElement('button'); btnEdit.className='tool'; btnEdit.innerHTML='✏️';
+    btnEdit.title='Edit';
+    if(c.locked || c.cat==='requiredIE' || c.cat==='otherReq' || c.fixedIE){ btnEdit.setAttribute('aria-disabled','true'); }
+    btnEdit.onclick=()=> openEdit(c);
+
+    const btnX=document.createElement('button'); btnX.className='tool'; btnX.innerHTML='🗑️'; btnX.title='Remove to pool';
+    btnX.onclick=()=> removeCourse(c.id);
+
+    // Non-intro toggle (Gen Ed only)
+    if(c.cat==='gened'){
+      const tog=document.createElement('button'); tog.className='tool'; tog.title='Toggle Non‑Intro';
+      tog.textContent = c.nonIntro ? '★' : '☆';
+      tog.onclick=()=>{ c.nonIntro=!c.nonIntro; render(); };
+      tools.appendChild(tog);
+    }
+
+    tools.append(btnEdit,btnX);
+
+    div.append(head,tools);
+    return div;
+  }
+
+  function labelForCat(cat){
+    return ({ieSel:'IE Selective', tech:'Tech Selective', gened:'Gen Ed'})[cat] || '';
+  }
+
+  function renderPools(){
+    [elRequired,elOther,elIESel,elTech,elGen].forEach(el=>el.innerHTML='');
+    state.pools.requiredIE.forEach(c=>elRequired.appendChild(courseCard(c)));
+    state.pools.otherReq.forEach(c=>elOther.appendChild(courseCard(c)));
+    state.pools.ieSel.forEach(c=>elIESel.appendChild(courseCard(c)));
+    state.pools.tech.forEach(c=>elTech.appendChild(courseCard(c)));
+    state.pools.gened.forEach(c=>elGen.appendChild(courseCard(c)));
+  }
+
+  function renderTerms(){
+    elTerms.innerHTML='';
+    const target = document.getElementById('term-target');
+    target.value = state.settings.termTarget;
+
+    state.terms.forEach((arr,idx)=>{
+      const term=document.createElement('div'); term.className='term';
+      const head=document.createElement('div'); head.className='term-head';
+      const title=document.createElement('div'); title.innerHTML=`<strong>Term ${idx+1}</strong>`;
+      const sum=document.createElement('div'); sum.className='sum'; sum.textContent = `${sumCredits(arr)} cr`;
+      if(sumCredits(arr) > state.settings.termTarget + 3) sum.style.color='var(--warn)';
+      head.append(title,sum);
+
+      const drop=document.createElement('div'); drop.className='drop'; drop.dataset.term=idx;
+      drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.classList.add('dragover'); });
+      drop.addEventListener('dragleave', ()=> drop.classList.remove('dragover'));
+      drop.addEventListener('drop', e=>{
+        e.preventDefault(); drop.classList.remove('dragover');
+        const {id} = JSON.parse(e.dataTransfer.getData('text/plain'));
+        placeIntoTerm(id, idx);
+      });
+
+      arr.forEach(c=> drop.appendChild(courseCard(c)));
+
+      term.append(head,drop);
+      elTerms.appendChild(term);
+    });
+  }
+
+  function sumCredits(arr){ return arr.reduce((s,c)=> s + Number(c.credits||0), 0); }
+
+  function totalCredits(){
+    const poolTotals = Object.values(state.pools).flat().reduce((s,c)=> s + Number(c.credits||0),0);
+    const termTotals = state.terms.flat().reduce((s,c)=> s + Number(c.credits||0),0);
+    return poolTotals + termTotals;
+  }
+
+  function renderStatus(){
+    const div=elStatus; div.innerHTML='';
+
+    const total = state.terms.flat().reduce((s,c)=> s + Number(c.credits||0),0);
+    document.getElementById('total-credits').textContent = total;
+
+    // Tally by category
+    const tally = { requiredIE:0, otherReq:0, ieSel:0, tech:0, gened:0 };
+    for(const c of state.terms.flat()) tally[c.cat] += Number(c.credits||0);
+
+    // Requirements
+    const needIEReq = 36; // from prompt
+    const ieReqHave = state.terms.flat().filter(c=>c.cat==='requiredIE').reduce((s,c)=> s + Number(c.credits||0),0);
+
+    const ieSelMode = state.settings.ieSelMode; // opt1 or opt2
+    const ieSelNeed = 6;
+    const ieSelHave = state.terms.flat().filter(c=>c.cat==='ieSel').reduce((s,c)=> s + Number(c.credits||0),0);
+
+    const techNeed = 9; const techHave = tally.tech;
+
+    const genBaseNeed = 18 - (state.settings.fyeCredit ? 6 : 0);
+    const genHave = tally.gened;
+    const genNonIntro = state.terms.flat().filter(c=>c.cat==='gened' && c.nonIntro).reduce((s,c)=> s + Number(c.credits||0),0);
+
+    // Check IE Selective pattern
+    const has47000 = state.terms.flat().some(c=>c.code==='IE 47000');
+    const has48400 = state.terms.flat().some(c=>c.code==='IE 48400');
+    const hasCustomIESel = state.terms.flat().some(c=>c.cat==='ieSel' && !c.fixedIE);
+
+    const list=[
+      line(ieReqHave>=needIEReq, `Required IE: ${ieReqHave}/${needIEReq} cr`),
+      line( (ieSelHave>=ieSelNeed) && (
+        ieSelMode==='opt1' ? (has47000 && has48400) : ((has47000||has48400) && hasCustomIESel)
+      ), `IE Selectives (${ieSelMode==='opt1'?'Option I':'Option II'}): ${ieSelHave}/${ieSelNeed} cr` + (ieSelMode==='opt1'? ` (must include IE 47000 & IE 48400)` : ` (1 of IE 47000/48400 + 1 custom IE Selective)`)),
+      line(techHave>=techNeed, `Technical Selectives: ${techHave}/${techNeed} cr`),
+      line(genHave>=genBaseNeed && genNonIntro>=6, `General Education: ${genHave}/${genBaseNeed} cr (≥6 cr non‑intro: ${genNonIntro})`),
+    ];
+
+    list.forEach(el=>div.appendChild(el));
+
+    const tips=document.createElement('div'); tips.className='muted'; tips.textContent = 'Drag courses into terms. Click ✏️ to rename credits on electives. ☆ toggles Non‑Intro for Gen Ed.';
+    div.appendChild(tips);
+  }
+
+  function line(ok, text){
+    const p=document.createElement('div'); p.className= ok? 'ok' : 'bad'; p.textContent = (ok? '✓ ' : '• ') + text; return p;
+  }
+
+  function render(){ renderPools(); renderTerms(); renderStatus(); save(); }
+
+  // ---------- Actions ----------
+  function findCourseAnywhere(id){
+    for(const [k,arr] of Object.entries(state.pools)){
+      const i=arr.findIndex(x=>x.id===id); if(i>-1) return {where:'pool', key:k, idx:i};
+    }
+    for(let t=0;t<state.terms.length;t++){
+      const i=state.terms[t].findIndex(x=>x.id===id); if(i>-1) return {where:'term', term:t, idx:i};
+    }
+    return null;
+  }
+
+  function placeIntoTerm(id, termIdx){
+    const loc=findCourseAnywhere(id); if(!loc) return;
+    let c;
+    if(loc.where==='pool'){ c = state.pools[loc.key].splice(loc.idx,1)[0]; }
+    else { c = state.terms[loc.term].splice(loc.idx,1)[0]; }
+    state.terms[termIdx].push(c);
+    render();
+  }
+
+  function removeCourse(id){
+    const loc=findCourseAnywhere(id); if(!loc) return;
+    let c;
+    if(loc.where==='term'){
+      c = state.terms[loc.term].splice(loc.idx,1)[0];
+      // return to appropriate pool
+      state.pools[c.cat].push(c);
+    } else {
+      // from pool -> delete for elective types only
+      const arr = state.pools[loc.key];
+      c = arr[loc.idx];
+      if(c.locked || c.cat==='requiredIE' || c.cat==='otherReq'){
+        // locked/fixed course stays in pool; do nothing
+        return;
+      }
+      arr.splice(loc.idx,1);
+    }
+    render();
+  }
+
+  function addElective(cat, title, credits, extras={}){
+    const c={id:uid(), code:'', name:title, credits:Number(credits), cat, locked:false, nonIntro:false, ...extras};
+    state.pools[cat].push(c); render();
+  }
+
+  function openEdit(c){
+    const dlg=document.getElementById('dlg');
+    document.getElementById('dlg-title').textContent = 'Edit ' + (labelForCat(c.cat) || c.code);
+    const titleInput=document.getElementById('dlg-title-input');
+    const crInput=document.getElementById('dlg-credits-input');
+    const nonIntro=document.getElementById('dlg-nonintro');
+
+    titleInput.value=c.name || '';
+    crInput.value=Number(c.credits||0);
+    nonIntro.checked=!!c.nonIntro;
+
+    dlg.returnValue='';
+    dlg.showModal();
+
+    dlg.addEventListener('close', function onClose(){
+      dlg.removeEventListener('close', onClose);
+      if(dlg.returnValue==='ok'){
+        c.name = titleInput.value.trim() || c.name;
+        c.credits = Number(crInput.value || c.credits);
+        if(c.cat==='gened') c.nonIntro = nonIntro.checked;
+        render();
+      }
+    });
+  }
+
+  // ---------- Events ----------
+  document.getElementById('add-tech').onclick=()=> addElective('tech','Technical Selective',3);
+  document.getElementById('add-gened').onclick=()=> addElective('gened','General Education',3);
+  document.getElementById('add-ie-sel').onclick=()=>{
+    if(state.settings.ieSelMode==='opt2') addElective('ieSel','IE Selective',3,{fixedIE:false});
+    else alert('Custom IE Selective is for Option II. Switch the option above to enable.');
+  };
+
+  document.getElementsByName('ieSelMode').forEach(r=>{
+    r.addEventListener('change', e=>{ state.settings.ieSelMode = e.target.value; render(); });
+  });
+  document.getElementById('fye-credit').onchange = (e)=>{ state.settings.fyeCredit = e.target.checked; render(); };
+  document.getElementById('term-target').onchange = (e)=>{ state.settings.termTarget = Number(e.target.value||15); render(); };
+
+  document.getElementById('btn-reset').onclick=()=>{
+    if(confirm('Reset plan? Electives will be cleared; required courses stay in pools.')){
+      const keepSettings = {...state.settings};
+      state.pools = { requiredIE:[], otherReq:[], ieSel:[], tech:[], gened:[] };
+      state.terms = Array.from({length:8}, () => []);
+      seedInitial();
+      state.settings = keepSettings;
+      render();
+    }
+  };
+
+  // Export / Import
+  document.getElementById('btn-export').onclick=()=>{
+    const data = JSON.stringify(state, null, 2);
+    const blob = new Blob([data], {type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='purdue-ie-plan.json'; a.click();
+  };
+  document.getElementById('btn-import').onclick=()=>{
+    const inp=document.createElement('input'); inp.type='file'; inp.accept='application/json';
+    inp.onchange=()=>{
+      const file=inp.files[0]; if(!file) return;
+      file.text().then(txt=>{ try{ const s=JSON.parse(txt); Object.assign(state,s); render(); }catch{ alert('Invalid JSON'); } });
+    };
+    inp.click();
+  };
+
+  document.getElementById('btn-help').onclick=()=>{
+    alert(
+`How this works
+
+• Drag any course card into a term.
+• Required IE & Other Required titles/credits are fixed (cannot be edited).
+• IE Selectives: choose Option I (IE 47000 + IE 48400) OR Option II (one of those + one custom IE Selective).
+• Add Technical Selectives and Gen Eds with the + buttons, then click ✏️ to rename / change credits.
+• For Gen Ed, mark ☆ to count as Non‑Intro (need ≥ 6 credits).
+• Progress checks update live below the grid.
+• Autosaves in your browser. Use Export/Import to move between devices.`);
+  };
+
+  // ---------- Init ----------
+  load();
+  if(!localStorage.getItem(KEY)) seedInitial();
+  render();
+  </script>
+</body>
+</html>

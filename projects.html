@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Alex Lee · Projects</title>
+  <meta name="description" content="Projects by Alex Lee — Industrial Engineering student at Purdue University." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg: #f9fff9;        /* light green background (same as index) */
+      --panel: #ffffff;     /* white panels */
+      --text: #1e2a1e;      /* dark green-gray text */
+      --muted: #5f6f5f;     /* softer muted text */
+      --primary: #4caf50;   /* soft green accent */
+      --ring: rgba(76,175,80,0.15);
+      --border: #dce5dc;    /* light greenish border */
+      --code: #f4f9f4;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;}
+    body{
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    a{color:var(--primary);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{max-width:1600px;margin:0 auto;padding:24px}
+    @media (min-width: 1200px){
+      .container{ max-width: min(96vw, 1600px); }
+    }
+
+    /* Header (copied from index) */
+    header{
+      position:sticky;top:0;z-index:50;background:var(--bg);
+      border-bottom:1px solid var(--border);
+    }
+    .nav{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:18px}
+    .brand .dot{width:10px;height:10px;border-radius:999px;background:var(--primary)}
+    .nav a{font-weight:600;color:var(--text);opacity:.85}
+    .nav a:hover{opacity:1}
+    .menu{display:flex;gap:18px;align-items:center}
+
+    /* Page header */
+    .page-hero{padding:32px 0 10px}
+    .page-hero h1{margin:0 0 6px;font-size:36px;line-height:1.15;color:var(--primary)}
+    .page-hero p{margin:0;color:var(--muted)}
+    .crumbs{font-size:14px;color:var(--muted);margin-bottom:6px}
+    .crumbs a{color:var(--muted)}
+    .crumbs a:hover{color:var(--text)}
+
+    /* Cards/grid (aligned with index) */
+    section{padding:16px 0}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+    .projects{grid-column:span 12}
+    .project-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .project-card{
+      background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;
+      display:flex;flex-direction:column;gap:8px;transition:transform .15s ease
+    }
+    .project-card:hover{ transform: translateY(-2px); }
+    .badge{font-size:12px;color:var(--muted)}
+    .project-card h3{margin:4px 0}
+    .note{color:var(--muted);font-size:14px}
+    .btn{
+      display:inline-block;background: var(--primary);color:white;border:none;border-radius:12px;
+      padding:10px 14px;font-weight:700;cursor:pointer;text-decoration:none
+    }
+    .btn.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+
+    /* Footer */
+    footer{border-top:1px solid var(--border);margin-top:18px;color:var(--muted);padding:18px 0}
+    .social{display:flex;gap:12px}
+
+    /* Responsive */
+    @media (max-width: 900px){
+      .project-grid{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <!-- Header/NAV mirrors index.html -->
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <div class="dot"></div>
+        Alex Lee
+      </div>
+      <nav class="menu">
+        <!-- Link back to anchors on the homepage -->
+        <a href="index.html#about">About</a>
+        <a href="index.html#skills">Skills</a>
+        <a href="projects.html" style="opacity:1;text-decoration:underline;">Projects</a>
+        <a href="index.html#experience">Experience</a>
+        <a href="index.html#resume">Resume</a>
+        <a href="index.html#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Page intro -->
+    <div class="page-hero">
+      <div class="crumbs"><a href="index.html">Home</a> · Projects</div>
+      <h1>Projects</h1>
+      <p>Selected work spanning tools, analytics, and optimization. Same clean green theme as the rest of the site.</p>
+    </div>
+
+    <!-- Projects grid -->
+    <section>
+      <div class="projects">
+        <div class="project-grid">
+          <!-- Project: Purdue IE Schedule Builder -->
+          <article class="project-card">
+            <div class="badge">2025 · Web · Tooling</div>
+            <h3>Purdue IE Schedule Builder</h3>
+            <p class="note">A drag-and-drop planner tailored for Purdue IE students with required courses locked, selective logic, and live requirement checks.</p>
+            <div class="toolbar">
+              <a href="builder.html" class="btn">Open Project</a>
+              <a href="https://github.com/alexleeza/alexleeza.github.io" target="_blank" rel="noopener" class="btn secondary">Source</a>
+            </div>
+          </article>
+
+          <!-- Example placeholders you can duplicate -->
+          <article class="project-card">
+            <div class="badge">2025 · R · Analytics</div>
+            <h3>Community & Crime Rates</h3>
+            <p class="note">Large-scale regression with diagnostics (Box–Cox, WLS, CV) analyzing socioeconomic and policing variables.</p>
+            <div class="toolbar">
+              <a href="#" class="btn">View</a>
+              <a href="#" class="btn secondary">Source</a>
+            </div>
+          </article>
+
+          <article class="project-card">
+            <div class="badge">2024 · Python · OR</div>
+            <h3>Finance Optimization</h3>
+            <p class="note">A simple desktop tool to optimize contributions & allocations; includes a minimal GUI and report export.</p>
+            <div class="toolbar">
+              <a href="#" class="btn">View</a>
+              <a href="#" class="btn secondary">Source</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <footer class="container">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+        <div>© <span id="year"></span> Alex Lee. All rights reserved.</div>
+        <div class="social">
+          <a href="https://github.com/alexleeza" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.linkedin.com/in/alexleeza/" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="index.html#resume" rel="noopener">Resume</a>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
