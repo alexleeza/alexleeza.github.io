@@ -23,7 +23,6 @@
     *{box-sizing:border-box}
     html,body{height:100%}
 
-    /* UPDATED: remove flex-centering so the page scrolls naturally */
     body{
       margin:0;
       font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
@@ -31,10 +30,9 @@
       color: var(--text);
     }
 
-    /* UPDATED: center via margins, not flex */
     .wrap{
       width:min(1100px, 96vw);
-      margin: 32px auto;   /* adds top/bottom space and centers horizontally */
+      margin: 32px auto;
       display:grid;
       gap:20px;
     }
@@ -48,11 +46,20 @@
     h1{ margin:0 0 8px; font-size: clamp(22px, 3vw, 30px); letter-spacing:-0.02em; }
     .sub{ color:var(--muted); margin:0 0 10px; font-size:14px; }
 
-    .slot{ display:flex; flex-direction:column; align-items:center; gap:16px; }
+    /* Slot layout: reels + lever side-by-side */
+    .slot{
+      display:grid;
+      grid-template-columns: 1fr auto;
+      gap:18px;
+      align-items:center;
+      justify-content:center;
+    }
+
     .reels{
       display:flex; gap: var(--digit-gap); padding: 14px;
       background: #f4fbf4; border:1px solid var(--border);
       border-radius: 20px; box-shadow: 0 0 0 4px var(--ring) inset;
+      justify-content:center;
     }
     .reel{
       width: calc(var(--digit-size) * 0.75);
@@ -74,32 +81,67 @@
     @keyframes scroll { from { transform: translateY(0); } to { transform: translateY(-110%); } }
     .spin .strip{ animation: scroll var(--duration-base) linear infinite; }
 
-    .controls{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:center; }
-    button{
-      appearance:none; border:none; background: var(--primary); color:#fff;
-      font-weight:700; padding:12px 16px; border-radius: 12px; cursor:pointer;
-      transition:.15s transform ease, .15s opacity ease, .15s box-shadow ease;
-      box-shadow: 0 0 0 0 rgba(76,175,80,0);
+    .result{
+      grid-column: 1 / -1;
+      text-align:center;
+      font-size: clamp(18px, 2.6vw, 24px);
+      font-weight:700;
+      letter-spacing:0.02em;
+      margin: 6px 0 0;
     }
-    button:disabled{ opacity:.6; cursor:not-allowed; }
-    button:hover:not(:disabled){ transform: translateY(-1px); }
-    button:active:not(:disabled){ transform: translateY(0); }
+    .note{ color:var(--muted); font-size:12px; text-align:center; grid-column:1/-1; }
 
-    .result{ font-size: clamp(18px, 2.6vw, 24px); font-weight:700; letter-spacing:0.02em; margin: 2px 0 0; }
-    .note{ color:var(--muted); font-size:12px; }
+    /* === LEVER === (drag to pull) */
+    .lever-wrap{
+      --pull: 0;            /* 0..1 based on drag distance */
+      display:flex; align-items:flex-start; justify-content:center;
+      height: 160px; width: 100px;
+      position:relative;
+      user-select:none;
+      touch-action: none;    /* so vertical drags don’t scroll */
+    }
+    .lever-base{
+      position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+      width: 18px; height: 80px; background:#dfe8df; border:1px solid var(--border); border-radius: 10px;
+    }
+    .lever-arm{
+      position:absolute; bottom: 70px; left: 50%;
+      width: 12px; height: 78px; background:#c7d9c7; border:1px solid var(--border); border-radius: 8px;
+      transform-origin: bottom center;
+      /* rotate with pull progress (max 35deg) */
+      transform: translateX(-50%) rotate(calc(var(--pull) * 35deg));
+      transition: transform 140ms cubic-bezier(.2,.9,.2,1);
+    }
+    .lever-knob{
+      position:absolute; top:-14px; left:50%; transform:translateX(-50%);
+      width: 34px; height: 34px; border-radius:50%;
+      background: var(--primary);
+      box-shadow: 0 3px 0 0 rgba(0,0,0,.05), inset 0 0 0 4px rgba(255,255,255,0.45);
+      border:1px solid #2f7f35;
+    }
+    .lever-hit{
+      position:absolute; inset:0; cursor:grab; outline:none; border:none; background:transparent;
+      border-radius: 14px;
+    }
+    .lever-wrap[aria-disabled="true"] .lever-hit{ cursor:not-allowed; }
+    .lever-hit:active{ cursor:grabbing; }
 
+    /* spring back animation (after release) */
+    .lever-wrap.spring .lever-arm{
+      transition: transform 220ms cubic-bezier(.15,1.4,.35,1);
+      /* during spring we animate back to 0 via inline style removal */
+    }
+
+    /* Leaderboard */
     .leader{ display:grid; grid-template-columns: 1fr; gap:14px; }
     .leader h2{ margin:0; font-size: clamp(18px, 2.4vw, 22px); }
-
-    /* UPDATED: make board scroll within itself when long */
     .board{
       border:1px solid var(--border);
       border-radius: 14px;
-      overflow:auto;       /* internal scrollbar */
+      overflow:auto;
       background:#fff;
-      max-height: 360px;   /* adjust to taste */
+      max-height: 360px;
     }
-
     .row{
       display:grid; grid-template-columns: 44px 1fr max-content; gap:10px;
       align-items:center; padding:10px 12px; border-bottom:1px solid var(--border); font-size:15px;
@@ -126,17 +168,26 @@
   <main class="wrap">
     <section class="card">
       <h1>ZA Slots</h1>
-      <p class="sub">Click Spin to get a cool random number!</p>
+      <p class="sub">Pull the lever to get a cool random number!</p>
 
       <div class="slot">
-        <div class="reels" id="reels" aria-live="polite" aria-label="slot reels">
-          <!-- JS builds 10 reels -->
+        <!-- Reels -->
+        <div>
+          <div class="reels" id="reels" aria-live="polite" aria-label="slot reels">
+            <!-- JS builds 10 reels -->
+          </div>
         </div>
-        <div class="controls">
-          <button id="spinBtn">Spin</button>
-          <div class="result" id="resultLabel" aria-live="polite"></div>
+
+        <!-- Lever -->
+        <div class="lever-wrap" id="lever" role="button" tabindex="0" aria-label="Pull lever to spin" aria-disabled="false">
+          <div class="lever-base"></div>
+          <div class="lever-arm"><div class="lever-knob"></div></div>
+          <button class="lever-hit" aria-hidden="true"></button>
         </div>
-        <div class="note">TRUST its completely random ;D</div>
+
+        <!-- Result + note (full width) -->
+        <div class="result" id="resultLabel" aria-live="polite"></div>
+        <div class="note">Randomness from <code>crypto.getRandomValues</code> (uniform with rejection sampling).</div>
       </div>
     </section>
 
@@ -150,7 +201,7 @@
         <!-- rows inserted by JS -->
       </div>
       <div class="footer">
-        Look you have accomplished a high random number!
+        Global board via Supabase. Namespace: <code>alex-lee-slot</code>.
       </div>
     </section>
   </main>
@@ -160,52 +211,41 @@
 
   <script>
     // ========= CONFIGURE THESE TWO LINES =========
-    const SUPABASE_URL = 'https://poinupuimgvisffngasj.supabase.co';      // ← replace if needed
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvaW51cHVpbWd2aXNmZm5nYXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2OTY3OTAsImV4cCI6MjA3MjI3Mjc5MH0.v1JLJmaDI5DWnv93LCDrCkJv2ItszxTV4lqIbr_eL20';                 // ← replace if needed
+    const SUPABASE_URL = 'https://poinupuimgvisffngasj.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvaW51cHVpbWd2aXNmZm5nYXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2OTY3OTAsImV4cCI6MjA3MjI3Mjc5MH0.v1JLJmaDI5DWnv93LCDrCkJv2ItszxTV4lqIbr_eL20';
     // ============================================
 
-    // Namespace key must match your DB RLS policy's site value
     const SITE_KEY = 'alex-lee-slot';
 
-    // ---- DOM
+    // DOM
     const reelsEl = document.getElementById('reels');
-    const spinBtn = document.getElementById('spinBtn');
     const postBtn = document.getElementById('postBtn');
     const nameInput = document.getElementById('nameInput');
     const resultLabel = document.getElementById('resultLabel');
     const boardEl = document.getElementById('board');
+    const leverEl = document.getElementById('lever');
 
-    // ---- Supabase
+    // Supabase
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ---- Utils
-    function escapeHtml(s){
-      return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    }
-    function formatDate(t){
-      try{ return new Date(t).toLocaleString(); }catch{ return ''; }
-    }
+    // Utils
+    function escapeHtml(s){ return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    function formatDate(t){ try{ return new Date(t).toLocaleString(); }catch{ return ''; } }
     function msDelay(ms){ return new Promise(res => setTimeout(res, ms)); }
     function pad10(n){ let s = String(n); while (s.length < 10) s = '0' + s; return s; }
 
-    // ---- Crypto RNG [0, 10_000_000_000] inclusive with rejection sampling
+    // Crypto RNG [0, 10_000_000_000] inclusive
     const MAX = 10_000_000_000;
-    function get64() {
-      const a = new Uint32Array(2);
-      crypto.getRandomValues(a);
-      return (BigInt(a[0]) << 32n) | BigInt(a[1]);
-    }
-    function secureInt(maxInclusive) {
+    function get64(){ const a = new Uint32Array(2); crypto.getRandomValues(a); return (BigInt(a[0]) << 32n) | BigInt(a[1]); }
+    function secureInt(maxInclusive){
       const n = BigInt(maxInclusive) + 1n;
       const TWO64 = 1n << 64n;
       const limit = (TWO64 / n) * n - 1n;
-      let r;
-      do { r = get64(); } while (r > limit);
-      const v = r % n;
-      return Number(v); // safe for n = 1e10+1 (< 2^53)
+      let r; do { r = get64(); } while (r > limit);
+      return Number(r % n); // safe for 1e10+1
     }
 
-    // ---- Build reels (10 digits)
+    // Build reels (10 digits)
     const REELS = [];
     for (let i = 0; i < 10; i++){
       const reel = document.createElement('div');
@@ -218,15 +258,13 @@
         d.textContent = String(k % 10);
         strip.appendChild(d);
       }
-      const gloss = document.createElement('div');
-      gloss.className = 'gloss';
-      reel.appendChild(strip);
-      reel.appendChild(gloss);
+      const gloss = document.createElement('div'); gloss.className = 'gloss';
+      reel.appendChild(strip); reel.appendChild(gloss);
       reelsEl.appendChild(reel);
       REELS.push({reel, strip});
     }
 
-    // ---- Leaderboard (Supabase)
+    // Leaderboard (Supabase)
     async function renderBoard(){
       const { data, error } = await supabase
         .from('slot_scores')
@@ -248,7 +286,7 @@
       }
 
       boardEl.innerHTML = '';
-      data.forEach((r, idx) => {
+      (data || []).forEach((r, idx) => {
         const row = document.createElement('div');
         row.className = 'row';
         row.innerHTML = `
@@ -260,13 +298,17 @@
       });
     }
 
-    // ---- Spin flow
+    // Spin flow
     let canPostForThisSpin = false;
     let lastScore = null;
+    let spinning = false;
 
     async function spin(){
-      spinBtn.disabled = true;
+      if (spinning) return;
+      spinning = true;
+      setLeverDisabled(true);
       postBtn.disabled = true;
+      canPostForThisSpin = false;
       resultLabel.textContent = '';
 
       // Reset transforms & start spinning
@@ -277,7 +319,6 @@
         reel.classList.add('spin');
       });
 
-      // Generate value while spinning
       const value = secureInt(MAX);
       lastScore = value;
       const s = pad10(value);
@@ -293,7 +334,7 @@
         const digitH = digitEl.getBoundingClientRect().height;
 
         const digit = Number(s[i]);
-        const targetIndex = 10 + digit; // second cycle
+        const targetIndex = 10 + digit;
         const translateY = -targetIndex * digitH;
 
         strip.style.transition = 'transform 420ms cubic-bezier(.2,.9,.2,1.0)';
@@ -304,14 +345,9 @@
       resultLabel.textContent = `Your number: ${value.toLocaleString('en-US')}`;
       canPostForThisSpin = true;
       postBtn.disabled = false;
-      spinBtn.disabled = false;
+      setLeverDisabled(false);
+      spinning = false;
     }
-
-    spinBtn.addEventListener('click', () => {
-      canPostForThisSpin = false;
-      postBtn.disabled = true;
-      spin().catch(console.error);
-    });
 
     // Post to Supabase
     postBtn.addEventListener('click', async () => {
@@ -319,26 +355,100 @@
       const name = (nameInput.value || '').trim().slice(0, 40) || 'Anonymous';
 
       const { error } = await supabase.from('slot_scores').insert({
-        site: SITE_KEY,
-        name,
-        score: lastScore
+        site: SITE_KEY, name, score: lastScore
       });
 
-      if (error) {
-        alert('Failed to post score: ' + error.message);
-        return;
-      }
+      if (error) { alert('Failed to post score: ' + error.message); return; }
 
       canPostForThisSpin = false;
       postBtn.disabled = true;
       await renderBoard();
     });
 
-    // First render + persist name locally for convenience
-    renderBoard();
+    // Persist name locally
     nameInput.value = localStorage.getItem('slotName') || '';
     nameInput.addEventListener('input', ()=> localStorage.setItem('slotName', nameInput.value));
     nameInput.addEventListener('keydown', (e)=> { if (e.key === 'Enter' && !postBtn.disabled) postBtn.click(); });
+
+    // === Lever interactions (pointer-driven pull) ===
+    let pullStartY = null;
+    const PULL_MAX = 80;     // px to reach full angle
+    const TRIGGER = 55;      // px threshold to actually spin
+
+    function setLeverDisabled(disabled){
+      leverEl.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+    }
+
+    function setPullProgress(p){
+      // p in [0,1]
+      leverEl.style.setProperty('--pull', String(Math.max(0, Math.min(1, p))));
+    }
+
+    function clearPull(withSpring=true){
+      if (withSpring) leverEl.classList.add('spring');
+      // remove progress (springs to 0 via CSS transition)
+      leverEl.style.removeProperty('--pull');
+      if (withSpring) setTimeout(()=> leverEl.classList.remove('spring'), 260);
+    }
+
+    function onPointerDown(e){
+      if (leverEl.getAttribute('aria-disabled') === 'true') return;
+      leverEl.querySelector('.lever-hit').focus({preventScroll:true});
+      pullStartY = e.clientY ?? (e.touches && e.touches[0]?.clientY) ?? null;
+      if (e.pointerId != null && leverEl.setPointerCapture) leverEl.setPointerCapture(e.pointerId);
+      setPullProgress(0);
+      e.preventDefault();
+    }
+
+    function onPointerMove(e){
+      if (pullStartY == null) return;
+      const y = e.clientY ?? (e.touches && e.touches[0]?.clientY) ?? pullStartY;
+      const dy = Math.max(0, y - pullStartY);
+      const p = Math.min(1, dy / PULL_MAX);
+      setPullProgress(p);
+      e.preventDefault();
+    }
+
+    function onPointerUp(e){
+      if (pullStartY == null) return;
+      const style = getComputedStyle(leverEl);
+      const p = parseFloat(style.getPropertyValue('--pull')) || 0;
+      clearPull(true);
+      pullStartY = null;
+      if (p * PULL_MAX >= TRIGGER) {
+        spin().catch(console.error);
+      }
+      e.preventDefault();
+    }
+
+    // Pointer (covers mouse + touch on modern browsers)
+    const hit = leverEl.querySelector('.lever-hit');
+    hit.addEventListener('pointerdown', onPointerDown);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    // Fallback for older touch events
+    hit.addEventListener('touchstart', (e)=> onPointerDown(e), {passive:false});
+    window.addEventListener('touchmove', (e)=> onPointerMove(e), {passive:false});
+    window.addEventListener('touchend', (e)=> onPointerUp(e), {passive:false});
+
+    // Keyboard (Space/Enter) – treat as full pull
+    leverEl.addEventListener('keydown', (e)=>{
+      if (e.key === ' ' || e.key === 'Enter'){
+        e.preventDefault();
+        if (leverEl.getAttribute('aria-disabled') === 'true') return;
+        setPullProgress(1);
+      }
+    });
+    leverEl.addEventListener('keyup', (e)=>{
+      if (e.key === ' ' || e.key === 'Enter'){
+        e.preventDefault();
+        clearPull(true);
+        spin().catch(console.error);
+      }
+    });
+
+    // Initial
+    renderBoard();
   </script>
 </body>
 </html>
