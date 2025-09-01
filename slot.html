@@ -22,17 +22,23 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%}
+
+    /* UPDATED: remove flex-centering so the page scrolls naturally */
     body{
       margin:0;
       font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
       background: var(--bg);
       color: var(--text);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding: 32px 16px;
     }
-    .wrap{ width:min(1100px, 96vw); display:grid; gap:20px; }
+
+    /* UPDATED: center via margins, not flex */
+    .wrap{
+      width:min(1100px, 96vw);
+      margin: 32px auto;   /* adds top/bottom space and centers horizontally */
+      display:grid;
+      gap:20px;
+    }
+
     .card{
       background:var(--panel);
       border:1px solid var(--border);
@@ -84,7 +90,16 @@
 
     .leader{ display:grid; grid-template-columns: 1fr; gap:14px; }
     .leader h2{ margin:0; font-size: clamp(18px, 2.4vw, 22px); }
-    .board{ border:1px solid var(--border); border-radius: 14px; overflow:hidden; background:#fff; }
+
+    /* UPDATED: make board scroll within itself when long */
+    .board{
+      border:1px solid var(--border);
+      border-radius: 14px;
+      overflow:auto;       /* internal scrollbar */
+      background:#fff;
+      max-height: 360px;   /* adjust to taste */
+    }
+
     .row{
       display:grid; grid-template-columns: 44px 1fr max-content; gap:10px;
       align-items:center; padding:10px 12px; border-bottom:1px solid var(--border); font-size:15px;
@@ -145,8 +160,8 @@
 
   <script>
     // ========= CONFIGURE THESE TWO LINES =========
-    const SUPABASE_URL = 'https://poinupuimgvisffngasj.supabase.co';      // ← replace
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvaW51cHVpbWd2aXNmZm5nYXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2OTY3OTAsImV4cCI6MjA3MjI3Mjc5MH0.v1JLJmaDI5DWnv93LCDrCkJv2ItszxTV4lqIbr_eL20';                 // ← replace
+    const SUPABASE_URL = 'https://poinupuimgvisffngasj.supabase.co';      // ← replace if needed
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBvaW51cHVpbWd2aXNmZm5nYXNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY2OTY3OTAsImV4cCI6MjA3MjI3Mjc5MH0.v1JLJmaDI5DWnv93LCDrCkJv2ItszxTV4lqIbr_eL20';                 // ← replace if needed
     // ============================================
 
     // Namespace key must match your DB RLS policy's site value
