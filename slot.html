@@ -129,7 +129,7 @@
     /* spring back animation (after release) */
     .lever-wrap.spring .lever-arm{
       transition: transform 220ms cubic-bezier(.15,1.4,.35,1);
-      /* during spring we animate back to 0 via inline style removal */
+      /* during spring we animate back to 0 via CSS transition */
     }
 
     /* Leaderboard */
@@ -162,6 +162,16 @@
     input[type="text"]:focus{ box-shadow: 0 0 0 4px var(--ring); border-color: var(--primary); }
     .footer{ color:var(--muted); font-size:12px; margin-top:6px; }
     code{ background:#eef7ee; padding:2px 6px; border-radius:6px; }
+
+    /* Chart card tweaks */
+    .chart-wrap{
+      display:grid;
+      gap:12px;
+    }
+    .chart-note{
+      color:var(--muted);
+      font-size:12px;
+    }
   </style>
 </head>
 <body>
@@ -192,7 +202,7 @@
     </section>
 
     <section class="card leader">
-      <h2>Leaderboard (Top 10)</h2>
+      <h2>Leaderboard (Top 42)</h2>
       <div class="entry">
         <input id="nameInput" type="text" placeholder="Your name (post after a spin)" aria-label="Your name" />
         <button id="postBtn" disabled>Post Result</button>
@@ -204,9 +214,17 @@
         GET ON THE LEADERBOARD
       </div>
     </section>
+
+    <!-- Histogram -->
+    <section class="card chart-wrap">
+      <h2>Distribution by 0.5B bins</h2>
+      <canvas id="histogram" height="140"></canvas>
+      <div class="chart-note">Counts of all scores, bucketed into 20 equal ranges of 500,000,000. Updates live on new posts.</div>
+    </section>
   </main>
 
-  <!-- Supabase SDK -->
+  <!-- Chart.js + Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 
   <script>
@@ -225,7 +243,6 @@
     const boardEl = document.getElementById('board');
     const leverEl = document.getElementById('lever');
 
-    // Supabase
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Utils
@@ -234,15 +251,16 @@
     function msDelay(ms){ return new Promise(res => setTimeout(res, ms)); }
     function pad10(n){ let s = String(n); while (s.length < 10) s = '0' + s; return s; }
 
-    // Crypto RNG [0, 10_000_000_000] inclusive
+    // RNG constants
     const MAX = 10_000_000_000;
+
     function get64(){ const a = new Uint32Array(2); crypto.getRandomValues(a); return (BigInt(a[0]) << 32n) | BigInt(a[1]); }
     function secureInt(maxInclusive){
       const n = BigInt(maxInclusive) + 1n;
       const TWO64 = 1n << 64n;
       const limit = (TWO64 / n) * n - 1n;
       let r; do { r = get64(); } while (r > limit);
-      return Number(r % n); // safe for 1e10+1
+      return Number(r % n);
     }
 
     // Build reels (10 digits)
@@ -363,6 +381,8 @@
       canPostForThisSpin = false;
       postBtn.disabled = true;
       await renderBoard();
+      // refresh histogram after a successful post
+      await loadHistogram();
     });
 
     // Persist name locally
@@ -421,12 +441,12 @@
       e.preventDefault();
     }
 
-    // Pointer (covers mouse + touch on modern browsers)
+    // Pointer listeners
     const hit = leverEl.querySelector('.lever-hit');
     hit.addEventListener('pointerdown', onPointerDown);
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp);
-    // Fallback for older touch events
+    // Touch fallback
     hit.addEventListener('touchstart', (e)=> onPointerDown(e), {passive:false});
     window.addEventListener('touchmove', (e)=> onPointerMove(e), {passive:false});
     window.addEventListener('touchend', (e)=> onPointerUp(e), {passive:false});
@@ -447,8 +467,82 @@
       }
     });
 
-    // Initial
-    renderBoard();
+    // =========================
+    // HISTOGRAM (via SQL view)
+    // =========================
+    let histChart = null;
+
+    function buildChart(){
+      const ctx = document.getElementById('histogram');
+      histChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: [],            // filled by loadHistogram()
+          datasets: [{ label: 'Count', data: [], borderWidth: 1 }]
+        },
+        options: {
+          maintainAspectRatio: true,
+          scales: {
+            y: { beginAtZero: true, ticks: { precision: 0 } },
+            x: { ticks: { maxRotation: 0, autoSkip: true } }
+          },
+          plugins: {
+            tooltip: {
+              callbacks: {
+                title: (items)=> items[0]?.label ?? '',
+                label: (item)=> ` ${item.raw} scores`
+              }
+            },
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    // Pulls pre-aggregated bins from the view
+    async function loadHistogram(){
+      const { data, error } = await supabase
+        .from('slot_histogram_500m')
+        .select('*');
+
+      if (error) {
+        console.error('Histogram error:', error.message);
+        return;
+      }
+
+      const labels = data.map(r =>
+        `${Number(r.range_start_billions).toFixed(1)}B–${Number(r.range_end_billions).toFixed(1)}B`
+      );
+      const counts = data.map(r => Number(r.count));
+
+      histChart.data.labels = labels;
+      histChart.data.datasets[0].data = counts;
+      histChart.update();
+    }
+
+    // Realtime: simply refetch the view on new inserts
+    function enableRealtime(){
+      supabase.channel('slot_scores_inserts_viewrefresh')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'slot_scores',
+          filter: `site=eq.${SITE_KEY}`
+        }, async () => {
+          await loadHistogram();
+        })
+        .subscribe();
+    }
+
+    // Initializers
+    (async function init(){
+      await renderBoard();
+
+      // Histogram init
+      buildChart();
+      await loadHistogram();
+      enableRealtime();
+    })();
   </script>
 </body>
 </html>
