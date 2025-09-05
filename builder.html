@@ -187,32 +187,33 @@
   const GEN_XLSX_URL  = 'assets/generalelectives.xlsx';
 
   // ---------- Utility ----------
-  // Normalize and ignore trailing titles/descriptions
-  const norm = (s) => (s||'')
-    .toString()
-    .trim()
-    .toUpperCase()
-    .replace(/\s*-\s*.*$/, '')                // cut off " - Something"
-    .replace(/\s+/g,' ')
-    .replace(/([A-Z])\s+(\d)/, '$1 $2');      // ensure "ABC 12345"
-
-
+  // Normalize course codes & ignore trailing titles/descriptions
+  const norm = (s) => {
+    const t = String(s ?? '')
+      .replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000]/g, ' ') // normalize odd spaces
+      .toUpperCase()
+      .trim();
+    const m = t.match(/^([A-Z]{2,5})\s*(\d{3,5})/); // dept + number at the start only
+    return m ? `${m[1]} ${m[2]}` : '';
+  };
 
   // ---------- Allow-lists ----------
   const allow = { tech: new Set(), gened: new Set() };
 
+  // Single loader used for both Tech + GenEd; scans across columns of the first sheet
   async function loadXlsxToSet(url, targetSet){
     try{
       const res = await fetch(url, {cache:'no-store'});
       if(!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
       const buf = await res.arrayBuffer();
-      if (!window.XLSX) throw new Error('XLSX library missing');
       const wb = XLSX.read(buf, {type:'array'});
       const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, {header:1, blankrows:false});
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1, blankrows:false, defval:''});
       for(const row of rows){
-        const code = norm(row?.[0]);
-        if(code) targetSet.add(code);
+        for (let i = 0; i < Math.min(row.length, 5); i++){
+          const code = norm(row[i]);
+          if(code){ targetSet.add(code); break; } // one code per row
+        }
       }
       return {ok:true};
     }catch(err){
@@ -302,7 +303,6 @@
       console.warn('Load failed / clearing bad state', e);
       localStorage.removeItem(KEY);
     }
-    // Ensure we have data
     if (!state.pools.requiredIE?.length) seedInitial();
   }
 
@@ -503,7 +503,7 @@
     const raw = prompt(`${label}\nEnter course code (e.g., "CS 30700"):`,'');
     if(raw===null) return null;
     const code = norm(raw);
-    if(!code || !/^[A-Z]{2,4}\s+\d{3,5}$/.test(code)){
+    if(!code || !/^[A-Z]{2,5}\s+\d{3,5}$/.test(code)){   // match norm’s 2–5 dept letters
       alert('Please enter a course code like "CS 30700".');
       return null;
     }
@@ -552,7 +552,6 @@
     addElective('extra','',cr,{code});
   };
 
-  // More robust: some browsers return a RadioNodeList/HTMLCollection w/o forEach
   Array.from(document.getElementsByName('ieSelMode')).forEach(r=>{
     r.addEventListener('change', e=>{ state.settings.ieSelMode = e.target.value; render(); });
   });
@@ -605,10 +604,10 @@
 
   // ---------- Init ----------
   (async function(){
-    load();           // always get/repair state first
-    seedInitial();    // ensure pools are seeded at least once
-    render();         // ALWAYS render the 8 terms immediately
-    await initAllowLists(); // load lists in the background; UI already usable
+    load();           // get/repair state first
+    seedInitial();    // ensure pools seeded
+    render();         // render UI immediately
+    await initAllowLists(); // load lists in background
   })();
 </script>
 
