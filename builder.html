@@ -130,7 +130,6 @@
         <p class="muted" style="margin:.5rem 0 0 0;font-size:.85rem">Mark non-intro inside the card for at least 6 credits.</p>
       </div>
 
-      <!-- Extra Classes (optional) -->
       <div class="panel" style="margin-top:12px;background:color-mix(in oklab, var(--primary) 8%, #ffffff)">
         <div class="row" style="justify-content:space-between">
           <h2 style="margin:0">In-General Extra Classes (optional)</h2>
@@ -186,61 +185,100 @@
   const TECH_XLSX_URL = 'assets/techelectives.xlsx';
   const GEN_XLSX_URL  = 'assets/generalelectives.xlsx';
 
-// ---------- Utility ----------
-// Normalize course codes & ignore trailing titles/descriptions
-const norm = (s) => {
-  const t = String(s ?? '')
-    .replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000]/g, ' ') // normalize odd spaces
-    .toUpperCase()
-    .trim();
-  const m = t.match(/^([A-Z]{2,5})\s*(\d{3,5})/); // dept + number at the start only
-  return m ? `${m[1]} ${m[2]}` : '';
-};
+  // ---------- Utility ----------
+  // Normalize: find first DEPT+NUMBER anywhere, ignore trailing text, normalize odd spaces
+  const norm = (s) => {
+    const t = String(s ?? '')
+      .replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000]/g, ' ')
+      .toUpperCase()
+      .trim();
+    const m = t.match(/([A-Z]{2,5})\s*[- ]?(\d{3,5})/); // not anchored; first hit wins
+    return m ? `${m[1]} ${m[2]}` : '';
+  };
 
-// ---------- Allow-lists ----------
-const allow = { tech: new Set(), gened: new Set() };
+  // ---------- Allow-lists ----------
+  const allow = { tech: new Set(), gened: new Set() };
 
-// Reads the FIRST sheet; scans across the first few cells of each row (not just column A)
-async function loadXlsxToSet(url, targetSet){
-  try{
-    const res = await fetch(url, {cache:'no-store'});
-    if(!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-    const buf = await res.arrayBuffer();
-    const wb = XLSX.read(buf, {type:'array'});
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(ws, {header:1, blankrows:false, defval:''});
-    for(const row of rows){
-      for (let i = 0; i < Math.min(row.length, 5); i++){
-        const code = norm(row[i]);
-        if(code){ targetSet.add(code); break; } // one code per row
+  /**
+   * Load first sheet of an Excel file and extract course codes.
+   * - Auto-detects the first row that actually contains a code (skips headers/notes).
+   * - Accepts codes inside a single cell (e.g., "STAT 51400 - ...")
+   * - Accepts split columns (e.g., ["STAT", 51400]).
+   */
+  async function loadXlsxToSet(url, targetSet){
+    try{
+      const res = await fetch(url, {cache:'no-store'});
+      if(!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+      const buf = await res.arrayBuffer();
+      const wb = XLSX.read(buf, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1, blankrows:false, defval:''});
+
+      // 1) Find the first row with a detectable course code
+      let startRow = 0;
+      outer:
+      for (let r = 0; r < rows.length; r++){
+        const row = rows[r];
+        // (A) any single-cell code
+        for (let c = 0; c < Math.min(row.length, 20); c++){
+          if (norm(row[c])) { startRow = r; break outer; }
+        }
+        // (B) split dept+number across adjacent cells
+        for (let c = 0; c < Math.min(row.length-1, 20); c++){
+          const a = String(row[c] ?? '').toUpperCase().trim();
+          const b = String(row[c+1] ?? '').toUpperCase().trim();
+          if ((/^[A-Z]{2,5}$/.test(a) && /^\d{3,5}$/.test(b)) ||
+              (/^\d{3,5}$/.test(a) && /^[A-Z]{2,5}$/.test(b))) {
+            startRow = r; break outer;
+          }
+        }
       }
+
+      // 2) Parse codes from startRow → end
+      for (let r = startRow; r < rows.length; r++){
+        const row = rows[r];
+
+        // (A) prefer a single-cell match anywhere across first 20 columns
+        let added = false;
+        for (let c = 0; c < Math.min(row.length, 20); c++){
+          const code = norm(row[c]);
+          if (code){ targetSet.add(code); added = true; break; }
+        }
+        if (added) continue;
+
+        // (B) split across adjacent cells
+        for (let c = 0; c < Math.min(row.length-1, 20); c++){
+          const a = String(row[c] ?? '').toUpperCase().trim();
+          const b = String(row[c+1] ?? '').toUpperCase().trim();
+          if (/^[A-Z]{2,5}$/.test(a) && /^\d{3,5}$/.test(b)){ targetSet.add(`${a} ${b}`); added = true; break; }
+          if (/^\d{3,5}$/.test(a) && /^[A-Z]{2,5}$/.test(b)){ targetSet.add(`${b} ${a}`); added = true; break; }
+        }
+      }
+
+      return {ok:true};
+    }catch(err){
+      console.error('Failed loading', url, err);
+      return {ok:false, err};
     }
-    return {ok:true};
-  }catch(err){
-    console.error('Failed loading', url, err);
-    return {ok:false, err};
   }
-}
 
-async function initAllowLists(){
-  const badge = document.getElementById('lists-status');
-  badge.textContent = 'Loading lists…';
+  async function initAllowLists(){
+    const badge = document.getElementById('lists-status');
+    badge.textContent = 'Loading lists…';
+    const t = await loadXlsxToSet(TECH_XLSX_URL, allow.tech);
+    const g = await loadXlsxToSet(GEN_XLSX_URL,  allow.gened);
 
-  // IMPORTANT: keep these pointing to the correct, separate files
-  const t = await loadXlsxToSet(TECH_XLSX_URL, allow.tech);
-  const g = await loadXlsxToSet(GEN_XLSX_URL,  allow.gened);
-
-  if (t.ok && g.ok){
-    badge.textContent = 'Validation: ready';
-    badge.title = `Tech loaded (${allow.tech.size}); GenEd loaded (${allow.gened.size})`;
-  } else if (t.ok || g.ok){
-    badge.textContent = 'Validation: partial';
-    badge.title = `${t.ok?'Tech OK':'Tech failed'}; ${g.ok?'GenEd OK':'GenEd failed'}`;
-  } else {
-    badge.textContent = 'Validation: failed';
-    badge.title = 'Both lists failed to load — check /assets paths or file names';
+    if (t.ok && g.ok){
+      badge.textContent = 'Validation: ready';
+      badge.title = `Tech loaded (${allow.tech.size}); GenEd loaded (${allow.gened.size})`;
+    } else if (t.ok || g.ok){
+      badge.textContent = 'Validation: partial';
+      badge.title = `${t.ok?'Tech OK':'Tech failed'}; ${g.ok?'GenEd OK':'GenEd failed'}`;
+    } else {
+      badge.textContent = 'Validation: failed';
+      badge.title = 'Both lists failed to load — check /assets paths or file names';
+    }
   }
-}
 
   // ---------- Data ----------
   const REQUIRED_IE = [
@@ -296,13 +334,12 @@ async function initAllowLists(){
 
   // ---------- Persistence ----------
   const KEY='ie-schedule-v1';
-  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ console.warn('Save failed', e); } }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ /* ignore quota */ } }
   function load(){
     try{
       const s = JSON.parse(localStorage.getItem(KEY));
       if (s && s.pools && s.terms && s.settings) Object.assign(state, s);
     }catch(e){
-      console.warn('Load failed / clearing bad state', e);
       localStorage.removeItem(KEY);
     }
     if (!state.pools.requiredIE?.length) seedInitial();
@@ -501,6 +538,7 @@ async function initAllowLists(){
     state.pools[cat].push(c); render();
   }
 
+  // Validator aligned with norm’s pattern
   function promptForCourseCode(label){
     const raw = prompt(`${label}\nEnter course code (e.g., "CS 30700"):`,'');
     if(raw===null) return null;
@@ -606,10 +644,10 @@ async function initAllowLists(){
 
   // ---------- Init ----------
   (async function(){
-    load();           // get/repair state first
-    seedInitial();    // ensure pools seeded
-    render();         // render UI immediately
-    await initAllowLists(); // load lists in background
+    load();
+    seedInitial();
+    render();
+    await initAllowLists();
   })();
 </script>
 
