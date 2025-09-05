@@ -186,59 +186,61 @@
   const TECH_XLSX_URL = 'assets/techelectives.xlsx';
   const GEN_XLSX_URL  = 'assets/generalelectives.xlsx';
 
-  // ---------- Utility ----------
-  // Normalize course codes & ignore trailing titles/descriptions
-  const norm = (s) => {
-    const t = String(s ?? '')
-      .replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000]/g, ' ') // normalize odd spaces
-      .toUpperCase()
-      .trim();
-    const m = t.match(/^([A-Z]{2,5})\s*(\d{3,5})/); // dept + number at the start only
-    return m ? `${m[1]} ${m[2]}` : '';
-  };
+// ---------- Utility ----------
+// Normalize course codes & ignore trailing titles/descriptions
+const norm = (s) => {
+  const t = String(s ?? '')
+    .replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000]/g, ' ') // normalize odd spaces
+    .toUpperCase()
+    .trim();
+  const m = t.match(/^([A-Z]{2,5})\s*(\d{3,5})/); // dept + number at the start only
+  return m ? `${m[1]} ${m[2]}` : '';
+};
 
-  // ---------- Allow-lists ----------
-  const allow = { tech: new Set(), gened: new Set() };
+// ---------- Allow-lists ----------
+const allow = { tech: new Set(), gened: new Set() };
 
-  // Single loader used for both Tech + GenEd; scans across columns of the first sheet
-  async function loadXlsxToSet(url, targetSet){
-    try{
-      const res = await fetch(url, {cache:'no-store'});
-      if(!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-      const buf = await res.arrayBuffer();
-      const wb = XLSX.read(buf, {type:'array'});
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, {header:1, blankrows:false, defval:''});
-      for(const row of rows){
-        for (let i = 0; i < Math.min(row.length, 5); i++){
-          const code = norm(row[i]);
-          if(code){ targetSet.add(code); break; } // one code per row
-        }
+// Reads the FIRST sheet; scans across the first few cells of each row (not just column A)
+async function loadXlsxToSet(url, targetSet){
+  try{
+    const res = await fetch(url, {cache:'no-store'});
+    if(!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+    const buf = await res.arrayBuffer();
+    const wb = XLSX.read(buf, {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1, blankrows:false, defval:''});
+    for(const row of rows){
+      for (let i = 0; i < Math.min(row.length, 5); i++){
+        const code = norm(row[i]);
+        if(code){ targetSet.add(code); break; } // one code per row
       }
-      return {ok:true};
-    }catch(err){
-      console.error('Failed loading', url, err);
-      return {ok:false, err};
     }
+    return {ok:true};
+  }catch(err){
+    console.error('Failed loading', url, err);
+    return {ok:false, err};
   }
+}
 
-  async function initAllowLists(){
-    const badge = document.getElementById('lists-status');
-    badge.textContent = 'Loading lists…';
-    const t = await loadXlsxToSet(TECH_XLSX_URL, allow.tech);
-    const g = await loadXlsxToSet(GEN_XLSX_URL,  allow.gened);
+async function initAllowLists(){
+  const badge = document.getElementById('lists-status');
+  badge.textContent = 'Loading lists…';
 
-    if (t.ok && g.ok){
-      badge.textContent = 'Validation: ready';
-      badge.title = `Tech ${allow.tech.size} · GenEd ${allow.gened.size}`;
-    } else if (t.ok || g.ok){
-      badge.textContent = 'Validation: partial';
-      badge.title = `${t.ok?'Tech OK':'Tech failed'}; ${g.ok?'GenEd OK':'GenEd failed'}`;
-    } else {
-      badge.textContent = 'Validation: failed';
-      badge.title = 'Both lists failed to load — check /assets paths';
-    }
+  // IMPORTANT: keep these pointing to the correct, separate files
+  const t = await loadXlsxToSet(TECH_XLSX_URL, allow.tech);
+  const g = await loadXlsxToSet(GEN_XLSX_URL,  allow.gened);
+
+  if (t.ok && g.ok){
+    badge.textContent = 'Validation: ready';
+    badge.title = `Tech loaded (${allow.tech.size}); GenEd loaded (${allow.gened.size})`;
+  } else if (t.ok || g.ok){
+    badge.textContent = 'Validation: partial';
+    badge.title = `${t.ok?'Tech OK':'Tech failed'}; ${g.ok?'GenEd OK':'GenEd failed'}`;
+  } else {
+    badge.textContent = 'Validation: failed';
+    badge.title = 'Both lists failed to load — check /assets paths or file names';
   }
+}
 
   // ---------- Data ----------
   const REQUIRED_IE = [
@@ -503,7 +505,7 @@
     const raw = prompt(`${label}\nEnter course code (e.g., "CS 30700"):`,'');
     if(raw===null) return null;
     const code = norm(raw);
-    if(!code || !/^[A-Z]{2,5}\s+\d{3,5}$/.test(code)){   // match norm’s 2–5 dept letters
+    if(!code || !/^[A-Z]{2,5}\s+\d{3,5}$/.test(code)){
       alert('Please enter a course code like "CS 30700".');
       return null;
     }
