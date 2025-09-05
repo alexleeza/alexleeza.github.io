@@ -198,23 +198,49 @@
     const TECH_XLSX_URL = 'assets/techelectives.xlsx';
     const GEN_XLSX_URL  = 'assets/generalelectives.xlsx';
 
-    // ---------- Utility ----------
-    // Normalize: find first DEPT+NUMBER anywhere, ignore trailing text, normalize odd spaces
+    // ---------- Enhanced normalization function ----------
     const norm = (s) => {
       const t = String(s ?? '')
-        .replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000]/g, ' ')
+        .replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000]/g, ' ') // Unicode spaces
+        .replace(/[^\w\s-]/g, ' ') // Replace special chars with spaces
         .toUpperCase()
         .trim();
-      const m = t.match(/([A-Z]{2,5})\s*[- ]?(\d{3,5})/); // not anchored; first hit wins
-      return m ? `${m[1]} ${m[2]}` : '';
+      
+      // Look for course code patterns anywhere in the string
+      const patterns = [
+        // Standard: DEPT #### or DEPT-####
+        /([A-Z]{2,5})\s*[- ]?(\d{3,5})/,
+        // With suffix: DEPT ####L
+        /([A-Z]{2,5})\s*[- ]?(\d{3,5})[A-Z]?/,
+        // Reversed: #### DEPT
+        /(\d{3,5})[A-Z]?\s+([A-Z]{2,5})/
+      ];
+      
+      for (const pattern of patterns) {
+        const m = t.match(pattern);
+        if (m) {
+          // Handle reversed pattern
+          if (/^\d/.test(m[1])) {
+            return `${m[2]} ${m[1]}`;
+          } else {
+            return `${m[1]} ${m[2]}`;
+          }
+        }
+      }
+      
+      return '';
     };
 
-    // ---------- Allow-lists ----------
+    // ---------- Enhanced XLSX loader ----------
     const allow = { tech: new Set(), gened: new Set() };
 
     /**
-     * Load the FIRST sheet and extract course codes.
-     * Scans the full declared sheet range (ws['!ref']) so trailing empty cells don't truncate rows.
+     * Enhanced XLSX parser that thoroughly scans ALL cells for course codes
+     * Improvements:
+     * 1. Scans every populated cell, not just declared range
+     * 2. Better normalization handling
+     * 3. More flexible split-cell detection
+     * 4. Handles merged cells and sparse data
      */
     async function loadXlsxToSet(url, targetSet){
       try{
@@ -223,58 +249,128 @@
         const buf = await res.arrayBuffer();
         const wb = XLSX.read(buf, {type:'array'});
         const ws = wb.Sheets[wb.SheetNames[0]];
-        if (!ws || !ws['!ref']) return {ok:true}; // empty sheet, nothing to add
+        if (!ws || !ws['!ref']) return {ok:true}; // empty sheet
 
-        const range = XLSX.utils.decode_range(ws['!ref']); // {s:{r,c}, e:{r,c}}
-        const rows = XLSX.utils.sheet_to_json(ws, {header:1, blankrows:false, defval:''});
+        console.log(`Processing ${url}, declared range: ${ws['!ref']}`);
 
-        // 1) Find the first row with a detectable course code (skip headers/notes)
-        let startRow = 0;
-        outer:
-        for (let r = 0; r < rows.length; r++){
-          const row = rows[r];
+        // Get ALL cell addresses (including those outside declared range)
+        const cellAddresses = Object.keys(ws).filter(key => 
+          key[0] !== '!' && // Skip metadata
+          /^[A-Z]+\d+$/.test(key) // Match cell addresses like A1, AB123
+        );
 
-          // (A) any single-cell code anywhere within the declared range
-          for (let c = range.s.c; c <= range.e.c; c++){
-            const val = row[c - range.s.c] ?? '';
-            if (norm(val)) { startRow = r; break outer; }
+        console.log(`Found ${cellAddresses.length} populated cells`);
+
+        // Convert cell addresses to {row, col} for easier processing
+        const cells = cellAddresses.map(addr => {
+          const decoded = XLSX.utils.decode_cell(addr);
+          return {
+            addr,
+            row: decoded.r,
+            col: decoded.c,
+            value: ws[addr]?.v || ws[addr]?.w || ''
+          };
+        }).sort((a, b) => a.row - b.row || a.col - b.col);
+
+        // Track what we find for debugging
+        const foundCodes = new Set();
+        const splitMatches = [];
+
+        // Method 1: Scan every cell for single-cell course codes
+        for (const cell of cells) {
+          const normalized = norm(String(cell.value));
+          if (normalized) {
+            foundCodes.add(normalized);
+            targetSet.add(normalized);
           }
-          // (B) split dept+number across adjacent cells (within the declared range)
-          for (let c = range.s.c; c < range.e.c; c++){
-            const a = String(row[c - range.s.c] ?? '').toUpperCase().trim();
-            const b = String(row[c + 1 - range.s.c] ?? '').toUpperCase().trim();
-            if ((/^[A-Z]{2,5}$/.test(a) && /^\d{3,5}$/.test(b)) ||
-                (/^\d{3,5}$/.test(a) && /^[A-Z]{2,5}$/.test(b))) {
-              startRow = r; break outer;
+        }
+
+        // Method 2: Look for split codes (dept + number in adjacent cells)
+        // Group cells by row for easier adjacent checking
+        const cellsByRow = {};
+        cells.forEach(cell => {
+          if (!cellsByRow[cell.row]) cellsByRow[cell.row] = [];
+          cellsByRow[cell.row].push(cell);
+        });
+
+        for (const [rowNum, rowCells] of Object.entries(cellsByRow)) {
+          // Sort by column to check adjacency
+          rowCells.sort((a, b) => a.col - b.col);
+          
+          // Check all adjacent pairs in this row
+          for (let i = 0; i < rowCells.length - 1; i++) {
+            const cellA = rowCells[i];
+            const cellB = rowCells[i + 1];
+            
+            // Only check truly adjacent cells (or close enough)
+            if (cellB.col - cellA.col <= 2) {
+              const valA = String(cellA.value).toUpperCase().trim();
+              const valB = String(cellB.value).toUpperCase().trim();
+              
+              // Pattern 1: DEPT NUMBER
+              if (/^[A-Z]{2,5}$/.test(valA) && /^\d{3,5}[A-Z]?$/.test(valB)) {
+                const code = `${valA} ${valB.replace(/[A-Z]$/, '')}`; // Remove suffix like 'L'
+                foundCodes.add(code);
+                targetSet.add(code);
+                splitMatches.push(`${cellA.addr}:${cellB.addr} -> ${code}`);
+              }
+              
+              // Pattern 2: NUMBER DEPT
+              if (/^\d{3,5}[A-Z]?$/.test(valA) && /^[A-Z]{2,5}$/.test(valB)) {
+                const code = `${valB} ${valA.replace(/[A-Z]$/, '')}`;
+                foundCodes.add(code);
+                targetSet.add(code);
+                splitMatches.push(`${cellA.addr}:${cellB.addr} -> ${code}`);
+              }
             }
           }
         }
 
-        // 2) Parse codes from startRow → end, scanning the full declared width
-        for (let r = startRow; r < rows.length; r++){
-          const row = rows[r];
+        // Method 3: Look for vertical splits (dept/number in same column, adjacent rows)
+        const cellsByCol = {};
+        cells.forEach(cell => {
+          if (!cellsByCol[cell.col]) cellsByCol[cell.col] = [];
+          cellsByCol[cell.col].push(cell);
+        });
 
-          // (A) single-cell match anywhere
-          let added = false;
-          for (let c = range.s.c; c <= range.e.c; c++){
-            const code = norm(row[c - range.s.c] ?? '');
-            if (code){ targetSet.add(code); added = true; break; }
-          }
-          if (added) continue;
-
-          // (B) split across adjacent cells (dept + number or number + dept)
-          for (let c = range.s.c; c < range.e.c; c++){
-            const a = String(row[c - range.s.c] ?? '').toUpperCase().trim();
-            const b = String(row[c + 1 - range.s.c] ?? '').toUpperCase().trim();
-            if (/^[A-Z]{2,5}$/.test(a) && /^\d{3,5}$/.test(b)){ targetSet.add(`${a} ${b}`); added = true; break; }
-            if (/^\d{3,5}$/.test(a) && /^[A-Z]{2,5}$/.test(b)){ targetSet.add(`${b} ${a}`); added = true; break; }
+        for (const [colNum, colCells] of Object.entries(cellsByCol)) {
+          colCells.sort((a, b) => a.row - b.row);
+          
+          for (let i = 0; i < colCells.length - 1; i++) {
+            const cellA = colCells[i];
+            const cellB = colCells[i + 1];
+            
+            // Only check adjacent or nearly adjacent rows
+            if (cellB.row - cellA.row <= 2) {
+              const valA = String(cellA.value).toUpperCase().trim();
+              const valB = String(cellB.value).toUpperCase().trim();
+              
+              if (/^[A-Z]{2,5}$/.test(valA) && /^\d{3,5}[A-Z]?$/.test(valB)) {
+                const code = `${valA} ${valB.replace(/[A-Z]$/, '')}`;
+                foundCodes.add(code);
+                targetSet.add(code);
+                splitMatches.push(`${cellA.addr}:${cellB.addr} -> ${code} (vertical)`);
+              }
+              
+              if (/^\d{3,5}[A-Z]?$/.test(valA) && /^[A-Z]{2,5}$/.test(valB)) {
+                const code = `${valB} ${valA.replace(/[A-Z]$/, '')}`;
+                foundCodes.add(code);
+                targetSet.add(code);
+                splitMatches.push(`${cellA.addr}:${cellB.addr} -> ${code} (vertical)`);
+              }
+            }
           }
         }
 
-        return {ok:true};
-      }catch(err){
+        console.log(`Extracted ${foundCodes.size} unique course codes from ${url}`);
+        console.log(`Split matches found:`, splitMatches);
+        console.log(`Sample codes:`, Array.from(foundCodes).slice(0, 10));
+
+        return {ok: true, count: foundCodes.size};
+
+      } catch(err) {
         console.error('Failed loading', url, err);
-        return {ok:false, err};
+        return {ok: false, err};
       }
     }
 
