@@ -181,18 +181,16 @@
     </form>
   </dialog>
 
-  <script>
+<script>
   // ---------- Config: paths to your Excel allow-lists ----------
   const TECH_XLSX_URL = 'assets/techelectives.xlsx';
   const GEN_XLSX_URL  = 'assets/generalelectives.xlsx';
 
-  // ---------- Utility: normalize course code (e.g., " cs  30700 " -> "CS 30700") ----------
+  // ---------- Utility ----------
   const norm = (s) => (s||'')
-    .toString()
-    .trim()
-    .toUpperCase()
+    .toString().trim().toUpperCase()
     .replace(/\s+/g,' ')
-    .replace(/([A-Z])\s+(\d)/, '$1 $2'); // ensure "ABC 12345"
+    .replace(/([A-Z])\s+(\d)/, '$1 $2');
 
   // ---------- Allow-lists ----------
   const allow = { tech: new Set(), gened: new Set() };
@@ -200,8 +198,9 @@
   async function loadXlsxToSet(url, targetSet){
     try{
       const res = await fetch(url, {cache:'no-store'});
-      if(!res.ok) throw new Error('HTTP ' + res.status);
+      if(!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
       const buf = await res.arrayBuffer();
+      if (!window.XLSX) throw new Error('XLSX library missing');
       const wb = XLSX.read(buf, {type:'array'});
       const ws = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(ws, {header:1, blankrows:false});
@@ -209,27 +208,28 @@
         const code = norm(row?.[0]);
         if(code) targetSet.add(code);
       }
-      return true;
+      return {ok:true};
     }catch(err){
       console.error('Failed loading', url, err);
-      return false;
+      return {ok:false, err};
     }
   }
 
   async function initAllowLists(){
     const badge = document.getElementById('lists-status');
     badge.textContent = 'Loading lists…';
-    const okTech = await loadXlsxToSet(TECH_XLSX_URL, allow.tech);
-    const okGen  = await loadXlsxToSet(GEN_XLSX_URL,  allow.gened);
-    if(okTech && okGen){
+    const t = await loadXlsxToSet(TECH_XLSX_URL, allow.tech);
+    const g = await loadXlsxToSet(GEN_XLSX_URL,  allow.gened);
+
+    if (t.ok && g.ok){
       badge.textContent = 'Validation: ready';
-      badge.title = 'Tech + GenEd lists loaded';
-    }else if(okTech || okGen){
+      badge.title = `Tech ${allow.tech.size} · GenEd ${allow.gened.size}`;
+    } else if (t.ok || g.ok){
       badge.textContent = 'Validation: partial';
-      badge.title = (okTech?'Tech OK; ':'Tech failed; ') + (okGen?'GenEd OK':'GenEd failed');
-    }else{
+      badge.title = `${t.ok?'Tech OK':'Tech failed'}; ${g.ok?'GenEd OK':'GenEd failed'}`;
+    } else {
       badge.textContent = 'Validation: failed';
-      badge.title = 'Both lists failed to load';
+      badge.title = 'Both lists failed to load — check /assets paths';
     }
   }
 
@@ -270,7 +270,6 @@
   // ---------- State ----------
   const uid = () => Math.random().toString(36).slice(2,10);
 
-  // course instance: {id, code, name, credits, cat, locked, nonIntro, fixedIE?}
   const state = {
     pools: { requiredIE: [], otherReq: [], ieSel: [], tech: [], gened: [], extra: [] },
     terms: Array.from({length:8}, () => []),
@@ -288,8 +287,18 @@
 
   // ---------- Persistence ----------
   const KEY='ie-schedule-v1';
-  function save(){ localStorage.setItem(KEY, JSON.stringify(state)); }
-  function load(){ try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s){Object.assign(state,s);} else seedInitial(); }catch{ seedInitial(); } }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ console.warn('Save failed', e); } }
+  function load(){
+    try{
+      const s = JSON.parse(localStorage.getItem(KEY));
+      if (s && s.pools && s.terms && s.settings) Object.assign(state, s);
+    }catch(e){
+      console.warn('Load failed / clearing bad state', e);
+      localStorage.removeItem(KEY);
+    }
+    // Ensure we have data
+    if (!state.pools.requiredIE?.length) seedInitial();
+  }
 
   // ---------- Rendering ----------
   const elRequired = document.getElementById('pool-required-ie');
@@ -344,7 +353,7 @@
   }
 
   function renderPools(){
-    [elRequired,elOther,elIESel,elTech,elGen,elExtra].forEach(el=>el.innerHTML='');
+    [elRequired,elOther,elIESel,elTech,elGen,elExtra].forEach(el=> el.innerHTML='');
     state.pools.requiredIE.forEach(c=>elRequired.appendChild(courseCard(c)));
     state.pools.otherReq.forEach(c=>elOther.appendChild(courseCard(c)));
     state.pools.ieSel.forEach(c=>elIESel.appendChild(courseCard(c)));
@@ -369,7 +378,9 @@
       drop.addEventListener('dragleave', ()=> drop.classList.remove('dragover'));
       drop.addEventListener('drop', e=>{
         e.preventDefault(); drop.classList.remove('dragover');
-        const {id} = JSON.parse(e.dataTransfer.getData('text/plain'));
+        const data = e.dataTransfer.getData('text/plain');
+        if (!data) return;
+        const {id} = JSON.parse(data);
         placeIntoTerm(id, idx);
       });
       arr.forEach(c=> drop.appendChild(courseCard(c)));
@@ -430,7 +441,17 @@
     const p=document.createElement('div'); p.className= ok? 'ok' : 'bad'; p.textContent = (ok? '✓ ' : '• ') + text; return p;
   }
 
-  function render(){ renderPools(); renderTerms(); renderStatus(); save(); }
+  function render(){
+    try{
+      renderPools();
+      renderTerms();
+      renderStatus();
+      save();
+    }catch(e){
+      console.error('Render failed', e);
+      alert('Unexpected render error (see console).');
+    }
+  }
 
   // ---------- Actions ----------
   function findCourseAnywhere(id){
@@ -472,10 +493,9 @@
     state.pools[cat].push(c); render();
   }
 
-  // Prompt helpers for validated categories (format: "ABC 12345")
   function promptForCourseCode(label){
     const raw = prompt(`${label}\nEnter course code (e.g., "CS 30700"):`,'');
-    if(raw===null) return null; // cancelled
+    if(raw===null) return null;
     const code = norm(raw);
     if(!code || !/^[A-Z]{2,4}\s+\d{3,5}$/.test(code)){
       alert('Please enter a course code like "CS 30700".');
@@ -512,7 +532,6 @@
 
   document.getElementById('add-ie-sel').onclick=()=>{
     if(state.settings.ieSelMode==='opt2'){
-      // Custom IE selective is free-form (no list validation requested)
       const code = promptForCourseCode('Custom IE Selective (Option II)') || '';
       const cr = promptForCredits(3); if(cr===null) return;
       addElective('ieSel','',cr,{code, fixedIE:false});
@@ -527,7 +546,8 @@
     addElective('extra','',cr,{code});
   };
 
-  document.getElementsByName('ieSelMode').forEach(r=>{
+  // More robust: some browsers return a RadioNodeList/HTMLCollection w/o forEach
+  Array.from(document.getElementsByName('ieSelMode')).forEach(r=>{
     r.addEventListener('change', e=>{ state.settings.ieSelMode = e.target.value; render(); });
   });
   document.getElementById('fye-credit').onchange = (e)=>{ state.settings.fyeCredit = e.target.checked; render(); };
@@ -544,7 +564,6 @@
     }
   };
 
-  // Export / Import
   document.getElementById('btn-export').onclick=()=>{
     const data = JSON.stringify(state, null, 2);
     const blob = new Blob([data], {type:'application/json'});
@@ -557,6 +576,7 @@
       file.text().then(txt=>{ try{
         const s=JSON.parse(txt);
         Object.assign(state,s);
+        if (!state.pools?.requiredIE) seedInitial(); // guard malformed imports
         render();
       }catch{ alert('Invalid JSON'); } });
     };
@@ -579,11 +599,12 @@
 
   // ---------- Init ----------
   (async function(){
-    load();
-    if(!localStorage.getItem(KEY)) seedInitial();
-    render();
-    await initAllowLists();
+    load();           // always get/repair state first
+    seedInitial();    // ensure pools are seeded at least once
+    render();         // ALWAYS render the 8 terms immediately
+    await initAllowLists(); // load lists in the background; UI already usable
   })();
-  </script>
+</script>
+
 </body>
 </html>
