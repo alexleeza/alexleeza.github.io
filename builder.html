@@ -16,6 +16,8 @@
       --primary: #4caf50;
       --ring: #a8d5b9;
       --warn: #b83b3b;
+      /* dynamic header height (updated via JS) */
+      --header-h: 64px;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -31,7 +33,13 @@
       z-index:20;padding:.75rem 1rem;
       border-bottom:1px solid color-mix(in oklab, var(--primary) 20%, #ffffff)
     }
-    .container{display:grid;grid-template-columns:320px 1fr;gap:16px;padding:16px}
+    .container{
+      display:grid;
+      grid-template-columns:320px 1fr;
+      gap:16px;
+      padding:16px;
+      align-items:start; /* ensures sticky aside sticks within grid */
+    }
     .panel{background:var(--panel);border:1px solid color-mix(in oklab, var(--primary) 25%, #ffffff);border-radius:16px;padding:12px}
     h1{font-size:1.25rem;margin:.25rem 0 .5rem 0;color:var(--primary)}
     h2{font-size:1.05rem;margin:.5rem 0;color:color-mix(in oklab, var(--primary) 60%, #1e2a1e)}
@@ -71,12 +79,32 @@
     @media (max-width: 1100px){
       .grid{grid-template-columns:repeat(2,minmax(240px,1fr))}
       .container{grid-template-columns:1fr}
+      /* on narrow screens, sticky aside isn't needed */
+      aside.panel{position:static;max-height:none;overflow:visible}
     }
 
     dialog#dlg{border:1px solid color-mix(in oklab, var(--primary) 25%, #ffffff);border-radius:12px;padding:0;max-width:520px}
     dialog#dlg form{padding:12px 12px 0 12px}
     dialog#dlg input[type="text"], dialog#dlg input[type="number"]{width:100%;padding:.6rem;border:1px solid color-mix(in oklab, var(--primary) 25%, #ffffff);border-radius:10px}
     dialog#dlg .row{gap:8px}
+
+    /* ---------- NEW: sticky, self-scrolling left column ---------- */
+    aside.panel{
+      position: sticky;
+      top: calc(var(--header-h) + 8px);
+      max-height: calc(100vh - var(--header-h) - 24px);
+      overflow:auto;
+      padding-right:10px; /* room for scrollbar */
+    }
+
+    /* ---------- NEW: compact mode for the left column ---------- */
+    aside.panel.compact h2{margin:.25rem 0;font-size:.95rem}
+    aside.panel.compact .pool{gap:6px}
+    aside.panel.compact .card{padding:.35rem .5rem;border-radius:10px}
+    aside.panel.compact .name{display:none}       /* hide long titles */
+    aside.panel.compact .credits{padding:1px 4px;border-radius:6px;font-size:.8rem}
+    aside.panel.compact .tool{width:24px;height:24px;border-radius:6px}
+    aside.panel.compact .tools{gap:4px}
   </style>
 </head>
 <body>
@@ -88,6 +116,8 @@
         <span id="lists-status" class="pill" title="Validation lists status">Loading lists…</span>
       </div>
       <div class="row">
+        <!-- NEW: compact toggle lives in the header -->
+        <button class="btn small ghost" id="btn-compact" title="Toggle compact left column">Compact pools</button>
         <button class="btn small" id="btn-export" title="Download your plan as JSON">Export</button>
         <button class="btn small" id="btn-import" title="Load a plan from JSON">Import</button>
         <button class="btn small ghost" id="btn-reset" title="Start fresh (keeps required courses)">Reset</button>
@@ -98,7 +128,7 @@
 
   <main class="container">
     <!-- Left: Pools -->
-    <aside class="panel" aria-label="Course pools">
+    <aside class="panel" aria-label="Course pools" id="left-pools">
       <h2>Required IE (fixed titles)</h2>
       <div id="pool-required-ie" class="pool" aria-live="polite"></div>
 
@@ -201,25 +231,18 @@
     // ---------- Enhanced normalization function ----------
     const norm = (s) => {
       const t = String(s ?? '')
-        .replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000]/g, ' ') // Unicode spaces
-        .replace(/[^\w\s-]/g, ' ') // Replace special chars with spaces
+        .replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000]/g, ' ')
+        .replace(/[^\w\s-]/g, ' ')
         .toUpperCase()
         .trim();
-      
-      // Look for course code patterns anywhere in the string
       const patterns = [
-        // Standard: DEPT #### or DEPT-####
         /([A-Z]{2,5})\s*[- ]?(\d{3,5})/,
-        // With suffix: DEPT ####L
         /([A-Z]{2,5})\s*[- ]?(\d{3,5})[A-Z]?/,
-        // Reversed: #### DEPT
         /(\d{3,5})[A-Z]?\s+([A-Z]{2,5})/
       ];
-      
       for (const pattern of patterns) {
         const m = t.match(pattern);
         if (m) {
-          // Handle reversed pattern
           if (/^\d/.test(m[1])) {
             return `${m[2]} ${m[1]}`;
           } else {
@@ -227,21 +250,12 @@
           }
         }
       }
-      
       return '';
     };
 
     // ---------- Enhanced XLSX loader ----------
     const allow = { tech: new Set(), gened: new Set() };
-
-    /**
-     * Enhanced XLSX parser that thoroughly scans ALL cells for course codes
-     * Improvements:
-     * 1. Scans every populated cell, not just declared range
-     * 2. Better normalization handling
-     * 3. More flexible split-cell detection
-     * 4. Handles merged cells and sparse data
-     */
+    
     async function loadXlsxToSet(url, targetSet){
       try{
         const res = await fetch(url, {cache:'no-store'});
@@ -249,19 +263,12 @@
         const buf = await res.arrayBuffer();
         const wb = XLSX.read(buf, {type:'array'});
         const ws = wb.Sheets[wb.SheetNames[0]];
-        if (!ws || !ws['!ref']) return {ok:true}; // empty sheet
+        if (!ws || !ws['!ref']) return {ok:true};
 
-        console.log(`Processing ${url}, declared range: ${ws['!ref']}`);
-
-        // Get ALL cell addresses (including those outside declared range)
         const cellAddresses = Object.keys(ws).filter(key => 
-          key[0] !== '!' && // Skip metadata
-          /^[A-Z]+\d+$/.test(key) // Match cell addresses like A1, AB123
+          key[0] !== '!' && /^[A-Z]+\d+$/.test(key)
         );
 
-        console.log(`Found ${cellAddresses.length} populated cells`);
-
-        // Convert cell addresses to {row, col} for easier processing
         const cells = cellAddresses.map(addr => {
           const decoded = XLSX.utils.decode_cell(addr);
           return {
@@ -272,99 +279,50 @@
           };
         }).sort((a, b) => a.row - b.row || a.col - b.col);
 
-        // Track what we find for debugging
         const foundCodes = new Set();
-        const splitMatches = [];
-
-        // Method 1: Scan every cell for single-cell course codes
-        for (const cell of cells) {
-          const normalized = norm(String(cell.value));
-          if (normalized) {
-            foundCodes.add(normalized);
-            targetSet.add(normalized);
-          }
-        }
-
-        // Method 2: Look for split codes (dept + number in adjacent cells)
-        // Group cells by row for easier adjacent checking
         const cellsByRow = {};
-        cells.forEach(cell => {
-          if (!cellsByRow[cell.row]) cellsByRow[cell.row] = [];
-          cellsByRow[cell.row].push(cell);
-        });
-
-        for (const [rowNum, rowCells] of Object.entries(cellsByRow)) {
-          // Sort by column to check adjacency
-          rowCells.sort((a, b) => a.col - b.col);
-          
-          // Check all adjacent pairs in this row
-          for (let i = 0; i < rowCells.length - 1; i++) {
-            const cellA = rowCells[i];
-            const cellB = rowCells[i + 1];
-            
-            // Only check truly adjacent cells (or close enough)
-            if (cellB.col - cellA.col <= 2) {
-              const valA = String(cellA.value).toUpperCase().trim();
-              const valB = String(cellB.value).toUpperCase().trim();
-              
-              // Pattern 1: DEPT NUMBER
-              if (/^[A-Z]{2,5}$/.test(valA) && /^\d{3,5}[A-Z]?$/.test(valB)) {
-                const code = `${valA} ${valB.replace(/[A-Z]$/, '')}`; // Remove suffix like 'L'
-                foundCodes.add(code);
-                targetSet.add(code);
-                splitMatches.push(`${cellA.addr}:${cellB.addr} -> ${code}`);
-              }
-              
-              // Pattern 2: NUMBER DEPT
-              if (/^\d{3,5}[A-Z]?$/.test(valA) && /^[A-Z]{2,5}$/.test(valB)) {
-                const code = `${valB} ${valA.replace(/[A-Z]$/, '')}`;
-                foundCodes.add(code);
-                targetSet.add(code);
-                splitMatches.push(`${cellA.addr}:${cellB.addr} -> ${code}`);
-              }
-            }
-          }
-        }
-
-        // Method 3: Look for vertical splits (dept/number in same column, adjacent rows)
         const cellsByCol = {};
-        cells.forEach(cell => {
-          if (!cellsByCol[cell.col]) cellsByCol[cell.col] = [];
-          cellsByCol[cell.col].push(cell);
-        });
 
-        for (const [colNum, colCells] of Object.entries(cellsByCol)) {
-          colCells.sort((a, b) => a.row - b.row);
-          
-          for (let i = 0; i < colCells.length - 1; i++) {
-            const cellA = colCells[i];
-            const cellB = colCells[i + 1];
-            
-            // Only check adjacent or nearly adjacent rows
-            if (cellB.row - cellA.row <= 2) {
-              const valA = String(cellA.value).toUpperCase().trim();
-              const valB = String(cellB.value).toUpperCase().trim();
-              
-              if (/^[A-Z]{2,5}$/.test(valA) && /^\d{3,5}[A-Z]?$/.test(valB)) {
-                const code = `${valA} ${valB.replace(/[A-Z]$/, '')}`;
-                foundCodes.add(code);
-                targetSet.add(code);
-                splitMatches.push(`${cellA.addr}:${cellB.addr} -> ${code} (vertical)`);
+        for (const cell of cells){
+          const normalized = norm(String(cell.value));
+          if (normalized) { foundCodes.add(normalized); targetSet.add(normalized); }
+          (cellsByRow[cell.row] ||= []).push(cell);
+          (cellsByCol[cell.col] ||= []).push(cell);
+        }
+
+        for (const rowCells of Object.values(cellsByRow)) {
+          rowCells.sort((a,b)=>a.col-b.col);
+          for (let i=0;i<rowCells.length-1;i++){
+            const A=rowCells[i], B=rowCells[i+1];
+            if (B.col - A.col <= 2){
+              const va=String(A.value).toUpperCase().trim();
+              const vb=String(B.value).toUpperCase().trim();
+              if (/^[A-Z]{2,5}$/.test(va) && /^\d{3,5}[A-Z]?$/.test(vb)) {
+                const code=`${va} ${vb.replace(/[A-Z]$/,'')}`; foundCodes.add(code); targetSet.add(code);
               }
-              
-              if (/^\d{3,5}[A-Z]?$/.test(valA) && /^[A-Z]{2,5}$/.test(valB)) {
-                const code = `${valB} ${valA.replace(/[A-Z]$/, '')}`;
-                foundCodes.add(code);
-                targetSet.add(code);
-                splitMatches.push(`${cellA.addr}:${cellB.addr} -> ${code} (vertical)`);
+              if (/^\d{3,5}[A-Z]?$/.test(va) && /^[A-Z]{2,5}$/.test(vb)) {
+                const code=`${vb} ${va.replace(/[A-Z]$/,'')}`; foundCodes.add(code); targetSet.add(code);
               }
             }
           }
         }
 
-        console.log(`Extracted ${foundCodes.size} unique course codes from ${url}`);
-        console.log(`Split matches found:`, splitMatches);
-        console.log(`Sample codes:`, Array.from(foundCodes).slice(0, 10));
+        for (const colCells of Object.values(cellsByCol)) {
+          colCells.sort((a,b)=>a.row-b.row);
+          for (let i=0;i<colCells.length-1;i++){
+            const A=colCells[i], B=colCells[i+1];
+            if (B.row - A.row <= 2){
+              const va=String(A.value).toUpperCase().trim();
+              const vb=String(B.value).toUpperCase().trim();
+              if (/^[A-Z]{2,5}$/.test(va) && /^\d{3,5}[A-Z]?$/.test(vb)) {
+                const code=`${va} ${vb.replace(/[A-Z]$/,'')}`; foundCodes.add(code); targetSet.add(code);
+              }
+              if (/^\d{3,5}[A-Z]?$/.test(va) && /^[A-Z]{2,5}$/.test(vb)) {
+                const code=`${vb} ${va.replace(/[A-Z]$/,'')}`; foundCodes.add(code); targetSet.add(code);
+              }
+            }
+          }
+        }
 
         return {ok: true, count: foundCodes.size};
 
@@ -478,6 +436,8 @@
       div.id=c.id;
       div.dataset.locked = c.locked ? 'true' : 'false';
       div.dataset.cat = c.cat;
+      /* NEW: helpful hover tooltip so compact mode still exposes info */
+      div.title = [c.code || labelForCat(c.cat), c.name].filter(Boolean).join(' — ');
       div.addEventListener('dragstart', e=>{
         e.dataTransfer.setData('text/plain', JSON.stringify({id:c.id}));
         e.dataTransfer.effectAllowed='move';
@@ -556,7 +516,7 @@
       const tally = { requiredIE:0, otherReq:0, ieSel:0, tech:0, gened:0, extra:0 };
       for(const c of state.terms.flat()) tally[c.cat] += Number(c.credits||0);
 
-      const needIEReq = 36; // adjust if your curriculum differs
+      const needIEReq = 36;
       const ieReqHave = tally.requiredIE;
 
       const ieSelMode = state.settings.ieSelMode;
@@ -800,7 +760,24 @@
 • For Gen Ed, mark ☆ to count as Non-Intro (need ≥ 6 credits).
 • Extra Classes are optional and not validated.
 • Progress checks update live below the grid.
+• “Compact pools” in the header shrinks the left column so terms stay in view.
 • Autosaves in your browser. Use Export/Import to move between devices.`);
+    };
+
+    // ---------- NEW: compact toggle + dynamic sticky offset ----------
+    function updateHeaderHeight(){
+      const h = document.querySelector('header')?.offsetHeight || 64;
+      document.documentElement.style.setProperty('--header-h', h + 'px');
+    }
+    window.addEventListener('resize', updateHeaderHeight);
+    new ResizeObserver(updateHeaderHeight).observe(document.querySelector('header'));
+    updateHeaderHeight();
+
+    document.getElementById('btn-compact').onclick = ()=>{
+      const asideEl = document.getElementById('left-pools');
+      asideEl.classList.toggle('compact');
+      document.getElementById('btn-compact').textContent =
+        asideEl.classList.contains('compact') ? 'Comfortable pools' : 'Compact pools';
     };
 
     // ---------- Init ----------
@@ -808,6 +785,7 @@
       load();        // restores or seeds if empty
       render();      // render current state
       await initAllowLists(); // then load validation lists
+      updateHeaderHeight();   // finalize sticky offset
     })();
   </script>
 </body>
