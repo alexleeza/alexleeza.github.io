@@ -187,10 +187,17 @@
   const GEN_XLSX_URL  = 'assets/generalelectives.xlsx';
 
   // ---------- Utility ----------
-  const norm = (s) => (s||'')
-    .toString().trim().toUpperCase()
-    .replace(/\s+/g,' ')
-    .replace(/([A-Z])\s+(\d)/, '$1 $2');
+  const norm = (s) => (s ?? '')
+    .toString()
+    .trim()
+    .toUpperCase()
+    // convert any dash (hyphen/en/em) to a space
+    .replace(/[\u2010-\u2015-]+/g, ' ')
+    // collapse whitespace
+    .replace(/\s+/g, ' ')
+    // ensure exactly one space between dept letters and digits
+    .replace(/^([A-Z]{2,4})\s*?(\d{3,5})(.*)$/, (_, dept, num) => `${dept} ${num}`);
+
 
   // ---------- Allow-lists ----------
   const allow = { tech: new Set(), gened: new Set() };
