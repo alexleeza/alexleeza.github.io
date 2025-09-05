@@ -213,69 +213,70 @@
     const allow = { tech: new Set(), gened: new Set() };
 
     /**
-     * Load first sheet of an Excel file and extract course codes.
-     * - Auto-detects the first row that actually contains a code (skips headers/notes).
-     * - Accepts codes inside a single cell (e.g., "STAT 51400 - ...")
-     * - Accepts split columns (e.g., ["STAT", 51400]).
+     * Load the FIRST sheet and extract course codes.
+     * Scans the full declared sheet range (ws['!ref']) so trailing empty cells don't truncate rows.
      */
-async function loadXlsxToSet(url, targetSet){
-  try{
-    const res = await fetch(url, {cache:'no-store'});
-    if(!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-    const buf = await res.arrayBuffer();
-    const wb = XLSX.read(buf, {type:'array'});
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(ws, {header:1, blankrows:false, defval:''});
+    async function loadXlsxToSet(url, targetSet){
+      try{
+        const res = await fetch(url, {cache:'no-store'});
+        if(!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+        const buf = await res.arrayBuffer();
+        const wb = XLSX.read(buf, {type:'array'});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        if (!ws || !ws['!ref']) return {ok:true}; // empty sheet, nothing to add
 
-    // 1) Find the first row with a detectable course code (skip headers/notes)
-    let startRow = 0;
-    outer:
-    for (let r = 0; r < rows.length; r++){
-      const row = rows[r];
+        const range = XLSX.utils.decode_range(ws['!ref']); // {s:{r,c}, e:{r,c}}
+        const rows = XLSX.utils.sheet_to_json(ws, {header:1, blankrows:false, defval:''});
 
-      // (A) any single-cell code anywhere in the row
-      for (let c = 0; c < row.length; c++){
-        if (norm(row[c])) { startRow = r; break outer; }
-      }
-      // (B) split dept+number across adjacent cells
-      for (let c = 0; c < row.length - 1; c++){
-        const a = String(row[c] ?? '').toUpperCase().trim();
-        const b = String(row[c+1] ?? '').toUpperCase().trim();
-        if ((/^[A-Z]{2,5}$/.test(a) && /^\d{3,5}$/.test(b)) ||
-            (/^\d{3,5}$/.test(a) && /^[A-Z]{2,5}$/.test(b))) {
-          startRow = r; break outer;
+        // 1) Find the first row with a detectable course code (skip headers/notes)
+        let startRow = 0;
+        outer:
+        for (let r = 0; r < rows.length; r++){
+          const row = rows[r];
+
+          // (A) any single-cell code anywhere within the declared range
+          for (let c = range.s.c; c <= range.e.c; c++){
+            const val = row[c - range.s.c] ?? '';
+            if (norm(val)) { startRow = r; break outer; }
+          }
+          // (B) split dept+number across adjacent cells (within the declared range)
+          for (let c = range.s.c; c < range.e.c; c++){
+            const a = String(row[c - range.s.c] ?? '').toUpperCase().trim();
+            const b = String(row[c + 1 - range.s.c] ?? '').toUpperCase().trim();
+            if ((/^[A-Z]{2,5}$/.test(a) && /^\d{3,5}$/.test(b)) ||
+                (/^\d{3,5}$/.test(a) && /^[A-Z]{2,5}$/.test(b))) {
+              startRow = r; break outer;
+            }
+          }
         }
+
+        // 2) Parse codes from startRow → end, scanning the full declared width
+        for (let r = startRow; r < rows.length; r++){
+          const row = rows[r];
+
+          // (A) single-cell match anywhere
+          let added = false;
+          for (let c = range.s.c; c <= range.e.c; c++){
+            const code = norm(row[c - range.s.c] ?? '');
+            if (code){ targetSet.add(code); added = true; break; }
+          }
+          if (added) continue;
+
+          // (B) split across adjacent cells (dept + number or number + dept)
+          for (let c = range.s.c; c < range.e.c; c++){
+            const a = String(row[c - range.s.c] ?? '').toUpperCase().trim();
+            const b = String(row[c + 1 - range.s.c] ?? '').toUpperCase().trim();
+            if (/^[A-Z]{2,5}$/.test(a) && /^\d{3,5}$/.test(b)){ targetSet.add(`${a} ${b}`); added = true; break; }
+            if (/^\d{3,5}$/.test(a) && /^[A-Z]{2,5}$/.test(b)){ targetSet.add(`${b} ${a}`); added = true; break; }
+          }
+        }
+
+        return {ok:true};
+      }catch(err){
+        console.error('Failed loading', url, err);
+        return {ok:false, err};
       }
     }
-
-    // 2) Parse codes from startRow → end, scanning *all* columns in each row
-    for (let r = startRow; r < rows.length; r++){
-      const row = rows[r];
-
-      // (A) prefer a single-cell match anywhere in the row
-      let added = false;
-      for (let c = 0; c < row.length; c++){
-        const code = norm(row[c]);
-        if (code){ targetSet.add(code); added = true; break; }
-      }
-      if (added) continue;
-
-      // (B) split across adjacent cells (dept + number or number + dept)
-      for (let c = 0; c < row.length - 1; c++){
-        const a = String(row[c] ?? '').toUpperCase().trim();
-        const b = String(row[c+1] ?? '').toUpperCase().trim();
-        if (/^[A-Z]{2,5}$/.test(a) && /^\d{3,5}$/.test(b)){ targetSet.add(`${a} ${b}`); added = true; break; }
-        if (/^\d{3,5}$/.test(a) && /^[A-Z]{2,5}$/.test(b)){ targetSet.add(`${b} ${a}`); added = true; break; }
-      }
-    }
-
-    return {ok:true};
-  }catch(err){
-    console.error('Failed loading', url, err);
-    return {ok:false, err};
-  }
-}
-
 
     async function initAllowLists(){
       const badge = document.getElementById('lists-status');
@@ -565,7 +566,6 @@ async function loadXlsxToSet(url, targetSet){
     const dlgNonIntro = document.getElementById('dlg-nonintro');
 
     function openEdit(course){
-      // Guard: uneditable cards should never call this, but just in case:
       if (course.locked || course.cat==='requiredIE' || course.cat==='otherReq' || course.fixedIE) return;
 
       dlgTitle.textContent = `Edit ${course.code || labelForCat(course.cat)}`;
@@ -573,17 +573,15 @@ async function loadXlsxToSet(url, targetSet){
       dlgCreditsInput.value = Number(course.credits || 0);
       dlgNonIntro.checked = !!course.nonIntro;
 
-      // Show/hide Non-Intro checkbox depending on category
       dlgNonIntro.parentElement.style.display = (course.cat === 'gened') ? 'flex' : 'none';
 
       dlg.returnValue = '';
       dlg.showModal();
 
       dlg.addEventListener('close', function onClose(){
-        // Remove listener after one run
         dlg.removeEventListener('close', onClose);
 
-        if (dlg.returnValue !== 'ok') return; // cancelled
+        if (dlg.returnValue !== 'ok') return;
         const cr = Number(dlgCreditsInput.value);
         if (!isFinite(cr) || cr <= 0 || cr > 18){
           alert('Enter a valid number of credits (0–18).');
@@ -596,7 +594,7 @@ async function loadXlsxToSet(url, targetSet){
       }, { once:true });
     }
 
-    // Validator aligned with norm’s pattern
+    // ---------- Prompts for adding ----------
     function promptForCourseCode(label){
       const raw = prompt(`${label}\nEnter course code (e.g., "CS 30700"):`, '');
       if(raw===null) return null;
@@ -683,10 +681,9 @@ async function loadXlsxToSet(url, targetSet){
         file.text().then(txt=>{
           try{
             const s=JSON.parse(txt);
-            // shallow validate shape
             if (!s || typeof s!=='object' || !s.pools || !s.terms || !s.settings) throw new Error('bad');
             Object.assign(state,s);
-            if (!state.pools?.requiredIE) seedInitial(); // guard malformed imports
+            if (!state.pools?.requiredIE) seedInitial();
             render();
           }catch{
             alert('Invalid JSON');
@@ -703,7 +700,7 @@ async function loadXlsxToSet(url, targetSet){
 • Drag any course card into a term.
 • Required IE & Other Required titles/credits are fixed (cannot be edited).
 • IE Selectives: choose Option I (IE 47000 + IE 48400) OR Option II (one of those + one custom IE Selective).
-• Add Technical Selectives and Gen Eds with the + buttons — validated against your Excel lists (first column = course code).
+• Add Technical Selectives and Gen Eds with the + buttons — validated against your Excel lists (scans full width of the sheet, e.g., col AA).
 • For Gen Ed, mark ☆ to count as Non-Intro (need ≥ 6 credits).
 • Extra Classes are optional and not validated.
 • Progress checks update live below the grid.
