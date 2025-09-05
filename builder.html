@@ -19,8 +19,18 @@
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
-    header{position:sticky;top:0;background:linear-gradient(180deg,var(--bg),rgba(255,255,255,0));z-index:20;padding:.75rem 1rem;border-bottom:1px solid color-mix(in oklab, var(--primary) 20%, #ffffff)}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    header{
+      position:sticky;top:0;
+      background:linear-gradient(180deg,var(--bg),rgba(255,255,255,0));
+      z-index:20;padding:.75rem 1rem;
+      border-bottom:1px solid color-mix(in oklab, var(--primary) 20%, #ffffff)
+    }
     .container{display:grid;grid-template-columns:320px 1fr;gap:16px;padding:16px}
     .panel{background:var(--panel);border:1px solid color-mix(in oklab, var(--primary) 25%, #ffffff);border-radius:16px;padding:12px}
     h1{font-size:1.25rem;margin:.25rem 0 .5rem 0;color:var(--primary)}
@@ -58,7 +68,10 @@
     .bad{color:var(--warn)}
     .muted{color:var(--muted)}
 
-    @media (max-width: 1100px){.grid{grid-template-columns:repeat(2,minmax(240px,1fr))}.container{grid-template-columns:1fr}}
+    @media (max-width: 1100px){
+      .grid{grid-template-columns:repeat(2,minmax(240px,1fr))}
+      .container{grid-template-columns:1fr}
+    }
 
     dialog#dlg{border:1px solid color-mix(in oklab, var(--primary) 25%, #ffffff);border-radius:12px;padding:0;max-width:520px}
     dialog#dlg form{padding:12px 12px 0 12px}
@@ -180,456 +193,511 @@
     </form>
   </dialog>
 
-<script>
-  // ---------- Config: paths to your Excel allow-lists ----------
-  const TECH_XLSX_URL = 'assets/techelectives.xlsx';
-  const GEN_XLSX_URL  = 'assets/generalelectives.xlsx';
+  <script>
+    // ---------- Config: paths to your Excel allow-lists ----------
+    const TECH_XLSX_URL = 'assets/techelectives.xlsx';
+    const GEN_XLSX_URL  = 'assets/generalelectives.xlsx';
 
-  // ---------- Utility ----------
-  // Normalize: find first DEPT+NUMBER anywhere, ignore trailing text, normalize odd spaces
-  const norm = (s) => {
-    const t = String(s ?? '')
-      .replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000]/g, ' ')
-      .toUpperCase()
-      .trim();
-    const m = t.match(/([A-Z]{2,5})\s*[- ]?(\d{3,5})/); // not anchored; first hit wins
-    return m ? `${m[1]} ${m[2]}` : '';
-  };
+    // ---------- Utility ----------
+    // Normalize: find first DEPT+NUMBER anywhere, ignore trailing text, normalize odd spaces
+    const norm = (s) => {
+      const t = String(s ?? '')
+        .replace(/[\u00A0\u1680\u180E\u2000-\u200B\u202F\u205F\u3000]/g, ' ')
+        .toUpperCase()
+        .trim();
+      const m = t.match(/([A-Z]{2,5})\s*[- ]?(\d{3,5})/); // not anchored; first hit wins
+      return m ? `${m[1]} ${m[2]}` : '';
+    };
 
-  // ---------- Allow-lists ----------
-  const allow = { tech: new Set(), gened: new Set() };
+    // ---------- Allow-lists ----------
+    const allow = { tech: new Set(), gened: new Set() };
 
-  /**
-   * Load first sheet of an Excel file and extract course codes.
-   * - Auto-detects the first row that actually contains a code (skips headers/notes).
-   * - Accepts codes inside a single cell (e.g., "STAT 51400 - ...")
-   * - Accepts split columns (e.g., ["STAT", 51400]).
-   */
-  async function loadXlsxToSet(url, targetSet){
-    try{
-      const res = await fetch(url, {cache:'no-store'});
-      if(!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
-      const buf = await res.arrayBuffer();
-      const wb = XLSX.read(buf, {type:'array'});
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, {header:1, blankrows:false, defval:''});
+    /**
+     * Load first sheet of an Excel file and extract course codes.
+     * - Auto-detects the first row that actually contains a code (skips headers/notes).
+     * - Accepts codes inside a single cell (e.g., "STAT 51400 - ...")
+     * - Accepts split columns (e.g., ["STAT", 51400]).
+     */
+async function loadXlsxToSet(url, targetSet){
+  try{
+    const res = await fetch(url, {cache:'no-store'});
+    if(!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+    const buf = await res.arrayBuffer();
+    const wb = XLSX.read(buf, {type:'array'});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1, blankrows:false, defval:''});
 
-      // 1) Find the first row with a detectable course code
-      let startRow = 0;
-      outer:
-      for (let r = 0; r < rows.length; r++){
-        const row = rows[r];
-        // (A) any single-cell code
-        for (let c = 0; c < Math.min(row.length, 20); c++){
-          if (norm(row[c])) { startRow = r; break outer; }
-        }
-        // (B) split dept+number across adjacent cells
-        for (let c = 0; c < Math.min(row.length-1, 20); c++){
-          const a = String(row[c] ?? '').toUpperCase().trim();
-          const b = String(row[c+1] ?? '').toUpperCase().trim();
-          if ((/^[A-Z]{2,5}$/.test(a) && /^\d{3,5}$/.test(b)) ||
-              (/^\d{3,5}$/.test(a) && /^[A-Z]{2,5}$/.test(b))) {
-            startRow = r; break outer;
-          }
+    // 1) Find the first row with a detectable course code (skip headers/notes)
+    let startRow = 0;
+    outer:
+    for (let r = 0; r < rows.length; r++){
+      const row = rows[r];
+
+      // (A) any single-cell code anywhere in the row
+      for (let c = 0; c < row.length; c++){
+        if (norm(row[c])) { startRow = r; break outer; }
+      }
+      // (B) split dept+number across adjacent cells
+      for (let c = 0; c < row.length - 1; c++){
+        const a = String(row[c] ?? '').toUpperCase().trim();
+        const b = String(row[c+1] ?? '').toUpperCase().trim();
+        if ((/^[A-Z]{2,5}$/.test(a) && /^\d{3,5}$/.test(b)) ||
+            (/^\d{3,5}$/.test(a) && /^[A-Z]{2,5}$/.test(b))) {
+          startRow = r; break outer;
         }
       }
+    }
 
-      // 2) Parse codes from startRow → end
-      for (let r = startRow; r < rows.length; r++){
-        const row = rows[r];
+    // 2) Parse codes from startRow → end, scanning *all* columns in each row
+    for (let r = startRow; r < rows.length; r++){
+      const row = rows[r];
 
-        // (A) prefer a single-cell match anywhere across first 20 columns
-        let added = false;
-        for (let c = 0; c < Math.min(row.length, 20); c++){
-          const code = norm(row[c]);
-          if (code){ targetSet.add(code); added = true; break; }
-        }
-        if (added) continue;
-
-        // (B) split across adjacent cells
-        for (let c = 0; c < Math.min(row.length-1, 20); c++){
-          const a = String(row[c] ?? '').toUpperCase().trim();
-          const b = String(row[c+1] ?? '').toUpperCase().trim();
-          if (/^[A-Z]{2,5}$/.test(a) && /^\d{3,5}$/.test(b)){ targetSet.add(`${a} ${b}`); added = true; break; }
-          if (/^\d{3,5}$/.test(a) && /^[A-Z]{2,5}$/.test(b)){ targetSet.add(`${b} ${a}`); added = true; break; }
-        }
+      // (A) prefer a single-cell match anywhere in the row
+      let added = false;
+      for (let c = 0; c < row.length; c++){
+        const code = norm(row[c]);
+        if (code){ targetSet.add(code); added = true; break; }
       }
+      if (added) continue;
 
-      return {ok:true};
-    }catch(err){
-      console.error('Failed loading', url, err);
-      return {ok:false, err};
-    }
-  }
-
-  async function initAllowLists(){
-    const badge = document.getElementById('lists-status');
-    badge.textContent = 'Loading lists…';
-    const t = await loadXlsxToSet(TECH_XLSX_URL, allow.tech);
-    const g = await loadXlsxToSet(GEN_XLSX_URL,  allow.gened);
-
-    if (t.ok && g.ok){
-      badge.textContent = 'Validation: ready';
-      badge.title = `Tech loaded (${allow.tech.size}); GenEd loaded (${allow.gened.size})`;
-    } else if (t.ok || g.ok){
-      badge.textContent = 'Validation: partial';
-      badge.title = `${t.ok?'Tech OK':'Tech failed'}; ${g.ok?'GenEd OK':'GenEd failed'}`;
-    } else {
-      badge.textContent = 'Validation: failed';
-      badge.title = 'Both lists failed to load — check /assets paths or file names';
-    }
-  }
-
-  // ---------- Data ----------
-  const REQUIRED_IE = [
-    ["IE 20000","Industrial Engineering Seminar",0],
-    ["IE 23000","Probability And Statistics In Engineering I",3],
-    ["IE 33000","Probability And Statistics In Engineering II",3],
-    ["IE 33200","Computing In Industrial Engineering",3],
-    ["IE 33500","Operations Research – Optimization",3],
-    ["IE 33600","Operations Research – Stochastic Models",3],
-    ["IE 34300","Engineering Economics",3],
-    ["IE 37000","Manufacturing Processes I",3],
-    ["IE 38300","Integrated Production Systems I",3],
-    ["IE 38600","Work Analysis And Design I",3],
-    ["IE 43100","Industrial Engineering Design",3],
-    ["IE 47400","Industrial Control Systems",3],
-    ["IE 48600","Work Analysis And Design II",3],
-  ];
-
-  const OTHER_REQ = [
-    ["CS 15900","C Programming",3],
-    ["MA 26100","Multivariate Calculus",4],
-    ["MA 26500","Linear Algebra",3],
-    ["MA 26600","Ordinary Differential Equations",3],
-    ["ME 27000","Basic Mechanics I",3],
-    ["ME 20000","Thermodynamics I",3],
-    ["NUCL 27300","Mechanics Of Materials",3],
-    ["PHYS 24100","Electricity And Optics",3],
-    ["ECE 20001","Electrical Engineering Fundamentals I",3],
-  ];
-
-  const IE_SEL_FIXED = [
-    ["IE 47000","Manufacturing Processes II",3],
-    ["IE 48400","Integrated Production Systems II",3],
-  ];
-
-  // ---------- State ----------
-  const uid = () => Math.random().toString(36).slice(2,10);
-
-  const state = {
-    pools: { requiredIE: [], otherReq: [], ieSel: [], tech: [], gened: [], extra: [] },
-    terms: Array.from({length:8}, () => []),
-    settings: { ieSelMode: 'opt1', fyeCredit: true, termTarget: 15 }
-  };
-
-  function seedInitial(){
-    state.pools.requiredIE = REQUIRED_IE.map(([code,name,cr])=>({id:uid(),code,name,credits:cr,cat:'requiredIE',locked:true,nonIntro:false}));
-    state.pools.otherReq   = OTHER_REQ.map(([code,name,cr])=>({id:uid(),code,name,credits:cr,cat:'otherReq',locked:true,nonIntro:false}));
-    state.pools.ieSel      = IE_SEL_FIXED.map(([code,name,cr])=>({id:uid(),code,name,credits:cr,cat:'ieSel',locked:false,nonIntro:false,fixedIE:true}));
-    state.pools.tech = [];
-    state.pools.gened = [];
-    state.pools.extra = [];
-  }
-
-  // ---------- Persistence ----------
-  const KEY='ie-schedule-v1';
-  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ /* ignore quota */ } }
-  function load(){
-    try{
-      const s = JSON.parse(localStorage.getItem(KEY));
-      if (s && s.pools && s.terms && s.settings) Object.assign(state, s);
-    }catch(e){
-      localStorage.removeItem(KEY);
-    }
-    if (!state.pools.requiredIE?.length) seedInitial();
-  }
-
-  // ---------- Rendering ----------
-  const elRequired = document.getElementById('pool-required-ie');
-  const elOther = document.getElementById('pool-other-req');
-  const elIESel = document.getElementById('pool-ie-sel');
-  const elTech = document.getElementById('pool-tech');
-  const elGen = document.getElementById('pool-gened');
-  const elExtra = document.getElementById('pool-extra');
-  const elTerms = document.getElementById('terms');
-  const elStatus = document.getElementById('status');
-
-  function courseCard(c){
-    const div=document.createElement('div');
-    div.className='card';
-    div.draggable=true;
-    div.id=c.id;
-    div.dataset.locked = c.locked ? 'true' : 'false';
-    div.dataset.cat = c.cat;
-    div.addEventListener('dragstart', e=>{
-      e.dataTransfer.setData('text/plain', JSON.stringify({id:c.id}));
-      e.dataTransfer.effectAllowed='move';
-    });
-
-    const head=document.createElement('div'); head.className='card-header';
-    const code=document.createElement('span'); code.className='code'; code.textContent=c.code || labelForCat(c.cat);
-    const name=document.createElement('span'); name.className='name'; name.textContent=c.name || '';
-    const cr=document.createElement('span'); cr.className='credits'; cr.textContent=`${Number(c.credits)} cr`;
-    head.append(code,name,cr);
-
-    const tools=document.createElement('div'); tools.className='tools';
-    const btnEdit=document.createElement('button'); btnEdit.className='tool'; btnEdit.innerHTML='✏️'; btnEdit.title='Edit';
-    if(c.locked || c.cat==='requiredIE' || c.cat==='otherReq' || c.fixedIE){ btnEdit.setAttribute('aria-disabled','true'); }
-    btnEdit.onclick=()=> openEdit(c);
-
-    const btnX=document.createElement('button'); btnX.className='tool'; btnX.innerHTML='🗑️'; btnX.title='Remove to pool';
-    btnX.onclick=()=> removeCourse(c.id);
-
-    if(c.cat==='gened'){
-      const tog=document.createElement('button'); tog.className='tool'; tog.title='Toggle Non-Intro';
-      tog.textContent = c.nonIntro ? '★' : '☆';
-      tog.onclick=()=>{ c.nonIntro=!c.nonIntro; render(); };
-      tools.appendChild(tog);
+      // (B) split across adjacent cells (dept + number or number + dept)
+      for (let c = 0; c < row.length - 1; c++){
+        const a = String(row[c] ?? '').toUpperCase().trim();
+        const b = String(row[c+1] ?? '').toUpperCase().trim();
+        if (/^[A-Z]{2,5}$/.test(a) && /^\d{3,5}$/.test(b)){ targetSet.add(`${a} ${b}`); added = true; break; }
+        if (/^\d{3,5}$/.test(a) && /^[A-Z]{2,5}$/.test(b)){ targetSet.add(`${b} ${a}`); added = true; break; }
+      }
     }
 
-    tools.append(btnEdit,btnX);
-    div.append(head,tools);
-    return div;
+    return {ok:true};
+  }catch(err){
+    console.error('Failed loading', url, err);
+    return {ok:false, err};
   }
+}
 
-  function labelForCat(cat){
-    return ({ieSel:'IE Selective', tech:'Tech Selective', gened:'Gen Ed', extra:'Extra'})[cat] || '';
-  }
 
-  function renderPools(){
-    [elRequired,elOther,elIESel,elTech,elGen,elExtra].forEach(el=> el.innerHTML='');
-    state.pools.requiredIE.forEach(c=>elRequired.appendChild(courseCard(c)));
-    state.pools.otherReq.forEach(c=>elOther.appendChild(courseCard(c)));
-    state.pools.ieSel.forEach(c=>elIESel.appendChild(courseCard(c)));
-    state.pools.tech.forEach(c=>elTech.appendChild(courseCard(c)));
-    state.pools.gened.forEach(c=>elGen.appendChild(courseCard(c)));
-    state.pools.extra.forEach(c=>elExtra.appendChild(courseCard(c)));
-  }
+    async function initAllowLists(){
+      const badge = document.getElementById('lists-status');
+      badge.textContent = 'Loading lists…';
+      const t = await loadXlsxToSet(TECH_XLSX_URL, allow.tech);
+      const g = await loadXlsxToSet(GEN_XLSX_URL,  allow.gened);
 
-  function renderTerms(){
-    elTerms.innerHTML='';
-    const target = document.getElementById('term-target');
-    target.value = state.settings.termTarget;
-    state.terms.forEach((arr,idx)=>{
-      const term=document.createElement('div'); term.className='term';
-      const head=document.createElement('div'); head.className='term-head';
-      const title=document.createElement('div'); title.innerHTML=`<strong>Term ${idx+1}</strong>`;
-      const sum=document.createElement('div'); sum.className='sum'; sum.textContent = `${sumCredits(arr)} cr`;
-      if(sumCredits(arr) > state.settings.termTarget + 3) sum.style.color='var(--warn)';
-      head.append(title,sum);
-      const drop=document.createElement('div'); drop.className='drop'; drop.dataset.term=idx;
-      drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.classList.add('dragover'); });
-      drop.addEventListener('dragleave', ()=> drop.classList.remove('dragover'));
-      drop.addEventListener('drop', e=>{
-        e.preventDefault(); drop.classList.remove('dragover');
-        const data = e.dataTransfer.getData('text/plain');
-        if (!data) return;
-        const {id} = JSON.parse(data);
-        placeIntoTerm(id, idx);
-      });
-      arr.forEach(c=> drop.appendChild(courseCard(c)));
-      term.append(head,drop);
-      elTerms.appendChild(term);
-    });
-  }
+      if (t.ok && g.ok){
+        badge.textContent = 'Validation: ready';
+        badge.title = `Tech loaded (${allow.tech.size}); GenEd loaded (${allow.gened.size})`;
+      } else if (t.ok || g.ok){
+        badge.textContent = 'Validation: partial';
+        badge.title = `${t.ok?'Tech OK':'Tech failed'}; ${g.ok?'GenEd OK':'GenEd failed'}`;
+      } else {
+        badge.textContent = 'Validation: failed';
+        badge.title = 'Both lists failed to load — check /assets paths or file names';
+      }
+    }
 
-  function sumCredits(arr){ return arr.reduce((s,c)=> s + Number(c.credits||0), 0); }
-
-  function renderStatus(){
-    const div=elStatus; div.innerHTML='';
-    const total = state.terms.flat().reduce((s,c)=> s + Number(c.credits||0),0);
-    document.getElementById('total-credits').textContent = total;
-
-    const tally = { requiredIE:0, otherReq:0, ieSel:0, tech:0, gened:0, extra:0 };
-    for(const c of state.terms.flat()) tally[c.cat] += Number(c.credits||0);
-
-    const needIEReq = 36;
-    const ieReqHave = tally.requiredIE;
-
-    const ieSelMode = state.settings.ieSelMode;
-    const ieSelNeed = 6;
-    const ieSelHave = tally.ieSel;
-
-    const techNeed = 9; const techHave = tally.tech;
-
-    const genBaseNeed = 18 - (state.settings.fyeCredit ? 6 : 0);
-    const genHave = tally.gened;
-    const genNonIntro = state.terms.flat().filter(c=>c.cat==='gened' && c.nonIntro).reduce((s,c)=> s + Number(c.credits||0),0);
-
-    const has47000 = state.terms.flat().some(c=>c.code==='IE 47000');
-    const has48400 = state.terms.flat().some(c=>c.code==='IE 48400');
-    const hasCustomIESel = state.terms.flat().some(c=>c.cat==='ieSel' && !c.fixedIE);
-
-    const list=[
-      line(ieReqHave>=needIEReq, `Required IE: ${ieReqHave}/${needIEReq} cr`),
-      line( (ieSelHave>=ieSelNeed) && (
-        ieSelMode==='opt1' ? (has47000 && has48400) : ((has47000||has48400) && hasCustomIESel)
-      ), `IE Selectives (${ieSelMode==='opt1'?'Option I':'Option II'}): ${ieSelHave}/${ieSelNeed} cr` + (ieSelMode==='opt1'? ` (must include IE 47000 & IE 48400)` : ` (1 of IE 47000/48400 + 1 custom IE Selective)`)),
-      line(techHave>=techNeed, `Technical Selectives: ${techHave}/${techNeed} cr`),
-      line(genHave>=genBaseNeed && genNonIntro>=6, `General Education: ${genHave}/${genBaseNeed} cr (≥6 cr non-intro: ${genNonIntro})`),
+    // ---------- Data ----------
+    const REQUIRED_IE = [
+      ["IE 20000","Industrial Engineering Seminar",0],
+      ["IE 23000","Probability And Statistics In Engineering I",3],
+      ["IE 33000","Probability And Statistics In Engineering II",3],
+      ["IE 33200","Computing In Industrial Engineering",3],
+      ["IE 33500","Operations Research – Optimization",3],
+      ["IE 33600","Operations Research – Stochastic Models",3],
+      ["IE 34300","Engineering Economics",3],
+      ["IE 37000","Manufacturing Processes I",3],
+      ["IE 38300","Integrated Production Systems I",3],
+      ["IE 38600","Work Analysis And Design I",3],
+      ["IE 43100","Industrial Engineering Design",3],
+      ["IE 47400","Industrial Control Systems",3],
+      ["IE 48600","Work Analysis And Design II",3],
     ];
-    list.forEach(el=>div.appendChild(el));
 
-    if(tally.extra>0){
-      const extraNote=document.createElement('div'); extraNote.className='muted';
-      extraNote.textContent = `Extra Classes (optional): ${tally.extra} cr added to total workload.`;
-      div.appendChild(extraNote);
+    const OTHER_REQ = [
+      ["CS 15900","C Programming",3],
+      ["MA 26100","Multivariate Calculus",4],
+      ["MA 26500","Linear Algebra",3],
+      ["MA 26600","Ordinary Differential Equations",3],
+      ["ME 27000","Basic Mechanics I",3],
+      ["ME 20000","Thermodynamics I",3],
+      ["NUCL 27300","Mechanics Of Materials",3],
+      ["PHYS 24100","Electricity And Optics",3],
+      ["ECE 20001","Electrical Engineering Fundamentals I",3],
+    ];
+
+    const IE_SEL_FIXED = [
+      ["IE 47000","Manufacturing Processes II",3],
+      ["IE 48400","Integrated Production Systems II",3],
+    ];
+
+    // ---------- State ----------
+    const uid = () => Math.random().toString(36).slice(2,10);
+
+    const state = {
+      pools: { requiredIE: [], otherReq: [], ieSel: [], tech: [], gened: [], extra: [] },
+      terms: Array.from({length:8}, () => []),
+      settings: { ieSelMode: 'opt1', fyeCredit: true, termTarget: 15 }
+    };
+
+    function seedInitial(){
+      state.pools.requiredIE = REQUIRED_IE.map(([code,name,cr])=>({id:uid(),code,name,credits:cr,cat:'requiredIE',locked:true,nonIntro:false}));
+      state.pools.otherReq   = OTHER_REQ.map(([code,name,cr])=>({id:uid(),code,name,credits:cr,cat:'otherReq',locked:true,nonIntro:false}));
+      state.pools.ieSel      = IE_SEL_FIXED.map(([code,name,cr])=>({id:uid(),code,name,credits:cr,cat:'ieSel',locked:false,nonIntro:false,fixedIE:true}));
+      state.pools.tech = [];
+      state.pools.gened = [];
+      state.pools.extra = [];
     }
 
-    const tips=document.createElement('div'); tips.className='muted';
-    tips.textContent = 'Add Tech/GenEd with + (validated by spreadsheets). Click ✏️ to rename/credits. ☆ toggles Non-Intro for GenEd.';
-    div.appendChild(tips);
-  }
-
-  function line(ok, text){
-    const p=document.createElement('div'); p.className= ok? 'ok' : 'bad'; p.textContent = (ok? '✓ ' : '• ') + text; return p;
-  }
-
-  function render(){
-    try{
-      renderPools();
-      renderTerms();
-      renderStatus();
-      save();
-    }catch(e){
-      console.error('Render failed', e);
-      alert('Unexpected render error (see console).');
+    // ---------- Persistence ----------
+    const KEY='ie-schedule-v1';
+    function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){ /* ignore quota */ } }
+    function load(){
+      try{
+        const s = JSON.parse(localStorage.getItem(KEY));
+        if (s && s.pools && s.terms && s.settings) Object.assign(state, s);
+      }catch(e){
+        localStorage.removeItem(KEY);
+      }
+      if (!state.pools.requiredIE?.length) seedInitial();
     }
-  }
 
-  // ---------- Actions ----------
-  function findCourseAnywhere(id){
-    for(const [k,arr] of Object.entries(state.pools)){
-      const i=arr.findIndex(x=>x.id===id); if(i>-1) return {where:'pool', key:k, idx:i};
+    // ---------- Rendering ----------
+    const elRequired = document.getElementById('pool-required-ie');
+    const elOther = document.getElementById('pool-other-req');
+    const elIESel = document.getElementById('pool-ie-sel');
+    const elTech = document.getElementById('pool-tech');
+    const elGen = document.getElementById('pool-gened');
+    const elExtra = document.getElementById('pool-extra');
+    const elTerms = document.getElementById('terms');
+    const elStatus = document.getElementById('status');
+
+    function labelForCat(cat){
+      return ({ieSel:'IE Selective', tech:'Tech Selective', gened:'Gen Ed', extra:'Extra'})[cat] || '';
     }
-    for(let t=0;t<state.terms.length;t++){
-      const i=state.terms[t].findIndex(x=>x.id===id); if(i>-1) return {where:'term', term:t, idx:i};
+
+    function courseCard(c){
+      const div=document.createElement('div');
+      div.className='card';
+      div.draggable=true;
+      div.id=c.id;
+      div.dataset.locked = c.locked ? 'true' : 'false';
+      div.dataset.cat = c.cat;
+      div.addEventListener('dragstart', e=>{
+        e.dataTransfer.setData('text/plain', JSON.stringify({id:c.id}));
+        e.dataTransfer.effectAllowed='move';
+      });
+
+      const head=document.createElement('div'); head.className='card-header';
+      const code=document.createElement('span'); code.className='code'; code.textContent=c.code || labelForCat(c.cat);
+      const name=document.createElement('span'); name.className='name'; name.textContent=c.name || '';
+      const cr=document.createElement('span'); cr.className='credits'; cr.textContent=`${Number(c.credits)} cr`;
+      head.append(code,name,cr);
+
+      const tools=document.createElement('div'); tools.className='tools';
+      const btnEdit=document.createElement('button'); btnEdit.className='tool'; btnEdit.innerHTML='✏️'; btnEdit.title='Edit';
+      if(c.locked || c.cat==='requiredIE' || c.cat==='otherReq' || c.fixedIE){ btnEdit.setAttribute('aria-disabled','true'); }
+      btnEdit.onclick=()=> openEdit(c);
+
+      const btnX=document.createElement('button'); btnX.className='tool'; btnX.innerHTML='🗑️'; btnX.title='Remove to pool';
+      btnX.onclick=()=> removeCourse(c.id);
+
+      if(c.cat==='gened'){
+        const tog=document.createElement('button'); tog.className='tool'; tog.title='Toggle Non-Intro';
+        tog.textContent = c.nonIntro ? '★' : '☆';
+        tog.onclick=()=>{ c.nonIntro=!c.nonIntro; render(); };
+        tools.appendChild(tog);
+      }
+
+      tools.append(btnEdit,btnX);
+      div.append(head,tools);
+      return div;
     }
-    return null;
-  }
 
-  function placeIntoTerm(id, termIdx){
-    const loc=findCourseAnywhere(id); if(!loc) return;
-    let c;
-    if(loc.where==='pool'){ c = state.pools[loc.key].splice(loc.idx,1)[0]; }
-    else { c = state.terms[loc.term].splice(loc.idx,1)[0]; }
-    state.terms[termIdx].push(c);
-    render();
-  }
-
-  function removeCourse(id){
-    const loc=findCourseAnywhere(id); if(!loc) return;
-    let c;
-    if(loc.where==='term'){
-      c = state.terms[loc.term].splice(loc.idx,1)[0];
-      state.pools[c.cat].push(c);
-    } else {
-      const arr = state.pools[loc.key];
-      c = arr[loc.idx];
-      if(c.locked || c.cat==='requiredIE' || c.cat==='otherReq'){ return; }
-      arr.splice(loc.idx,1);
+    function renderPools(){
+      [elRequired,elOther,elIESel,elTech,elGen,elExtra].forEach(el=> el.innerHTML='');
+      state.pools.requiredIE.forEach(c=>elRequired.appendChild(courseCard(c)));
+      state.pools.otherReq.forEach(c=>elOther.appendChild(courseCard(c)));
+      state.pools.ieSel.forEach(c=>elIESel.appendChild(courseCard(c)));
+      state.pools.tech.forEach(c=>elTech.appendChild(courseCard(c)));
+      state.pools.gened.forEach(c=>elGen.appendChild(courseCard(c)));
+      state.pools.extra.forEach(c=>elExtra.appendChild(courseCard(c)));
     }
-    render();
-  }
 
-  function addElective(cat, title, credits, extras={}){
-    const c={id:uid(), code:extras.code || '', name:title, credits:Number(credits), cat, locked:false, nonIntro:false, ...extras};
-    state.pools[cat].push(c); render();
-  }
+    function sumCredits(arr){ return arr.reduce((s,c)=> s + Number(c.credits||0), 0); }
 
-  // Validator aligned with norm’s pattern
-  function promptForCourseCode(label){
-    const raw = prompt(`${label}\nEnter course code (e.g., "CS 30700"):`,'');
-    if(raw===null) return null;
-    const code = norm(raw);
-    if(!code || !/^[A-Z]{2,5}\s+\d{3,5}$/.test(code)){
-      alert('Please enter a course code like "CS 30700".');
+    function renderTerms(){
+      elTerms.innerHTML='';
+      const target = document.getElementById('term-target');
+      target.value = state.settings.termTarget;
+      state.terms.forEach((arr,idx)=>{
+        const term=document.createElement('div'); term.className='term';
+        const head=document.createElement('div'); head.className='term-head';
+        const title=document.createElement('div'); title.innerHTML=`<strong>Term ${idx+1}</strong>`;
+        const sum=document.createElement('div'); sum.className='sum'; sum.textContent = `${sumCredits(arr)} cr`;
+        if(sumCredits(arr) > state.settings.termTarget + 3) sum.style.color='var(--warn)';
+        head.append(title,sum);
+        const drop=document.createElement('div'); drop.className='drop'; drop.dataset.term=idx;
+        drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.classList.add('dragover'); });
+        drop.addEventListener('dragleave', ()=> drop.classList.remove('dragover'));
+        drop.addEventListener('drop', e=>{
+          e.preventDefault(); drop.classList.remove('dragover');
+          const data = e.dataTransfer.getData('text/plain');
+          if (!data) return;
+          const {id} = JSON.parse(data);
+          placeIntoTerm(id, idx);
+        });
+        arr.forEach(c=> drop.appendChild(courseCard(c)));
+        term.append(head,drop);
+        elTerms.appendChild(term);
+      });
+    }
+
+    function renderStatus(){
+      const div=elStatus; div.innerHTML='';
+      const total = state.terms.flat().reduce((s,c)=> s + Number(c.credits||0),0);
+      document.getElementById('total-credits').textContent = total;
+
+      const tally = { requiredIE:0, otherReq:0, ieSel:0, tech:0, gened:0, extra:0 };
+      for(const c of state.terms.flat()) tally[c.cat] += Number(c.credits||0);
+
+      const needIEReq = 36; // adjust if your curriculum differs
+      const ieReqHave = tally.requiredIE;
+
+      const ieSelMode = state.settings.ieSelMode;
+      const ieSelNeed = 6;
+      const ieSelHave = tally.ieSel;
+
+      const techNeed = 9; const techHave = tally.tech;
+
+      const genBaseNeed = 18 - (state.settings.fyeCredit ? 6 : 0);
+      const genHave = tally.gened;
+      const genNonIntro = state.terms.flat().filter(c=>c.cat==='gened' && c.nonIntro).reduce((s,c)=> s + Number(c.credits||0),0);
+
+      const has47000 = state.terms.flat().some(c=>c.code==='IE 47000');
+      const has48400 = state.terms.flat().some(c=>c.code==='IE 48400');
+      const hasCustomIESel = state.terms.flat().some(c=>c.cat==='ieSel' && !c.fixedIE);
+
+      const list=[
+        line(ieReqHave>=needIEReq, `Required IE: ${ieReqHave}/${needIEReq} cr`),
+        line(
+          (ieSelHave>=ieSelNeed) && (
+            ieSelMode==='opt1' ? (has47000 && has48400) : ((has47000||has48400) && hasCustomIESel)
+          ),
+          `IE Selectives (${ieSelMode==='opt1'?'Option I':'Option II'}): ${ieSelHave}/${ieSelNeed} cr` +
+          (ieSelMode==='opt1'? ` (must include IE 47000 & IE 48400)` : ` (1 of IE 47000/48400 + 1 custom IE Selective)`)
+        ),
+        line(techHave>=techNeed, `Technical Selectives: ${techHave}/${techNeed} cr`),
+        line(genHave>=genBaseNeed && genNonIntro>=6, `General Education: ${genHave}/${genBaseNeed} cr (≥6 cr non-intro: ${genNonIntro})`),
+      ];
+      list.forEach(el=>div.appendChild(el));
+
+      if(tally.extra>0){
+        const extraNote=document.createElement('div'); extraNote.className='muted';
+        extraNote.textContent = `Extra Classes (optional): ${tally.extra} cr added to total workload.`;
+        div.appendChild(extraNote);
+      }
+
+      const tips=document.createElement('div'); tips.className='muted';
+      tips.textContent = 'Add Tech/GenEd with + (validated by spreadsheets). Click ✏️ to rename/credits. ☆ toggles Non-Intro for GenEd.';
+      div.appendChild(tips);
+    }
+
+    function line(ok, text){
+      const p=document.createElement('div'); p.className= ok? 'ok' : 'bad'; p.textContent = (ok? '✓ ' : '• ') + text; return p;
+    }
+
+    function render(){
+      try{
+        renderPools();
+        renderTerms();
+        renderStatus();
+        save();
+      }catch(e){
+        console.error('Render failed', e);
+        alert('Unexpected render error (see console).');
+      }
+    }
+
+    // ---------- Actions ----------
+    function findCourseAnywhere(id){
+      for(const [k,arr] of Object.entries(state.pools)){
+        const i=arr.findIndex(x=>x.id===id); if(i>-1) return {where:'pool', key:k, idx:i};
+      }
+      for(let t=0;t<state.terms.length;t++){
+        const i=state.terms[t].findIndex(x=>x.id===id); if(i>-1) return {where:'term', term:t, idx:i};
+      }
       return null;
     }
-    return code;
-  }
-  function promptForCredits(defaultCr=3){
-    const raw = prompt('Enter credits:', String(defaultCr));
-    if(raw===null) return null;
-    const cr = Number(raw);
-    if(!isFinite(cr) || cr<=0 || cr>18){ alert('Enter a valid number of credits.'); return null; }
-    return cr;
-  }
 
-  // ---------- Events ----------
-  document.getElementById('add-tech').onclick=()=>{
-    const code = promptForCourseCode('Technical Selective');
-    if(code===null) return;
-    if(allow.tech.size===0){ alert('Tech electives list not loaded yet. Check file path or reload.'); return; }
-    if(!allow.tech.has(code)){ alert(`"${code}" is not in techelectives.xlsx. Cannot add.`); return; }
-    const cr = promptForCredits(3); if(cr===null) return;
-    addElective('tech', '', cr, {code});
-  };
-
-  document.getElementById('add-gened').onclick=()=>{
-    const code = promptForCourseCode('General Education');
-    if(code===null) return;
-    if(allow.gened.size===0){ alert('General electives list not loaded yet. Check file path or reload.'); return; }
-    if(!allow.gened.has(code)){ alert(`"${code}" is not in generalelectives.xlsx. Cannot add.`); return; }
-    const cr = promptForCredits(3); if(cr===null) return;
-    addElective('gened', '', cr, {code});
-  };
-
-  document.getElementById('add-ie-sel').onclick=()=>{
-    if(state.settings.ieSelMode==='opt2'){
-      const code = promptForCourseCode('Custom IE Selective (Option II)') || '';
-      const cr = promptForCredits(3); if(cr===null) return;
-      addElective('ieSel','',cr,{code, fixedIE:false});
-    } else {
-      alert('Custom IE Selective is for Option II. Switch the option above to enable.');
-    }
-  };
-
-  document.getElementById('add-extra').onclick=()=>{
-    const code = promptForCourseCode('Extra Class') || '';
-    const cr = promptForCredits(3); if(cr===null) return;
-    addElective('extra','',cr,{code});
-  };
-
-  Array.from(document.getElementsByName('ieSelMode')).forEach(r=>{
-    r.addEventListener('change', e=>{ state.settings.ieSelMode = e.target.value; render(); });
-  });
-  document.getElementById('fye-credit').onchange = (e)=>{ state.settings.fyeCredit = e.target.checked; render(); };
-  document.getElementById('term-target').onchange = (e)=>{ state.settings.termTarget = Number(e.target.value||15); render(); };
-
-  document.getElementById('btn-reset').onclick=()=>{
-    if(confirm('Reset plan? Electives will be cleared; required courses stay in pools.')){
-      const keepSettings = {...state.settings};
-      state.pools = { requiredIE:[], otherReq:[], ieSel:[], tech:[], gened:[], extra:[] };
-      state.terms = Array.from({length:8}, () => []);
-      seedInitial();
-      state.settings = keepSettings;
+    function placeIntoTerm(id, termIdx){
+      const loc=findCourseAnywhere(id); if(!loc) return;
+      let c;
+      if(loc.where==='pool'){ c = state.pools[loc.key].splice(loc.idx,1)[0]; }
+      else { c = state.terms[loc.term].splice(loc.idx,1)[0]; }
+      state.terms[termIdx].push(c);
       render();
     }
-  };
 
-  document.getElementById('btn-export').onclick=()=>{
-    const data = JSON.stringify(state, null, 2);
-    const blob = new Blob([data], {type:'application/json'});
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='purdue-ie-plan.json'; a.click();
-  };
-  document.getElementById('btn-import').onclick=()=>{
-    const inp=document.createElement('input'); inp.type='file'; inp.accept='application/json';
-    inp.onchange=()=>{
-      const file=inp.files[0]; if(!file) return;
-      file.text().then(txt=>{ try{
-        const s=JSON.parse(txt);
-        Object.assign(state,s);
-        if (!state.pools?.requiredIE) seedInitial(); // guard malformed imports
+    function removeCourse(id){
+      const loc=findCourseAnywhere(id); if(!loc) return;
+      let c;
+      if(loc.where==='term'){
+        c = state.terms[loc.term].splice(loc.idx,1)[0];
+        state.pools[c.cat].push(c);
+      } else {
+        const arr = state.pools[loc.key];
+        c = arr[loc.idx];
+        if(c.locked || c.cat==='requiredIE' || c.cat==='otherReq'){ return; }
+        arr.splice(loc.idx,1);
+      }
+      render();
+    }
+
+    function addElective(cat, title, credits, extras={}){
+      const c={id:uid(), code:extras.code || '', name:title, credits:Number(credits), cat, locked:false, nonIntro:false, ...extras};
+      state.pools[cat].push(c); render();
+    }
+
+    // ---------- Edit dialog ----------
+    const dlg = document.getElementById('dlg');
+    const dlgTitle = document.getElementById('dlg-title');
+    const dlgTitleInput = document.getElementById('dlg-title-input');
+    const dlgCreditsInput = document.getElementById('dlg-credits-input');
+    const dlgNonIntro = document.getElementById('dlg-nonintro');
+
+    function openEdit(course){
+      // Guard: uneditable cards should never call this, but just in case:
+      if (course.locked || course.cat==='requiredIE' || course.cat==='otherReq' || course.fixedIE) return;
+
+      dlgTitle.textContent = `Edit ${course.code || labelForCat(course.cat)}`;
+      dlgTitleInput.value = course.name || '';
+      dlgCreditsInput.value = Number(course.credits || 0);
+      dlgNonIntro.checked = !!course.nonIntro;
+
+      // Show/hide Non-Intro checkbox depending on category
+      dlgNonIntro.parentElement.style.display = (course.cat === 'gened') ? 'flex' : 'none';
+
+      dlg.returnValue = '';
+      dlg.showModal();
+
+      dlg.addEventListener('close', function onClose(){
+        // Remove listener after one run
+        dlg.removeEventListener('close', onClose);
+
+        if (dlg.returnValue !== 'ok') return; // cancelled
+        const cr = Number(dlgCreditsInput.value);
+        if (!isFinite(cr) || cr <= 0 || cr > 18){
+          alert('Enter a valid number of credits (0–18).');
+          return;
+        }
+        course.name = dlgTitleInput.value.trim();
+        course.credits = cr;
+        if (course.cat === 'gened') course.nonIntro = dlgNonIntro.checked;
         render();
-      }catch{ alert('Invalid JSON'); } });
-    };
-    inp.click();
-  };
+      }, { once:true });
+    }
 
-  document.getElementById('btn-help').onclick=()=>{
-    alert(
+    // Validator aligned with norm’s pattern
+    function promptForCourseCode(label){
+      const raw = prompt(`${label}\nEnter course code (e.g., "CS 30700"):`, '');
+      if(raw===null) return null;
+      const code = norm(raw);
+      if(!code || !/^[A-Z]{2,5}\s+\d{3,5}$/.test(code)){
+        alert('Please enter a course code like "CS 30700".');
+        return null;
+      }
+      return code;
+    }
+    function promptForCredits(defaultCr=3){
+      const raw = prompt('Enter credits:', String(defaultCr));
+      if(raw===null) return null;
+      const cr = Number(raw);
+      if(!isFinite(cr) || cr<=0 || cr>18){ alert('Enter a valid number of credits.'); return null; }
+      return cr;
+    }
+
+    // ---------- Events ----------
+    document.getElementById('add-tech').onclick=()=>{
+      const code = promptForCourseCode('Technical Selective');
+      if(code===null) return;
+      if(allow.tech.size===0){ alert('Tech electives list not loaded yet. Check file path or reload.'); return; }
+      if(!allow.tech.has(code)){ alert(`"${code}" is not in techelectives.xlsx. Cannot add.`); return; }
+      const cr = promptForCredits(3); if(cr===null) return;
+      addElective('tech', '', cr, {code});
+    };
+
+    document.getElementById('add-gened').onclick=()=>{
+      const code = promptForCourseCode('General Education');
+      if(code===null) return;
+      if(allow.gened.size===0){ alert('General electives list not loaded yet. Check file path or reload.'); return; }
+      if(!allow.gened.has(code)){ alert(`"${code}" is not in generalelectives.xlsx. Cannot add.`); return; }
+      const cr = promptForCredits(3); if(cr===null) return;
+      addElective('gened', '', cr, {code});
+    };
+
+    document.getElementById('add-ie-sel').onclick=()=>{
+      if(state.settings.ieSelMode==='opt2'){
+        const code = promptForCourseCode('Custom IE Selective (Option II)') || '';
+        const cr = promptForCredits(3); if(cr===null) return;
+        addElective('ieSel','',cr,{code, fixedIE:false});
+      } else {
+        alert('Custom IE Selective is for Option II. Switch the option above to enable.');
+      }
+    };
+
+    document.getElementById('add-extra').onclick=()=>{
+      const code = promptForCourseCode('Extra Class') || '';
+      const cr = promptForCredits(3); if(cr===null) return;
+      addElective('extra','',cr,{code});
+    };
+
+    Array.from(document.getElementsByName('ieSelMode')).forEach(r=>{
+      r.addEventListener('change', e=>{ state.settings.ieSelMode = e.target.value; render(); });
+    });
+    document.getElementById('fye-credit').onchange = (e)=>{ state.settings.fyeCredit = e.target.checked; render(); };
+    document.getElementById('term-target').onchange = (e)=>{
+      const v = Math.max(0, Math.min(25, Number(e.target.value||15)));
+      state.settings.termTarget = v; e.target.value = v; render();
+    };
+
+    document.getElementById('btn-reset').onclick=()=>{
+      if(confirm('Reset plan? Electives will be cleared; required courses stay in pools.')){
+        const keepSettings = {...state.settings};
+        state.pools = { requiredIE:[], otherReq:[], ieSel:[], tech:[], gened:[], extra:[] };
+        state.terms = Array.from({length:8}, () => []);
+        seedInitial();
+        state.settings = keepSettings;
+        render();
+      }
+    };
+
+    document.getElementById('btn-export').onclick=()=>{
+      const data = JSON.stringify(state, null, 2);
+      const blob = new Blob([data], {type:'application/json'});
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='purdue-ie-plan.json'; a.click();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 0);
+    };
+    document.getElementById('btn-import').onclick=()=>{
+      const inp=document.createElement('input'); inp.type='file'; inp.accept='application/json';
+      inp.onchange=()=>{
+        const file=inp.files[0]; if(!file) return;
+        file.text().then(txt=>{
+          try{
+            const s=JSON.parse(txt);
+            // shallow validate shape
+            if (!s || typeof s!=='object' || !s.pools || !s.terms || !s.settings) throw new Error('bad');
+            Object.assign(state,s);
+            if (!state.pools?.requiredIE) seedInitial(); // guard malformed imports
+            render();
+          }catch{
+            alert('Invalid JSON');
+          }
+        });
+      };
+      inp.click();
+    };
+
+    document.getElementById('btn-help').onclick=()=>{
+      alert(
 `How this works
 
 • Drag any course card into a term.
@@ -640,16 +708,14 @@
 • Extra Classes are optional and not validated.
 • Progress checks update live below the grid.
 • Autosaves in your browser. Use Export/Import to move between devices.`);
-  };
+    };
 
-  // ---------- Init ----------
-  (async function(){
-    load();
-    seedInitial();
-    render();
-    await initAllowLists();
-  })();
-</script>
-
+    // ---------- Init ----------
+    (async function(){
+      load();        // restores or seeds if empty
+      render();      // render current state
+      await initAllowLists(); // then load validation lists
+    })();
+  </script>
 </body>
 </html>
