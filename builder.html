@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Purdue IE · Schedule Builder</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- SheetJS for parsing Excel files -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
   <style>
     :root{
       --bg: #f9fff9;
       --panel: #ffffff;
       --text: #1e2a1e;
       --muted: #5f6f5f;
-      --primary: #4caf50; /* matches your site’s soft green */
+      --primary: #4caf50;
       --ring: #a8d5b9;
       --warn: #b83b3b;
     }
@@ -70,6 +72,7 @@
       <div class="row">
         <h1>Purdue IE · Schedule Builder</h1>
         <span class="pill" title="Data saved in your browser">Autosaves</span>
+        <span id="lists-status" class="pill" title="Validation lists status">Loading lists…</span>
       </div>
       <div class="row">
         <button class="btn small" id="btn-export" title="Download your plan as JSON">Export</button>
@@ -101,7 +104,7 @@
         </div>
         <div id="pool-ie-sel" class="pool" style="margin-top:8px"></div>
         <div class="row" style="margin-top:6px">
-          <button class="btn small" id="add-ie-sel" title="Add a custom 3‑credit IE selective (Option II)">+ IE Selective (3)</button>
+          <button class="btn small" id="add-ie-sel" title="Add a custom 3-credit IE selective (Option II)">+ IE Selective (3)</button>
         </div>
       </div>
 
@@ -116,7 +119,7 @@
       <div class="panel" style="margin-top:12px;background:color-mix(in oklab, var(--primary) 8%, #ffffff)">
         <div class="row" style="justify-content:space-between">
           <h2 style="margin:0">General Education (18 cr)</h2>
-          <label class="row" style="gap:6px;font-size:.9rem" title="If 6 credits counted in FYE, reduce on‑site requirement by 6.">
+          <label class="row" style="gap:6px;font-size:.9rem" title="If 6 credits counted in FYE, reduce on-site requirement by 6.">
             <input type="checkbox" id="fye-credit" checked /> Count 6 cr from FYE
           </label>
         </div>
@@ -124,17 +127,26 @@
         <div class="row" style="margin-top:6px">
           <button class="btn small" id="add-gened">+ Add Gen Ed</button>
         </div>
-        <p class="muted" style="margin:.5rem 0 0 0;font-size:.85rem">Mark non‑intro inside the card for at least 6 credits.</p>
+        <p class="muted" style="margin:.5rem 0 0 0;font-size:.85rem">Mark non-intro inside the card for at least 6 credits.</p>
+      </div>
+
+      <!-- Extra Classes (optional) -->
+      <div class="panel" style="margin-top:12px;background:color-mix(in oklab, var(--primary) 8%, #ffffff)">
+        <div class="row" style="justify-content:space-between">
+          <h2 style="margin:0">In-General Extra Classes (optional)</h2>
+          <button class="btn small" id="add-extra">+ Add Extra Class</button>
+        </div>
+        <div id="pool-extra" class="pool" style="margin-top:8px"></div>
       </div>
     </aside>
 
     <!-- Right: Terms grid -->
     <section class="panel">
       <div class="row" style="justify-content:space-between;align-items:center">
-        <h2 style="margin:0">Your 8‑Semester Plan</h2>
+        <h2 style="margin:0">Your 8-Semester Plan</h2>
         <div class="row">
           <span class="pill"><strong id="total-credits">0</strong> total credits planned</span>
-          <span class="pill">Per‑term target ~ <input id="term-target" type="number" value="15" min="0" max="25" style="width:3.5rem;border:0;background:transparent;text-align:center"> cr</span>
+          <span class="pill">Per-term target ~ <input id="term-target" type="number" value="15" min="0" max="25" style="width:3.5rem;border:0;background:transparent;text-align:center"> cr</span>
         </div>
       </div>
       <div id="terms" class="grid" style="margin-top:8px"></div>
@@ -145,13 +157,13 @@
     </section>
   </main>
 
-  <!-- Simple dialog -->
+  <!-- Edit dialog -->
   <dialog id="dlg">
     <form method="dialog">
       <h2 id="dlg-title" style="margin:12px 12px 8px 12px">Edit</h2>
       <div class="row" style="gap:8px;margin:0 12px 8px 12px">
         <label style="flex:1">
-          <div class="muted" style="font-size:.85rem">Title</div>
+          <div class="muted" style="font-size:.85rem">Title (optional for validated adds)</div>
           <input id="dlg-title-input" type="text" />
         </label>
         <label>
@@ -160,7 +172,7 @@
         </label>
       </div>
       <label class="row" style="gap:8px;margin:0 12px 8px 12px">
-        <input id="dlg-nonintro" type="checkbox" /> Count as Non‑Intro (Gen Ed)
+        <input id="dlg-nonintro" type="checkbox" /> Count as Non-Intro (Gen Ed)
       </label>
       <div class="row" style="justify-content:flex-end;border-top:1px solid color-mix(in oklab, var(--primary) 25%, #ffffff);padding:10px 12px 12px 12px">
         <button class="btn small ghost" value="cancel">Cancel</button>
@@ -170,6 +182,57 @@
   </dialog>
 
   <script>
+  // ---------- Config: paths to your Excel allow-lists ----------
+  const TECH_XLSX_URL = 'assets/techelectives.xlsx';
+  const GEN_XLSX_URL  = 'assets/generalelectives.xlsx';
+
+  // ---------- Utility: normalize course code (e.g., " cs  30700 " -> "CS 30700") ----------
+  const norm = (s) => (s||'')
+    .toString()
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g,' ')
+    .replace(/([A-Z])\s+(\d)/, '$1 $2'); // ensure "ABC 12345"
+
+  // ---------- Allow-lists ----------
+  const allow = { tech: new Set(), gened: new Set() };
+
+  async function loadXlsxToSet(url, targetSet){
+    try{
+      const res = await fetch(url, {cache:'no-store'});
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      const buf = await res.arrayBuffer();
+      const wb = XLSX.read(buf, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const rows = XLSX.utils.sheet_to_json(ws, {header:1, blankrows:false});
+      for(const row of rows){
+        const code = norm(row?.[0]);
+        if(code) targetSet.add(code);
+      }
+      return true;
+    }catch(err){
+      console.error('Failed loading', url, err);
+      return false;
+    }
+  }
+
+  async function initAllowLists(){
+    const badge = document.getElementById('lists-status');
+    badge.textContent = 'Loading lists…';
+    const okTech = await loadXlsxToSet(TECH_XLSX_URL, allow.tech);
+    const okGen  = await loadXlsxToSet(GEN_XLSX_URL,  allow.gened);
+    if(okTech && okGen){
+      badge.textContent = 'Validation: ready';
+      badge.title = 'Tech + GenEd lists loaded';
+    }else if(okTech || okGen){
+      badge.textContent = 'Validation: partial';
+      badge.title = (okTech?'Tech OK; ':'Tech failed; ') + (okGen?'GenEd OK':'GenEd failed');
+    }else{
+      badge.textContent = 'Validation: failed';
+      badge.title = 'Both lists failed to load';
+    }
+  }
+
   // ---------- Data ----------
   const REQUIRED_IE = [
     ["IE 20000","Industrial Engineering Seminar",0],
@@ -207,9 +270,9 @@
   // ---------- State ----------
   const uid = () => Math.random().toString(36).slice(2,10);
 
-  // course instance: {id, code, name, credits, cat, locked, nonIntro}
+  // course instance: {id, code, name, credits, cat, locked, nonIntro, fixedIE?}
   const state = {
-    pools: { requiredIE: [], otherReq: [], ieSel: [], tech: [], gened: [] },
+    pools: { requiredIE: [], otherReq: [], ieSel: [], tech: [], gened: [], extra: [] },
     terms: Array.from({length:8}, () => []),
     settings: { ieSelMode: 'opt1', fyeCredit: true, termTarget: 15 }
   };
@@ -217,10 +280,10 @@
   function seedInitial(){
     state.pools.requiredIE = REQUIRED_IE.map(([code,name,cr])=>({id:uid(),code,name,credits:cr,cat:'requiredIE',locked:true,nonIntro:false}));
     state.pools.otherReq   = OTHER_REQ.map(([code,name,cr])=>({id:uid(),code,name,credits:cr,cat:'otherReq',locked:true,nonIntro:false}));
-    // IE Selectives start with 47000 + 48400 in pool (user places per chosen option)
-    state.pools.ieSel = IE_SEL_FIXED.map(([code,name,cr])=>({id:uid(),code,name,credits:cr,cat:'ieSel',locked:false,nonIntro:false, fixedIE:true}));
+    state.pools.ieSel      = IE_SEL_FIXED.map(([code,name,cr])=>({id:uid(),code,name,credits:cr,cat:'ieSel',locked:false,nonIntro:false,fixedIE:true}));
     state.pools.tech = [];
     state.pools.gened = [];
+    state.pools.extra = [];
   }
 
   // ---------- Persistence ----------
@@ -234,6 +297,7 @@
   const elIESel = document.getElementById('pool-ie-sel');
   const elTech = document.getElementById('pool-tech');
   const elGen = document.getElementById('pool-gened');
+  const elExtra = document.getElementById('pool-extra');
   const elTerms = document.getElementById('terms');
   const elStatus = document.getElementById('status');
 
@@ -251,52 +315,48 @@
 
     const head=document.createElement('div'); head.className='card-header';
     const code=document.createElement('span'); code.className='code'; code.textContent=c.code || labelForCat(c.cat);
-    const name=document.createElement('span'); name.className='name'; name.textContent=c.name;
+    const name=document.createElement('span'); name.className='name'; name.textContent=c.name || '';
     const cr=document.createElement('span'); cr.className='credits'; cr.textContent=`${Number(c.credits)} cr`;
     head.append(code,name,cr);
 
     const tools=document.createElement('div'); tools.className='tools';
-
-    const btnEdit=document.createElement('button'); btnEdit.className='tool'; btnEdit.innerHTML='✏️';
-    btnEdit.title='Edit';
+    const btnEdit=document.createElement('button'); btnEdit.className='tool'; btnEdit.innerHTML='✏️'; btnEdit.title='Edit';
     if(c.locked || c.cat==='requiredIE' || c.cat==='otherReq' || c.fixedIE){ btnEdit.setAttribute('aria-disabled','true'); }
     btnEdit.onclick=()=> openEdit(c);
 
     const btnX=document.createElement('button'); btnX.className='tool'; btnX.innerHTML='🗑️'; btnX.title='Remove to pool';
     btnX.onclick=()=> removeCourse(c.id);
 
-    // Non-intro toggle (Gen Ed only)
     if(c.cat==='gened'){
-      const tog=document.createElement('button'); tog.className='tool'; tog.title='Toggle Non‑Intro';
+      const tog=document.createElement('button'); tog.className='tool'; tog.title='Toggle Non-Intro';
       tog.textContent = c.nonIntro ? '★' : '☆';
       tog.onclick=()=>{ c.nonIntro=!c.nonIntro; render(); };
       tools.appendChild(tog);
     }
 
     tools.append(btnEdit,btnX);
-
     div.append(head,tools);
     return div;
   }
 
   function labelForCat(cat){
-    return ({ieSel:'IE Selective', tech:'Tech Selective', gened:'Gen Ed'})[cat] || '';
+    return ({ieSel:'IE Selective', tech:'Tech Selective', gened:'Gen Ed', extra:'Extra'})[cat] || '';
   }
 
   function renderPools(){
-    [elRequired,elOther,elIESel,elTech,elGen].forEach(el=>el.innerHTML='');
+    [elRequired,elOther,elIESel,elTech,elGen,elExtra].forEach(el=>el.innerHTML='');
     state.pools.requiredIE.forEach(c=>elRequired.appendChild(courseCard(c)));
     state.pools.otherReq.forEach(c=>elOther.appendChild(courseCard(c)));
     state.pools.ieSel.forEach(c=>elIESel.appendChild(courseCard(c)));
     state.pools.tech.forEach(c=>elTech.appendChild(courseCard(c)));
     state.pools.gened.forEach(c=>elGen.appendChild(courseCard(c)));
+    state.pools.extra.forEach(c=>elExtra.appendChild(courseCard(c)));
   }
 
   function renderTerms(){
     elTerms.innerHTML='';
     const target = document.getElementById('term-target');
     target.value = state.settings.termTarget;
-
     state.terms.forEach((arr,idx)=>{
       const term=document.createElement('div'); term.className='term';
       const head=document.createElement('div'); head.className='term-head';
@@ -304,7 +364,6 @@
       const sum=document.createElement('div'); sum.className='sum'; sum.textContent = `${sumCredits(arr)} cr`;
       if(sumCredits(arr) > state.settings.termTarget + 3) sum.style.color='var(--warn)';
       head.append(title,sum);
-
       const drop=document.createElement('div'); drop.className='drop'; drop.dataset.term=idx;
       drop.addEventListener('dragover', e=>{ e.preventDefault(); drop.classList.add('dragover'); });
       drop.addEventListener('dragleave', ()=> drop.classList.remove('dragover'));
@@ -313,9 +372,7 @@
         const {id} = JSON.parse(e.dataTransfer.getData('text/plain'));
         placeIntoTerm(id, idx);
       });
-
       arr.forEach(c=> drop.appendChild(courseCard(c)));
-
       term.append(head,drop);
       elTerms.appendChild(term);
     });
@@ -323,29 +380,20 @@
 
   function sumCredits(arr){ return arr.reduce((s,c)=> s + Number(c.credits||0), 0); }
 
-  function totalCredits(){
-    const poolTotals = Object.values(state.pools).flat().reduce((s,c)=> s + Number(c.credits||0),0);
-    const termTotals = state.terms.flat().reduce((s,c)=> s + Number(c.credits||0),0);
-    return poolTotals + termTotals;
-  }
-
   function renderStatus(){
     const div=elStatus; div.innerHTML='';
-
     const total = state.terms.flat().reduce((s,c)=> s + Number(c.credits||0),0);
     document.getElementById('total-credits').textContent = total;
 
-    // Tally by category
-    const tally = { requiredIE:0, otherReq:0, ieSel:0, tech:0, gened:0 };
+    const tally = { requiredIE:0, otherReq:0, ieSel:0, tech:0, gened:0, extra:0 };
     for(const c of state.terms.flat()) tally[c.cat] += Number(c.credits||0);
 
-    // Requirements
-    const needIEReq = 36; // from prompt
-    const ieReqHave = state.terms.flat().filter(c=>c.cat==='requiredIE').reduce((s,c)=> s + Number(c.credits||0),0);
+    const needIEReq = 36;
+    const ieReqHave = tally.requiredIE;
 
-    const ieSelMode = state.settings.ieSelMode; // opt1 or opt2
+    const ieSelMode = state.settings.ieSelMode;
     const ieSelNeed = 6;
-    const ieSelHave = state.terms.flat().filter(c=>c.cat==='ieSel').reduce((s,c)=> s + Number(c.credits||0),0);
+    const ieSelHave = tally.ieSel;
 
     const techNeed = 9; const techHave = tally.tech;
 
@@ -353,7 +401,6 @@
     const genHave = tally.gened;
     const genNonIntro = state.terms.flat().filter(c=>c.cat==='gened' && c.nonIntro).reduce((s,c)=> s + Number(c.credits||0),0);
 
-    // Check IE Selective pattern
     const has47000 = state.terms.flat().some(c=>c.code==='IE 47000');
     const has48400 = state.terms.flat().some(c=>c.code==='IE 48400');
     const hasCustomIESel = state.terms.flat().some(c=>c.cat==='ieSel' && !c.fixedIE);
@@ -364,12 +411,18 @@
         ieSelMode==='opt1' ? (has47000 && has48400) : ((has47000||has48400) && hasCustomIESel)
       ), `IE Selectives (${ieSelMode==='opt1'?'Option I':'Option II'}): ${ieSelHave}/${ieSelNeed} cr` + (ieSelMode==='opt1'? ` (must include IE 47000 & IE 48400)` : ` (1 of IE 47000/48400 + 1 custom IE Selective)`)),
       line(techHave>=techNeed, `Technical Selectives: ${techHave}/${techNeed} cr`),
-      line(genHave>=genBaseNeed && genNonIntro>=6, `General Education: ${genHave}/${genBaseNeed} cr (≥6 cr non‑intro: ${genNonIntro})`),
+      line(genHave>=genBaseNeed && genNonIntro>=6, `General Education: ${genHave}/${genBaseNeed} cr (≥6 cr non-intro: ${genNonIntro})`),
     ];
-
     list.forEach(el=>div.appendChild(el));
 
-    const tips=document.createElement('div'); tips.className='muted'; tips.textContent = 'Drag courses into terms. Click ✏️ to rename credits on electives. ☆ toggles Non‑Intro for Gen Ed.';
+    if(tally.extra>0){
+      const extraNote=document.createElement('div'); extraNote.className='muted';
+      extraNote.textContent = `Extra Classes (optional): ${tally.extra} cr added to total workload.`;
+      div.appendChild(extraNote);
+    }
+
+    const tips=document.createElement('div'); tips.className='muted';
+    tips.textContent = 'Add Tech/GenEd with + (validated by spreadsheets). Click ✏️ to rename/credits. ☆ toggles Non-Intro for GenEd.';
     div.appendChild(tips);
   }
 
@@ -404,57 +457,74 @@
     let c;
     if(loc.where==='term'){
       c = state.terms[loc.term].splice(loc.idx,1)[0];
-      // return to appropriate pool
       state.pools[c.cat].push(c);
     } else {
-      // from pool -> delete for elective types only
       const arr = state.pools[loc.key];
       c = arr[loc.idx];
-      if(c.locked || c.cat==='requiredIE' || c.cat==='otherReq'){
-        // locked/fixed course stays in pool; do nothing
-        return;
-      }
+      if(c.locked || c.cat==='requiredIE' || c.cat==='otherReq'){ return; }
       arr.splice(loc.idx,1);
     }
     render();
   }
 
   function addElective(cat, title, credits, extras={}){
-    const c={id:uid(), code:'', name:title, credits:Number(credits), cat, locked:false, nonIntro:false, ...extras};
+    const c={id:uid(), code:extras.code || '', name:title, credits:Number(credits), cat, locked:false, nonIntro:false, ...extras};
     state.pools[cat].push(c); render();
   }
 
-  function openEdit(c){
-    const dlg=document.getElementById('dlg');
-    document.getElementById('dlg-title').textContent = 'Edit ' + (labelForCat(c.cat) || c.code);
-    const titleInput=document.getElementById('dlg-title-input');
-    const crInput=document.getElementById('dlg-credits-input');
-    const nonIntro=document.getElementById('dlg-nonintro');
-
-    titleInput.value=c.name || '';
-    crInput.value=Number(c.credits||0);
-    nonIntro.checked=!!c.nonIntro;
-
-    dlg.returnValue='';
-    dlg.showModal();
-
-    dlg.addEventListener('close', function onClose(){
-      dlg.removeEventListener('close', onClose);
-      if(dlg.returnValue==='ok'){
-        c.name = titleInput.value.trim() || c.name;
-        c.credits = Number(crInput.value || c.credits);
-        if(c.cat==='gened') c.nonIntro = nonIntro.checked;
-        render();
-      }
-    });
+  // Prompt helpers for validated categories (format: "ABC 12345")
+  function promptForCourseCode(label){
+    const raw = prompt(`${label}\nEnter course code (e.g., "CS 30700"):`,'');
+    if(raw===null) return null; // cancelled
+    const code = norm(raw);
+    if(!code || !/^[A-Z]{2,4}\s+\d{3,5}$/.test(code)){
+      alert('Please enter a course code like "CS 30700".');
+      return null;
+    }
+    return code;
+  }
+  function promptForCredits(defaultCr=3){
+    const raw = prompt('Enter credits:', String(defaultCr));
+    if(raw===null) return null;
+    const cr = Number(raw);
+    if(!isFinite(cr) || cr<=0 || cr>18){ alert('Enter a valid number of credits.'); return null; }
+    return cr;
   }
 
   // ---------- Events ----------
-  document.getElementById('add-tech').onclick=()=> addElective('tech','Technical Selective',3);
-  document.getElementById('add-gened').onclick=()=> addElective('gened','General Education',3);
+  document.getElementById('add-tech').onclick=()=>{
+    const code = promptForCourseCode('Technical Selective');
+    if(code===null) return;
+    if(allow.tech.size===0){ alert('Tech electives list not loaded yet. Check file path or reload.'); return; }
+    if(!allow.tech.has(code)){ alert(`"${code}" is not in techelectives.xlsx. Cannot add.`); return; }
+    const cr = promptForCredits(3); if(cr===null) return;
+    addElective('tech', '', cr, {code});
+  };
+
+  document.getElementById('add-gened').onclick=()=>{
+    const code = promptForCourseCode('General Education');
+    if(code===null) return;
+    if(allow.gened.size===0){ alert('General electives list not loaded yet. Check file path or reload.'); return; }
+    if(!allow.gened.has(code)){ alert(`"${code}" is not in generalelectives.xlsx. Cannot add.`); return; }
+    const cr = promptForCredits(3); if(cr===null) return;
+    addElective('gened', '', cr, {code});
+  };
+
   document.getElementById('add-ie-sel').onclick=()=>{
-    if(state.settings.ieSelMode==='opt2') addElective('ieSel','IE Selective',3,{fixedIE:false});
-    else alert('Custom IE Selective is for Option II. Switch the option above to enable.');
+    if(state.settings.ieSelMode==='opt2'){
+      // Custom IE selective is free-form (no list validation requested)
+      const code = promptForCourseCode('Custom IE Selective (Option II)') || '';
+      const cr = promptForCredits(3); if(cr===null) return;
+      addElective('ieSel','',cr,{code, fixedIE:false});
+    } else {
+      alert('Custom IE Selective is for Option II. Switch the option above to enable.');
+    }
+  };
+
+  document.getElementById('add-extra').onclick=()=>{
+    const code = promptForCourseCode('Extra Class') || '';
+    const cr = promptForCredits(3); if(cr===null) return;
+    addElective('extra','',cr,{code});
   };
 
   document.getElementsByName('ieSelMode').forEach(r=>{
@@ -466,7 +536,7 @@
   document.getElementById('btn-reset').onclick=()=>{
     if(confirm('Reset plan? Electives will be cleared; required courses stay in pools.')){
       const keepSettings = {...state.settings};
-      state.pools = { requiredIE:[], otherReq:[], ieSel:[], tech:[], gened:[] };
+      state.pools = { requiredIE:[], otherReq:[], ieSel:[], tech:[], gened:[], extra:[] };
       state.terms = Array.from({length:8}, () => []);
       seedInitial();
       state.settings = keepSettings;
@@ -484,7 +554,11 @@
     const inp=document.createElement('input'); inp.type='file'; inp.accept='application/json';
     inp.onchange=()=>{
       const file=inp.files[0]; if(!file) return;
-      file.text().then(txt=>{ try{ const s=JSON.parse(txt); Object.assign(state,s); render(); }catch{ alert('Invalid JSON'); } });
+      file.text().then(txt=>{ try{
+        const s=JSON.parse(txt);
+        Object.assign(state,s);
+        render();
+      }catch{ alert('Invalid JSON'); } });
     };
     inp.click();
   };
@@ -496,16 +570,20 @@
 • Drag any course card into a term.
 • Required IE & Other Required titles/credits are fixed (cannot be edited).
 • IE Selectives: choose Option I (IE 47000 + IE 48400) OR Option II (one of those + one custom IE Selective).
-• Add Technical Selectives and Gen Eds with the + buttons, then click ✏️ to rename / change credits.
-• For Gen Ed, mark ☆ to count as Non‑Intro (need ≥ 6 credits).
+• Add Technical Selectives and Gen Eds with the + buttons — validated against your Excel lists (first column = course code).
+• For Gen Ed, mark ☆ to count as Non-Intro (need ≥ 6 credits).
+• Extra Classes are optional and not validated.
 • Progress checks update live below the grid.
 • Autosaves in your browser. Use Export/Import to move between devices.`);
   };
 
   // ---------- Init ----------
-  load();
-  if(!localStorage.getItem(KEY)) seedInitial();
-  render();
+  (async function(){
+    load();
+    if(!localStorage.getItem(KEY)) seedInitial();
+    render();
+    await initAllowLists();
+  })();
   </script>
 </body>
 </html>
