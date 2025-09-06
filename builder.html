@@ -187,13 +187,13 @@
       <div class="row" style="justify-content:space-between;align-items:center">
         <h2 style="margin:0">Your 8-Semester Plan</h2>
         <div class="row">
-          <span class="pill"><strong id="total-credits">0</strong> total credits planned</span>
+          <span class="pill"><strong id="total-credits">0</strong> total credits</span>
           <span class="pill">Per-term target ~ <input id="term-target" type="number" value="15" min="0" max="25" style="width:3.5rem;border:0;background:transparent;text-align:center"> cr</span>
         </div>
       </div>
       <div id="terms" class="grid" style="margin-top:8px"></div>
       <div class="panel" style="margin-top:12px">
-        <h2 style="margin:0 0 8px 0">Progress & Checks</h2>
+        <h2 style="margin:0 0 8px 0">Checkpoints</h2>
         <div id="status" class="status"></div>
       </div>
     </section>
@@ -534,7 +534,7 @@
       const hasCustomIESel = state.terms.flat().some(c=>c.cat==='ieSel' && !c.fixedIE);
 
       const list=[
-        line(ieReqHave>=needIEReq, `Required IE: ${ieReqHave}/${needIEReq} cr`),
+        line(ieReqHave>=needIEReq, `Required IE Courses: ${ieReqHave}/${needIEReq} cr`),
         line(
           (ieSelHave>=ieSelNeed) && (
             ieSelMode==='opt1' ? (has47000 && has48400) : ((has47000||has48400) && hasCustomIESel)
@@ -554,7 +554,7 @@
       }
 
       const tips=document.createElement('div'); tips.className='muted';
-      tips.textContent = 'Add Tech/GenEd with + (validated by spreadsheets). Click ✏️ to rename/credits. ☆ toggles Non-Intro for GenEd.';
+      tips.textContent = 'Created by Alex K. Lee';
       div.appendChild(tips);
     }
 
@@ -777,7 +777,7 @@
       const asideEl = document.getElementById('left-pools');
       asideEl.classList.toggle('compact');
       document.getElementById('btn-compact').textContent =
-        asideEl.classList.contains('compact') ? 'Comfortable pools' : 'Compact pools';
+        asideEl.classList.contains('compact') ? 'Descriptions' : 'Compact';
     };
 
     // ---------- Init ----------
