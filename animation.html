@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stickman Fight — Cinematic Canvas</title>
+<style>
+  :root{
+    --bg1:#0e1013; --bg2:#1b1f26;
+    --ring:#b0ffd2; --sparks:#ffe082; --hit:#ff6f61;
+    --ui:#e6f6ee; --muted:#9fb0a6; --accent:#5fe39a;
+  }
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:var(--ui);font-family:system-ui,Inter,Segoe UI,Helvetica,Arial,sans-serif}
+  #wrap{display:grid;grid-template-rows:auto 1fr; height:100%;}
+  header{display:flex;gap:12px;align-items:center;justify-content:center;padding:10px 12px;border-bottom:1px solid #22312a99;background:#0b0d10bf;backdrop-filter: blur(6px); position:sticky;top:0;z-index:5}
+  button,select{appearance:none;border:1px solid #2b3c33;background:#13181a;color:var(--ui);border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
+  button:hover{border-color:#425b4e}
+  button.rec{background:linear-gradient(180deg,#122,#244);border-color:#345}
+  button.rec.on{background:linear-gradient(180deg,#3a0,#070);box-shadow:0 0 0 2px #0a32, inset 0 0 0 2px #0a0}
+  #hud{position:absolute;left:14px;bottom:12px;color:var(--muted);font-size:12px;letter-spacing:.3px}
+  #credit{position:absolute;right:14px;bottom:12px;color:var(--muted);font-size:12px}
+  canvas{width:100%;height:100%;display:block}
+  .pill{padding:6px 10px;border-radius:999px;border:1px solid #2b3c33;background:#0d1311a0;margin-left:8px}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <header>
+    <button id="btnPlay">Pause</button>
+    <button id="btnRecord" class="rec">Record</button>
+    <select id="dur" title="How long to choreograph before looping">
+      <option value="90">90s</option>
+      <option value="120" selected>120s</option>
+      <option value="180">180s</option>
+    </select>
+    <span class="pill">Motion Blur</span>
+    <input id="blur" type="range" min="0" max="0.9" step="0.05" value="0.35" />
+    <span class="pill">Speed</span>
+    <input id="speed" type="range" min="0.5" max="1.5" step="0.01" value="1" />
+  </header>
+  <div style="position:relative">
+    <canvas id="c"></canvas>
+    <div id="hud">W/S = slow/fast • R = replay seed • Space = pause</div>
+    <div id="credit">Stickman Fight — vanilla Canvas</div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const TAU = Math.PI*2;
+  const rnd = (a=1,b=0)=>Math.random()*(b-a)+a;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  const ease=(t)=>t<.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
+  const nowMs = ()=>performance.now();
+
+  // Canvas setup
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const DPR = Math.min(2, window.devicePixelRatio||1);
+  function resize(){
+    const {clientWidth:w, clientHeight:h} = canvas;
+    canvas.width = w*DPR; canvas.height = h*DPR;
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+  }
+  const ro = new ResizeObserver(resize); ro.observe(canvas);
+
+  // UI
+  const btnPlay = document.getElementById('btnPlay');
+  const btnRecord = document.getElementById('btnRecord');
+  const rangeBlur = document.getElementById('blur');
+  const rangeSpeed = document.getElementById('speed');
+  const durSel = document.getElementById('dur');
+  let playing = true;
+  btnPlay.onclick = ()=>{ playing = !playing; btnPlay.textContent = playing ? 'Pause' : 'Play'; };
+  window.addEventListener('keydown',e=>{
+    if(e.code==='Space'){ e.preventDefault(); btnPlay.click(); }
+    if(e.key==='w') rangeSpeed.value = (+rangeSpeed.value + 0.05).toFixed(2);
+    if(e.key==='s') rangeSpeed.value = (+rangeSpeed.value - 0.05).toFixed(2);
+    if(e.key==='r') newSeed();
+  });
+
+  // Recorder
+  let recorder, recordedChunks=[];
+  btnRecord.onclick = async ()=>{
+    if(recorder && recorder.state==='recording'){
+      recorder.stop();
+      btnRecord.textContent='Record'; btnRecord.classList.remove('on');
+      return;
+    }
+    const stream = canvas.captureStream(60);
+    recorder = new MediaRecorder(stream, {mimeType: 'video/webm;codecs=vp9'});
+    recordedChunks = [];
+    recorder.ondataavailable = e=>{ if(e.data.size) recordedChunks.push(e.data); };
+    recorder.onstop = ()=>{
+      const blob = new Blob(recordedChunks, {type:'video/webm'});
+      const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement('a'), {href:url, download:`stickman-fight-${Date.now()}.webm`});
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    };
+    recorder.start();
+    btnRecord.textContent='Stop & Save'; btnRecord.classList.add('on');
+  };
+
+  // World
+  let W=canvas.clientWidth, H=canvas.clientHeight;
+  resize();
+  function worldResize(){ W=canvas.clientWidth; H=canvas.clientHeight; }
+
+  // Camera
+  const cam = {x:0, y:0, z:1, shake:0};
+  function setCamera(x,y,zoom=1){ cam.x=x; cam.y=y; cam.z=zoom; }
+  function applyCamera(){
+    ctx.save();
+    ctx.translate(W/2, H*0.62);
+    ctx.scale(cam.z, cam.z);
+    ctx.translate(-cam.x + rnd(-cam.shake,cam.shake), -cam.y + rnd(-cam.shake,cam.shake));
+  }
+
+  // Particles
+  const parts=[];
+  function spawnHit(x,y,dir){
+    for(let i=0;i<24;i++){
+      parts.push({
+        x, y, r:rnd(1.5,3.5), life:rnd(0.25,0.55), t:0,
+        vx: Math.cos(dir+rnd(-.6,.6))*rnd(300,700),
+        vy: Math.sin(dir+rnd(-.6,.6))*rnd(200,520) - rnd(150,250),
+        col: i%3 ? 'var(--sparks)' : 'var(--hit)'
+      });
+    }
+    cam.shake = Math.min(10, cam.shake + 6);
+  }
+  function tickParticles(dt){
+    for(let i=parts.length-1;i>=0;i--){
+      const p=parts[i]; p.t+=dt;
+      if(p.t>p.life){ parts.splice(i,1); continue; }
+      p.vy += 1400*dt; // gravity
+      p.x += p.vx*dt; p.y += p.vy*dt;
+    }
+  }
+  function drawParticles(){
+    for(const p of parts){
+      const a = 1 - p.t/p.life;
+      ctx.fillStyle = p.col; ctx.globalAlpha = a;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,TAU); ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // Stick figure
+  class Fighter {
+    constructor(color='#e9f7ef'){
+      this.color=color;
+      this.pos={x:0,y:0};
+      this.dir=1; // face right
+      this.scale=1;
+      this.state='idle';
+      this.timer=0;
+      this.len = {
+        torso: 70, arm: 56, fore: 50, thigh: 64, shin: 64, neck: 12
+      };
+      this.angles = { // radians
+        torso:0, head:0, ul:0, ur:0, ll:0, lr:0, ua:0, fa:0, ub:0, fb:0
+      };
+      this.trail=[]; // for motion blur
+      this.hitbox = {x:0,y:0,r:20};
+      this.hp = 100;
+      this.combo=0;
+    }
+    set(x,y,dir=1){ this.pos.x=x; this.pos.y=y; this.dir=dir; }
+    pose(p){ // blend angles to pose p (object of angles) over t in [0,1]
+      for(const k in p.to){
+        const a = p.from?.[k] ?? this.angles[k] ?? 0;
+        this.angles[k] = lerp(a, p.to[k], p.t);
+      }
+    }
+    step(dt, groundY){
+      // Basic grounding
+      this.pos.y = groundY;
+
+      // Motion blur trails
+      this.trail.push({x:this.pos.x, y:this.pos.y, a:1});
+      if(this.trail.length>12) this.trail.shift();
+      for(const t of this.trail) t.a*=0.85;
+
+      // Update hitbox near hands/feet depending on attack state later in choreography
+    }
+    draw(ctx){
+      const L=this.len, A=this.angles, s=this.scale, d=this.dir;
+      ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.lineWidth=8;
+
+      // compute joints forward kinematics
+      const hip={x:this.pos.x, y:this.pos.y};
+      const chest={x:hip.x + Math.cos(A.torso)*0, y:hip.y - L.torso};
+      const neck={x:chest.x, y:chest.y - L.neck};
+      const head={x:neck.x, y:neck.y - 18};
+
+      // legs
+      const lHip={x:hip.x - 8, y:hip.y}, rHip={x:hip.x + 8, y:hip.y};
+      const lKnee={x:lHip.x + Math.sin(A.ll)*d*L.thigh, y:lHip.y + Math.cos(A.ll)*L.thigh};
+      const rKnee={x:rHip.x + Math.sin(A.lr)*d*L.thigh, y:rHip.y + Math.cos(A.lr)*L.thigh};
+      const lAnk={x:lKnee.x + Math.sin(A.ll+0.9)*d*L.shin, y:lKnee.y + Math.cos(A.ll+0.9)*L.shin};
+      const rAnk={x:rKnee.x + Math.sin(A.lr+0.9)*d*L.shin, y:rKnee.y + Math.cos(A.lr+0.9)*L.shin};
+
+      // arms
+      const lSh={x:chest.x - 18, y:chest.y+8}, rSh={x:chest.x + 18, y:chest.y+8};
+      const lElb={x:lSh.x + Math.sin(A.ua)*d*L.arm, y:lSh.y + Math.cos(A.ua)*L.arm};
+      const rElb={x:rSh.x + Math.sin(A.ub)*d*L.arm, y:rSh.y + Math.cos(A.ub)*L.arm};
+      const lHan={x:lElb.x + Math.sin(A.fa)*d*L.fore, y:lElb.y + Math.cos(A.fa)*L.fore};
+      const rHan={x:rElb.x + Math.sin(A.fb)*d*L.fore, y:rElb.y + Math.cos(A.fb)*L.fore};
+
+      // shadows
+      ctx.save();
+      ctx.globalAlpha=.18;
+      ctx.fillStyle='#000';
+      ctx.beginPath();
+      ctx.ellipse(this.pos.x, this.pos.y+8, 28, 10, 0, 0, TAU);
+      ctx.fill();
+      ctx.restore();
+
+      // trail (body glow line)
+      const blur = parseFloat(rangeBlur.value);
+      if(blur>0){
+        for(const t of this.trail){
+          ctx.strokeStyle=`rgba(160,255,210,${0.08*blur*t.a})`;
+          ctx.beginPath(); ctx.moveTo(t.x-22, t.y-68); ctx.lineTo(t.x+22, t.y-68); ctx.stroke();
+        }
+      }
+
+      // limbs
+      ctx.strokeStyle=this.color;
+
+      // legs
+      ctx.beginPath(); ctx.moveTo(lHip.x,lHip.y); ctx.lineTo(lKnee.x,lKnee.y); ctx.lineTo(lAnk.x,lAnk.y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(rHip.x,rHip.y); ctx.lineTo(rKnee.x,rKnee.y); ctx.lineTo(rAnk.x,rAnk.y); ctx.stroke();
+
+      // torso & head
+      ctx.beginPath(); ctx.moveTo(hip.x,hip.y); ctx.lineTo(chest.x,chest.y); ctx.lineTo(neck.x,neck.y); ctx.stroke();
+      ctx.beginPath(); ctx.arc(head.x, head.y, 14, 0, TAU); ctx.stroke();
+
+      // arms
+      ctx.beginPath(); ctx.moveTo(lSh.x,lSh.y); ctx.lineTo(lElb.x,lElb.y); ctx.lineTo(lHan.x,lHan.y); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(rSh.x,rSh.y); ctx.lineTo(rElb.x,rElb.y); ctx.lineTo(rHan.x,rHan.y); ctx.stroke();
+
+      // expose for collision
+      this.hands=[lHan,rHan]; this.feet=[lAnk,rAnk]; this.head=head; this.chest=chest;
+    }
+  }
+
+  // Ground & background
+  function drawBG(t){
+    // vignette
+    const g = ctx.createRadialGradient(W*0.5,H*0.65,20, W*0.5,H*0.65, Math.max(W,H));
+    g.addColorStop(0,'rgba(255,255,255,0.02)');
+    g.addColorStop(1,'rgba(0,0,0,0.5)');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+
+    // ground line
+    ctx.save();
+    applyCamera();
+    ctx.strokeStyle='rgba(200,230,220,0.08)';
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    for(let x=-2000;x<=2000;x+=80){
+      ctx.moveTo(x,0); ctx.lineTo(x,16*Math.sin((x+t*40)/180)+2);
+    }
+    ctx.stroke();
+
+    // ring ropes
+    for(let i=0;i<3;i++){
+      ctx.globalAlpha = 0.12 - i*0.02;
+      ctx.beginPath();
+      ctx.moveTo(-2000,-80+i*26); ctx.lineTo(2000,-80+i*26); ctx.stroke();
+    }
+    ctx.globalAlpha=1;
+    ctx.restore();
+  }
+
+  // Simple choreographer generating a long sequence with variety
+  const A = new Fighter('rgba(230,248,239,0.95)');
+  const B = new Fighter('rgba(230,248,239,0.95)');
+  let seed = Math.random()*1e9|0;
+  function rng(){ // simple seeded RNG (mulberry32)
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed>>>15, 1 | seed);
+    t = t + Math.imul(t ^ t>>>7, 61 | t) ^ t;
+    return ((t ^ t>>>14) >>> 0) / 4294967296;
+  }
+  function newSeed(){ seed = (Math.random()*1e9)|0; buildTimeline(); time=0; }
+
+  const timeline = [];
+  let DURATION = +durSel.value; durSel.onchange = ()=>{ DURATION = +durSel.value; buildTimeline(); time=0; };
+
+  function move(name, t, data){ timeline.push({name, t, ...data}); }
+  function buildTimeline(){
+    timeline.length=0;
+    // fighters start
+    A.set(-120, 0, +1); B.set( 120, 0, -1);
+
+    // Idle intro
+    move('pose', 0,  {who:A, poseTo: {ll:1.1, lr:0.9, ua:-0.2, fa:-0.4, ub:0.2, fb:0.3}, d:1.0});
+    move('pose', 0,  {who:B, poseTo: {ll:0.9, lr:1.1, ua:0.3, fa:0.1, ub:-0.2, fb:-0.5}, d:1.0});
+
+    // Generate sequences of attacks/defenses
+    let t=1.0;
+    const combos = Math.floor(DURATION/3);
+    for(let i=0;i<combos;i++){
+      const attacker = (i%2===0) ? A : B;
+      const defender = (i%2===0) ? B : A;
+      const kind = (rng()<0.34)?'jab' : (rng()<0.66)?'kick' : 'dash';
+      const spacing = rng()<0.5 ? 0 : (rng()<0.5 ? 0.25 : -0.25);
+      if(kind==='dash'){
+        move('dash', t, {who:attacker, to: defender.pos.x + (attacker===A?+1:-1)*rnd(20,40), d:0.30});
+        t+=0.30;
+        continue;
+      }
+      if(kind==='jab'){
+        move('punch', t, {attacker, defender, d:0.42, power: rng()<0.5?1:1.6});
+        t+=0.6+spacing;
+      } else if(kind==='kick'){
+        move('kick', t, {attacker, defender, d:0.65, high: rng()<0.55});
+        t+=0.85+spacing;
+      }
+      // occasional camera drift
+      if(rng()<0.35) move('cam', t, {x:(A.pos.x+B.pos.x)/2, y:-30, z: lerp(1,1.25,rng()), d:0.8});
+    }
+    // finisher
+    move('finisher', t+0.5, {who: (rng()<0.5?A:B), foe: (rng()<0.5?A:B), d:1.2});
+  }
+  buildTimeline();
+
+  // Action handlers
+  function applyPose(who, to, t01){
+    const spec = {to, from:who.angles, t:ease(t01)};
+    who.pose(spec);
+  }
+
+  function stepAction(act, localT, dt){
+    const t01 = clamp(localT/act.d,0,1);
+    if(act.name==='pose'){
+      applyPose(act.who, act.poseTo, t01);
+    }
+    if(act.name==='dash'){
+      const startX = act.who.pos.x;
+      const endX = act.to;
+      act.who.pos.x = lerp(startX, endX, ease(t01));
+      applyPose(act.who, {ll:1.0, lr:1.0, ua:-0.1, fa:0.1, ub:0.2, fb:-0.2}, t01);
+    }
+    if(act.name==='punch'){
+      const atk = act.attacker, def = act.defender;
+      const reach = 100;
+      applyPose(atk, {ua:-0.4, fa:-1.6, ub:0.1, fb:0.2, ll:1.0, lr:1.0}, t01);
+      // lunge
+      atk.pos.x += (atk.dir)*80*dt*Math.sin(t01*Math.PI);
+      // contact
+      if(!act.hit && t01>0.52){
+        const hand = atk.hands ? atk.hands[0] : {x:atk.pos.x+atk.dir*reach,y:-40};
+        const target = def.head || {x:def.pos.x, y:-80};
+        const dx=hand.x-target.x, dy=hand.y-target.y, dist=Math.hypot(dx,dy);
+        if(dist<24){
+          act.hit=true; spawnHit(target.x, target.y, Math.atan2(-dy,-dx));
+        }
+      }
+    }
+    if(act.name==='kick'){
+      const atk = act.attacker, def = act.defender;
+      // windup to kick
+      const pose1 = act.high ?
+        {ll:0.4, lr:1.6, ua:-0.2, fa:-0.4, ub:0.2, fb:0.3} :
+        {ll:1.8, lr:0.7, ua:0.1, fa:-0.2, ub:-0.3, fb:0.2};
+      const pose2 = act.high ?
+        {ll:0.2, lr:2.3, ua:-0.3, fa:-0.5, ub:0.4, fb:0.1} :
+        {ll:2.2, lr:0.9, ua:0.0, fa:0.2, ub:-0.2, fb:0.3};
+
+      const mid = t01<0.55 ? (t01/0.55) : ((t01-0.55)/0.45);
+      applyPose(atk, t01<0.55?pose1:pose2, mid);
+
+      // slight hop forward
+      atk.pos.x += (atk.dir)*120*dt*Math.sin(t01*Math.PI);
+
+      if(!act.hit && t01>0.58){
+        const foot = atk.feet ? atk.feet[1] : {x:atk.pos.x+atk.dir*110, y:-16};
+        const target = act.high ? (def.head || {x:def.pos.x, y:-80}) : (def.chest || {x:def.pos.x, y:-52});
+        const dx=foot.x-target.x, dy=foot.y-target.y, dist=Math.hypot(dx,dy);
+        if(dist<26){ act.hit=true; spawnHit(target.x, target.y, Math.atan2(-dy,-dx)); }
+      }
+    }
+    if(act.name==='cam'){
+      // camera pans/zooms
+      const sx=cam.x, sy=cam.y, sz=cam.z;
+      setCamera( lerp(sx, act.x, ease(t01)), lerp(sy, act.y, ease(t01)), lerp(sz, act.z, ease(t01)) );
+    }
+    if(act.name==='finisher'){
+      const a=act.who, b=act.foe;
+      // spin kick
+      a.pos.x += a.dir*200*dt;
+      applyPose(a, {ll:0.6, lr:2.5, ua:-0.4, fa:-1.6, ub:0.2, fb:-0.3}, t01);
+      if(!act.hit && t01>0.6){ act.hit=true; spawnHit(b.pos.x, -60, Math.PI*(a.dir>0?0:1)); }
+      setCamera( lerp(cam.x, a.pos.x, 0.2), -40, lerp(cam.z, 1.25, 0.08) );
+    }
+  }
+
+  // Main loop
+  let time=0, last=nowMs();
+  function frame(){
+    const now = nowMs();
+    let dt = ((now-last)/1000) * parseFloat(rangeSpeed.value); last=now;
+    dt = Math.min(dt, 1/24); // clamp
+
+    if(playing) time += dt;
+
+    // fade for motion blur
+    const blur = parseFloat(rangeBlur.value);
+    ctx.globalCompositeOperation='source-over';
+    ctx.globalAlpha = (blur>0) ? (1 - blur) : 1;
+    ctx.fillStyle='#0e1013';
+    ctx.fillRect(0,0,W,H);
+    ctx.globalAlpha=1;
+
+    drawBG(time);
+
+    // advance camera decay
+    cam.shake *= 0.86;
+
+    // apply camera
+    ctx.save();
+    applyCamera();
+
+    // ground plane (origin)
+    const GY = 0;
+
+    // advance fighters baseline
+    A.step(dt,GY); B.step(dt,GY);
+
+    // run active actions
+    // locate window of actions based on timeline
+    const T = time % DURATION;
+    for(const act of timeline){
+      const local = T - act.t;
+      if(local>=0 && local<=act.d){ stepAction(act, local, dt); }
+      // reset one-shot flags if looped
+      if(T<0.02) act.hit=false;
+    }
+
+    // keep them facing
+    A.dir = (A.pos.x < B.pos.x) ? +1 : -1;
+    B.dir = -A.dir;
+
+    // soft spacing limits
+    const dist = B.pos.x - A.pos.x;
+    if(dist < 90){ A.pos.x -= 40*dt; B.pos.x += 40*dt; }
+    if(dist > 280){ A.pos.x += 30*dt; B.pos.x -= 30*dt; }
+
+    // camera follow midpoint
+    const midx = (A.pos.x+B.pos.x)/2;
+    setCamera(lerp(cam.x,midx,0.08), lerp(cam.y,-30,0.06), lerp(cam.z, 1 + clamp((220-Math.abs(dist))/400,0,0.3), 0.04));
+
+    // draw fighters & particles
+    drawParticles();
+    A.draw(ctx); B.draw(ctx);
+
+    ctx.restore();
+
+    // update particles physics
+    tickParticles(dt);
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  window.addEventListener('resize', worldResize, {passive:true});
+})();
+</script>
+</body>
+</html>
