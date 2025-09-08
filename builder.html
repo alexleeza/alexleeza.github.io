@@ -118,7 +118,7 @@
       <div class="row">
         <!-- NEW: compact toggle lives in the header -->
         <button class="btn small ghost" id="btn-compact" title="Toggle compact left column">Compact pools</button>
-        <button class="btn small" id="btn-export" title="Download your plan as JSON">Export</button>
+        <button class="btn small" id="btn-export" title="Export to Excel (.xlsx). Hold Alt for JSON">Export</button>
         <button class="btn small" id="btn-import" title="Load a plan from JSON">Import</button>
         <button class="btn small ghost" id="btn-reset" title="Start fresh (keeps required courses)">Reset</button>
         <button class="btn primary" id="btn-help">Quick Guide</button>
@@ -724,12 +724,176 @@
       }
     };
 
-    document.getElementById('btn-export').onclick=()=>{
+    // ---------- EXPORTS ----------
+    function exportJSON(){
       const data = JSON.stringify(state, null, 2);
       const blob = new Blob([data], {type:'application/json'});
       const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='purdue-ie-plan.json'; a.click();
       setTimeout(()=>URL.revokeObjectURL(a.href), 0);
+    }
+
+    function exportExcel(){
+      const HEADER = ['Term','Code','Title','Credits','Category','Notes','Grade'];
+      const catName = (c) => ({requiredIE:'Required IE', otherReq:'Other Required', ieSel:'IE Selective', tech:'Tech Selective', gened:'Gen Ed', extra:'Extra'}[c.cat] || c.cat);
+      const noteFor = (c) => (c.cat==='gened' && c.nonIntro) ? 'Non-Intro' : '';
+
+      // Sort key: department then number; fallback by category & name
+      function courseSortKey(c){
+        const code = (c.code||'').toUpperCase().trim();
+        const m = code.match(/^([A-Z]+)\s+(\d+)/);
+        if (m) return [m[1], Number(m[2])||0, (c.name||'').toUpperCase()];
+        return [catName(c).toUpperCase(), 99999, (c.name||'').toUpperCase()];
+      }
+
+      const aoa = [];
+      const stamp = new Date().toLocaleString();
+
+      // Title + info block (blank fields to fill in Excel)
+      aoa.push([`Purdue IE 8-Semester Plan — exported ${stamp}`]);
+      aoa.push(['Student Name:', '', 'Advisor:', '', 'Semester:', '', '']);
+      aoa.push(['Catalog Year:', '', 'Major/Concentration:', '', 'Graduation Target:', '', '']);
+      aoa.push(['Student plan with advisor grade column and unplaced items']);
+      aoa.push([]); // spacer
+      aoa.push(HEADER.slice());
+
+      // Terms (sorted within each term)
+      let grand = 0;
+      for (let t = 0; t < state.terms.length; t++){
+        const termNum = t + 1;
+        aoa.push([`Term ${termNum}`, '', '', '', '', '', '']); // merge later
+
+        const rows = state.terms[t].slice().sort((a,b)=>{
+          const ka = courseSortKey(a), kb = courseSortKey(b);
+          if (ka[0] !== kb[0]) return ka[0] < kb[0] ? -1 : 1;
+          if (ka[1] !== kb[1]) return ka[1] - kb[1];
+          if (ka[2] !== kb[2]) return ka[2] < kb[2] ? -1 : 1;
+          return 0;
+        });
+
+        let sub = 0;
+        for (const c of rows){
+          aoa.push([
+            termNum,
+            c.code || catName(c),
+            c.name || '',
+            Number(c.credits)||0,
+            catName(c),
+            noteFor(c),
+            '' // Grade blank for advisor
+          ]);
+          sub += Number(c.credits)||0;
+        }
+
+        aoa.push(['', '', `Term ${termNum} subtotal`, sub, '', '', '']);
+        aoa.push(['', '', '', '', '', '', '']);
+        grand += sub;
+      }
+
+      // Grand total (placed)
+      aoa.push(['', '', 'Grand total (placed)', grand, '', '', '']);
+      aoa.push([]); // spacer
+
+      // Unplaced Pools
+      aoa.push(['Unplaced (Pools)']);
+      aoa.push(['Items still in Required/Other/IE Selectives/Tech/GenEd/Extra pools']);
+      aoa.push([]);
+      aoa.push(HEADER.slice());
+
+      const poolOrder = [
+        ['requiredIE','Required IE'],
+        ['otherReq','Other Required'],
+        ['ieSel','IE Selectives'],
+        ['tech','Tech Selectives'],
+        ['gened','General Education'],
+        ['extra','Extra'],
+      ];
+
+      let unplacedTotal = 0;
+      for (const [key, label] of poolOrder){
+        const arr = (state.pools[key] || []).slice().sort((a,b)=>{
+          const ka = courseSortKey(a), kb = courseSortKey(b);
+          if (ka[0] !== kb[0]) return ka[0] < kb[0] ? -1 : 1;
+          if (ka[1] !== kb[1]) return ka[1] - kb[1];
+          if (ka[2] !== kb[2]) return ka[2] < kb[2] ? -1 : 1;
+          return 0;
+        });
+        if (!arr.length) continue;
+
+        aoa.push([label, '', '', '', '', '', '']); // merge later
+        let sub = 0;
+        for (const c of arr){
+          aoa.push([
+            '', // no term
+            c.code || catName(c),
+            c.name || '',
+            Number(c.credits)||0,
+            catName(c),
+            noteFor(c),
+            ''
+          ]);
+          sub += Number(c.credits)||0;
+        }
+        aoa.push(['', '', `${label} subtotal`, sub, '', '', '']);
+        aoa.push(['', '', '', '', '', '', '']);
+        unplacedTotal += sub;
+      }
+
+      if (unplacedTotal === 0){
+        aoa.push(['(No unplaced items — all courses are scheduled)']);
+        aoa.push([]);
+      }
+
+      // Build sheet
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+      // Column widths
+      ws['!cols'] = [
+        {wch:6},   // Term
+        {wch:12},  // Code
+        {wch:48},  // Title
+        {wch:9},   // Credits
+        {wch:18},  // Category
+        {wch:18},  // Notes
+        {wch:10},  // Grade
+      ];
+
+      // Merge section/title rows to make it scannable
+      ws['!merges'] = ws['!merges'] || [];
+      const mergeRowAtoG = (r0) => ws['!merges'].push({s:{r:r0,c:0}, e:{r:r0,c:6}});
+
+      // Merge title and blurb rows; leave the info rows with separate fields editable
+      mergeRowAtoG(0); // big title
+      mergeRowAtoG(3); // blurb
+
+      // Auto-merge any section headers where only column A has text (skip main table headers)
+      const rng = XLSX.utils.decode_range(ws['!ref']);
+      for (let r = 0; r <= rng.e.r; r++){
+        const A = ws[XLSX.utils.encode_cell({r, c:0})];
+        const B = ws[XLSX.utils.encode_cell({r, c:1})];
+        const C = ws[XLSX.utils.encode_cell({r, c:2})];
+        const D = ws[XLSX.utils.encode_cell({r, c:3})];
+        const E = ws[XLSX.utils.encode_cell({r, c:4})];
+        const F = ws[XLSX.utils.encode_cell({r, c:5})];
+        const G = ws[XLSX.utils.encode_cell({r, c:6})];
+        const onlyA = A && A.v && !B && !C && !D && !E && !F && !G;
+        const isMainHeader = A && (A.v === 'Term' || A.v === 'Student Name:'); // safeguard
+        if (onlyA && !isMainHeader){
+          mergeRowAtoG(r);
+        }
+      }
+
+      // Write workbook
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Plan');
+      XLSX.writeFile(wb, 'purdue-ie-plan.xlsx');
+    }
+
+    // Export button: Excel by default, Alt+Click for JSON backup
+    document.getElementById('btn-export').onclick=(e)=>{
+      if(e && e.altKey){ exportJSON(); } else { exportExcel(); }
     };
+
+    // ---------- Import ----------
     document.getElementById('btn-import').onclick=()=>{
       const inp=document.createElement('input'); inp.type='file'; inp.accept='application/json';
       inp.onchange=()=>{
@@ -761,7 +925,8 @@
 • Extra Classes are optional and not validated.
 • Progress checks update live below the grid.
 • “Compact pools” in the header shrinks the left column so terms stay in view.
-• Autosaves in your browser. Use Export/Import to move between devices.`);
+• Autosaves in your browser. Export → Excel (.xlsx). Hold Alt while clicking Export for JSON backup.
+• Import → load a previously exported JSON.`);
     };
 
     // ---------- NEW: compact toggle + dynamic sticky offset ----------
