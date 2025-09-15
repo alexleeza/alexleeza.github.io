@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fountain of Tech</title>
+  <meta name="description" content="A friendly community forum and curated hub for news, technology, research, and health tips — designed for readability and gentle, modern animations." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      /* Neutral grayscale palette */
+      --bg: #f5f5f5;
+      --panel: #ffffff;
+      --ink: #1a1a1a;         /* primary text */
+      --muted: #666666;       /* secondary text */
+      --brand: #000000;       /* primary accent black */
+      --brand-2: #777777;     /* secondary accent grey */
+      --ring: rgba(100,100,100,0.25);
+      --warn: #a23d3d;
+      --ok: #2f7a4d;
+      --shadow: 0 10px 24px rgba(0,0,0,0.07);
+
+      --radius: 18px;
+      --radius-lg: 26px;
+      --maxw: 1200px;
+      --step--2: clamp(.86rem, .82rem + .2vw, .94rem);
+      --step--1: clamp(1rem, .95rem + .3vw, 1.12rem);
+      --step-0:  clamp(1.15rem, 1.05rem + .5vw, 1.35rem);
+      --step-1:  clamp(1.35rem, 1.2rem + .8vw, 1.7rem);
+      --step-2:  clamp(1.7rem, 1.5rem + 1.1vw, 2.1rem);
+      --step-3:  clamp(2.2rem, 1.8rem + 1.6vw, 2.7rem);
+    }
+    @media (prefers-color-scheme: dark){
+      :root{ --bg:#121212; --panel:#1e1e1e; --ink:#f2f2f2; --muted:#aaaaaa; --shadow: 0 14px 36px rgba(0,0,0,.65);}  
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--ink); background:radial-gradient(1200px 560px at 10% -10%, color-mix(in oklab, var(--brand) 8%, var(--bg)), var(--bg)) fixed;
+      line-height:1.6; font-size:var(--step--1);
+    }
+
+    header{
+      position:sticky; top:0; z-index:30; backdrop-filter:saturate(1.2) blur(10px);
+      background:color-mix(in oklab, var(--panel) 86%, transparent);
+      border-bottom:1px solid color-mix(in oklab, var(--brand) 14%, var(--panel));
+    }
+    .wrap{max-width:var(--maxw); margin-inline:auto; padding-inline:18px}
+    .row{display:flex; align-items:center; gap:12px}
+    .space{flex:1}
+
+    .brand{display:flex; align-items:center; gap:12px; padding-block:14px;}
+    .logo{
+      width:40px;height:40px;border-radius:12px; position:relative; isolation:isolate; box-shadow:var(--shadow);
+      background: conic-gradient(from 180deg at 50% 50%, var(--brand-2), var(--brand), var(--brand-2));
+      overflow:hidden;
+    }
+    .logo::after{ content:""; position:absolute; inset:0; background:radial-gradient(120% 60% at 120% -10%, rgba(255,255,255,.8), transparent 40%)}
+    h1{font-size:var(--step-2); margin:0}
+    .tag{font-size:var(--step--2); color:var(--muted)}
+
+    .btn{ cursor:pointer; border:1px solid color-mix(in oklab,var(--brand) 30%, var(--panel));
+      background:linear-gradient(180deg, color-mix(in oklab,var(--panel) 90%, white), var(--panel));
+      color:var(--ink); border-radius:12px; padding:10px 14px; box-shadow:var(--shadow); transition:transform .2s ease, box-shadow .2s ease; font-weight:600;
+    }
+    .btn:hover{ transform:translateY(-1px)}
+    .btn.primary{ background:linear-gradient(180deg, color-mix(in oklab,var(--brand) 25%, var(--panel)), color-mix(in oklab,var(--brand) 55%, var(--panel))); color:white; border-color:transparent}
+
+    nav{ display:flex; gap:8px; flex-wrap:wrap; padding-bottom:12px }
+    nav button{ font-size:var(--step--1)}
+
+    main{ padding-block:24px 60px }
+    section[hidden]{ display:none }
+
+    .panel{ background:var(--panel); border:1px solid color-mix(in oklab, var(--brand) 12%, var(--panel)); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px }
+    .grid{ display:grid; gap:16px }
+    .grid.cards{ grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)) }
+
+    .card{ position:relative; overflow:hidden; border-radius:16px; background:linear-gradient(180deg, color-mix(in oklab, var(--panel) 95%, white), var(--panel)); border:1px solid color-mix(in oklab, var(--brand) 10%, var(--panel));
+      padding:16px; box-shadow:var(--shadow); transform: translateY(6px);
+      opacity:0; transition: transform .7s cubic-bezier(.2,.8,.2,1), opacity .7s ease;
+    }
+    .card.visible{ transform: translateY(0); opacity:1 }
+
+    .card h3{ margin:0 0 6px; font-size:var(--step-0) }
+    .card p{ margin:0; color:var(--muted) }
+    .card a{ color:var(--brand); font-weight:600; text-decoration: none }
+    .card a:hover{ text-decoration: underline }
+
+    .ticker{ display:flex; gap:18px; overflow:auto; padding:10px; scroll-snap-type:x mandatory }
+    .ticker .pill{ scroll-snap-align:center; white-space:nowrap; padding:8px 12px; border-radius:999px; border:1px solid color-mix(in oklab, var(--brand) 20%, var(--panel)); background:var(--panel); box-shadow:var(--shadow) }
+
+    .forum-layout{ display:grid; gap:16px; grid-template-columns: 1fr minmax(280px, 360px) }
+    .topic{ border-bottom:1px dashed color-mix(in oklab, var(--brand) 20%, var(--panel)); padding:12px 0 }
+    .topic h4{ margin:0 0 4px; font-size:var(--step-0) }
+    .meta{ color:var(--muted); font-size:.95em }
+    .badge{ display:inline-block; padding:2px 8px; border-radius:999px; font-size:.85em; background:color-mix(in oklab, var(--brand) 15%, var(--panel)); color:var(--ink) }
+
+    .field{ display:grid; gap:6px }
+    .field input, .field textarea, .field select {
+      font:inherit; padding:12px; border-radius:12px; border:1px solid color-mix(in oklab, var(--brand) 20%, var(--panel));
+      background:var(--panel); color:var(--ink); outline:none; box-shadow:inset 0 0 0 1px transparent; transition: box-shadow .2s ease, border-color .2s ease;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus{ box-shadow:0 0 0 4px var(--ring); border-color:color-mix(in oklab, var(--brand) 60%, var(--panel)) }
+    .field textarea{ min-height:110px; resize:vertical }
+
+    footer{ border-top:1px solid color-mix(in oklab, var(--brand) 14%, var(--panel)); padding-block:24px; color:var(--muted) }
+
+    @media (prefers-reduced-motion: reduce){
+      .card{ transition:none }
+      .btn{ transition:none }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <div class="row brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1>Fountain of Tech</h1>
+          <div class="tag">A friendly place to catch the latest & chat with neighbors</div>
+        </div>
+        <div class="space"></div>
+        <button class="btn" id="toggle-contrast" aria-pressed="false" title="Toggle dark mode">🌙&nbsp;Contrast</button>
+        <button class="btn" id="toggle-text" aria-pressed="false" title="Increase text size">🔤&nbsp;Text</button>
+      </div>
+      <nav class="row" role="tablist" aria-label="Sections">
+        <button class="btn primary" data-tab="news" aria-selected="true" role="tab">🗞️ News</button>
+        <button class="btn" data-tab="technology" role="tab">News</button>
+        <button class="btn" data-tab="research" role="tab">Research</button>
+        <button class="btn" data-tab="health" role="tab">Guidance</button>
+        <button class="btn" data-tab="forum" role="tab">Community Forum</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- NEWS -->
+    <section id="tab-news">
+      <div class="panel" aria-live="polite">
+        <div class="row" style="justify-content:space-between; align-items:end">
+          <div>
+            <h2 style="margin:0; font-size:var(--step-1)">Latest Headlines</h2>
+            <div class="tag">Trusted sources, refreshed automatically</div>
+          </div>
+          <div class="row">
+            <button class="btn" id="refresh-news">↻ Refresh</button>
+          </div>
+        </div>
+        <div class="ticker" id="news-ticker" aria-label="Trending topics" style="margin-top:10px"></div>
+      </div>
+      <div class="grid cards" id="news-cards" style="margin-top:16px"></div>
+    </section>
+
+    <!-- TECHNOLOGY -->
+    <section id="tab-technology" hidden>
+      <div class="panel">
+        <h2 style="margin:0 0 8px; font-size:var(--step-1)">Technology Updates</h2>
+        <div class="tag">Gadgets, guides, and how‑tos</div>
+      </div>
+      <div class="grid cards" id="tech-cards" style="margin-top:16px"></div>
+    </section>
+
+    <!-- RESEARCH -->
+    <section id="tab-research" hidden>
+      <div class="panel">
+        <h2 style="margin:0 0 8px; font-size:var(--step-1)">Science & Research</h2>
+        <div class="tag">Readable summaries from reputable journals</div>
+      </div>
+      <div class="grid cards" id="research-cards" style="margin-top:16px"></div>
+    </section>
+
+    <!-- HEALTH -->
+    <section id="tab-health" hidden>
+      <div class="panel">
+        <h2 style="margin:0 0 8px; font-size:var(--step-1)">Health Tips</h2>
+        <div class="tag">Everyday wellness from reliable sources</div>
+      </div>
+      <div class="grid cards" id="health-cards" style="margin-top:16px"></div>
+    </section>
+
+    <!-- FORUM -->
+    <section id="tab-forum" hidden>
+      <div class="forum-layout">
+        <div class="panel">
+          <div class="row" style="justify-content:space-between; align-items:end">
+            <div>
+              <h2 style="margin:0; font-size:var(--step-1)">Community Forum</h2>
+              <div class="tag">Create topics, ask questions, share tips</div>
+            </div>
+            <button class="btn" id="clear-forum" title="Clear local posts (this device only)">🧹 Clear Local</button>
+          </div>
+
+          <div id="topics" style="margin-top:12px"></div>
+        </div>
+        <aside class="panel" aria-labelledby="new-topic">
+          <h3 id="new-topic" style="margin-top:0">Start a Topic</h3>
+          <div class="field">
+            <label for="topic-category">Category</label>
+            <select id="topic-category" aria-label="Topic category">
+              <option>General</option>
+              <option>Technology</option>
+              <option>Health</option>
+              <option>Local News</option>
+              <option>Events</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="topic-title">Title</label>
+            <input id="topic-title" placeholder="What's on your mind?" />
+          </div>
+          <div class="field">
+            <label for="topic-body">Details</label>
+            <textarea id="topic-body" placeholder="Write your post here..."></textarea>
+          </div>
+          <div class="field">
+            <label for="topic-name">Your name (optional)</label>
+            <input id="topic-name" placeholder="e.g., Pat K." />
+          </div>
+          <div class="row" style="justify-content:space-between; margin-top:10px">
+            <div class="tag">Saved to your browser. For a shared forum, connect a backend later.</div>
+            <button class="btn primary" id="post-topic">Post</button>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <div class="row" style="justify-content:space-between">
+      <div>© <span id="year"></span> SilverCircle • Built with accessibility in mind</div>
+      <div class="row" role="group" aria-label="Text options">
+        <span class="tag">Text size:</span>
+        <button class="btn" data-textsize="base">A</button>
+        <button class="btn" data-textsize="large">A+</button>
+        <button class="btn" data-textsize="xlarge">A++</button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ============================
+    // Utilities & Global State
+    // ============================
+    const $ = (sel, el=document) => el.querySelector(sel);
+    const $$ = (sel, el=document) => [...el.querySelectorAll(sel)];
+    const state = {
+      textScale: 1,
+      forum: JSON.parse(localStorage.getItem('sc_forum')||'[]'),
+    };
+
+    function saveForum(){ localStorage.setItem('sc_forum', JSON.stringify(state.forum)); }
+
+    // ============================
+    // Tabs
+    // ============================
+    const tabs = $$("nav [data-tab]");
+    tabs.forEach(btn => btn.addEventListener('click', () => {
+      tabs.forEach(b=>{ b.classList.toggle('primary', b===btn); b.setAttribute('aria-selected', b===btn)});
+      const id = btn.getAttribute('data-tab');
+      $$('#tab-news, #tab-technology, #tab-research, #tab-health, #tab-forum').forEach(sec => sec.hidden = sec.id !== 'tab-'+id);
+      // trigger entrance animation on visible cards
+      revealAllVisible();
+    }));
+    // ============================
+    // Animated reveal on scroll
+    // ============================
+    const io = new IntersectionObserver((entries)=>{
+      for(const e of entries){ if(e.isIntersecting) e.target.classList.add('visible'); }
+    }, {threshold:.15});
+    function revealAllVisible(){ $$('.card').forEach(c=> io.observe(c)); }
+
+    // ============================
+    // RSS helpers (client‑only, via AllOrigins CORS helper)
+    // ============================
+    const FEEDS = [
+      // News
+      {url:'https://feeds.bbci.co.uk/news/rss.xml', cat:'news'},
+      {url:'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml', cat:'news'},
+      // Tech
+      {url:'https://www.theverge.com/rss/index.xml', cat:'technology'},
+      {url:'https://www.wired.com/feed/rss', cat:'technology'},
+      // Research
+      {url:'https://www.nature.com/subjects/science/rss', cat:'research'},
+      {url:'https://www.science.org/action/showFeed?type=etoc&feed=rss&jc=science', cat:'research'},
+      // Health
+      {url:'https://www.nih.gov/news-events/news-releases/rss.xml', cat:'health'},
+      {url:'https://www.mayoclinic.org/rss/all-health-information', cat:'health'},
+    ];
+
+    async function fetchRSS(feedUrl){
+      const proxied = `https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`;
+      const res = await fetch(proxied);
+      if(!res.ok) throw new Error('Feed request failed');
+      const txt = await res.text();
+      const xml = new DOMParser().parseFromString(txt, 'text/xml');
+      return xml;
+    }
+
+    function xmlVal(node, sel){ const el = node.querySelector(sel); return el? (el.textContent||'').trim():'' }
+
+    function normalizeItems(xml){
+      const isAtom = xml.documentElement.nodeName.toLowerCase().includes('feed');
+      const items = isAtom ? [...xml.querySelectorAll('entry')] : [...xml.querySelectorAll('item')];
+      return items.slice(0, 12).map(n=>({
+        title: xmlVal(n, isAtom? 'title' : 'title'),
+        link:  isAtom? (n.querySelector('link')?.getAttribute('href')||'') : xmlVal(n,'link'),
+        date:  new Date(xmlVal(n, isAtom? 'updated' : 'pubDate') || Date.now()),
+        desc:  xmlVal(n, 'summary') || xmlVal(n, 'description') || '',
+        source: xml.querySelector('title')?.textContent || 'Feed',
+      }));
+    }
+
+    function renderCards(list, mountId){
+      const host = $('#'+mountId);
+      host.innerHTML = '';
+      list.forEach((it, i)=>{
+        const card = document.createElement('article');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3>${escapeHTML(it.title)}</h3>
+          <p class="meta">${escapeHTML(it.source)} • ${niceDate(it.date)}</p>
+          <p>${escapeHTML(stripHTML(it.desc)).slice(0,160)}…</p>
+          <p style="margin-top:8px"><a href="${it.link}" target="_blank" rel="noopener">Read more ↗</a></p>
+        `;
+        host.appendChild(card);
+      });
+      revealAllVisible();
+    }
+
+    function niceDate(d){ try{ return d.toLocaleDateString([], {month:'short', day:'numeric'}) }catch{return ''} }
+    function stripHTML(s){ const t = document.createElement('div'); t.innerHTML = s; return t.textContent || t.innerText || '' }
+    function escapeHTML(s){ return s.replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c])) }
+
+    async function loadFeeds(){
+      const buckets = { news:[], technology:[], research:[], health:[] };
+      const ticker = $('#news-ticker'); ticker.innerHTML='';
+      for(const f of FEEDS){
+        try{
+          const xml = await fetchRSS(f.url);
+          const items = normalizeItems(xml).map(x=> ({...x, cat:f.cat}));
+          buckets[f.cat].push(...items);
+          if(f.cat==='news'){
+            items.slice(0,3).forEach(it=>{
+              const pill = document.createElement('div');
+              pill.className='pill';
+              pill.textContent = it.title.slice(0,60) + (it.title.length>60?'…':'');
+              ticker.appendChild(pill);
+            });
+          }
+        }catch(err){
+          console.warn('Feed failed', f.url, err);
+        }
+      }
+
+      for(const [cat, list] of Object.entries(buckets)){
+        list.sort((a,b)=> b.date - a.date);
+        const top = list.slice(0,12);
+        if(cat==='news') renderCards(top,'news-cards');
+        if(cat==='technology') renderCards(top,'tech-cards');
+        if(cat==='research') renderCards(top,'research-cards');
+        if(cat==='health') renderCards(top,'health-cards');
+      }
+    }
+
+    $('#refresh-news').addEventListener('click', loadFeeds);
+
+    // ============================
+    // Forum (local demo)
+    // ============================
+    function renderForum(){
+      const mount = $('#topics');
+      if(!state.forum.length){ mount.innerHTML = `<p class=\"tag\">No topics yet. Be the first to post!</p>`; return; }
+      mount.innerHTML = '';
+      const list = [...state.forum].sort((a,b)=> b.ts - a.ts);
+      list.forEach(t=>{
+        const wrap = document.createElement('div');
+        wrap.className='topic';
+        wrap.innerHTML = `
+          <h4>${escapeHTML(t.title)} <span class=\"badge\">${escapeHTML(t.category)}</span></h4>
+          <div class=\"meta\">By ${escapeHTML(t.name||'Anonymous')} • ${new Date(t.ts).toLocaleString()}</div>
+          <p>${escapeHTML(t.body)}</p>
+          <div class=\"row\" style=\"gap:8px; margin-top:8px\">
+            <button class=\"btn\" data-action=\"like\" aria-label=\"Like ${escapeHTML(t.title)}\">👍 <span>${t.likes||0}</span></button>
+            <button class=\"btn\" data-action=\"reply\">💬 Reply</button>
+            <button class=\"btn\" data-action=\"report\">🚩 Report</button>
+          </div>
+          <div class=\"replies\" style=\"margin-left:10px; margin-top:8px\"></div>
+        `;
+        const repHost = $('.replies', wrap);
+        (t.replies||[]).forEach(r=>{
+          const p = document.createElement('p');
+          p.innerHTML = `<strong>${escapeHTML(r.name||'Someone')}</strong>: ${escapeHTML(r.text)}`;
+          repHost.appendChild(p);
+        });
+        wrap.addEventListener('click', (e)=>{
+          const btn = e.target.closest('button'); if(!btn) return;
+          const action = btn.dataset.action;
+          if(action==='like'){ t.likes = (t.likes||0)+1; btn.querySelector('span').textContent=t.likes; saveForum(); }
+          if(action==='report'){ alert('Thanks — this flags the post locally. Connect a backend later for real moderation.'); }
+          if(action==='reply'){
+            const text = prompt('Your reply:');
+            if(text){ t.replies = t.replies||[]; t.replies.push({name:'Anonymous', text}); saveForum(); renderForum(); }
+          }
+        });
+        $('#topics').appendChild(wrap);
+      });
+    }
+
+    $('#post-topic').addEventListener('click', ()=>{
+      const topic = {
+        id: crypto.randomUUID(),
+        category: $('#topic-category').value.trim() || 'General',
+        title: $('#topic-title').value.trim(),
+        body: $('#topic-body').value.trim(),
+        name: $('#topic-name').value.trim(),
+        ts: Date.now(), likes:0, replies:[]
+      };
+      if(!topic.title || !topic.body){ alert('Please add a title and some details.'); return; }
+      state.forum.push(topic); saveForum();
+      $('#topic-title').value = ''; $('#topic-body').value = ''; $('#topic-name').value='';
+      renderForum();
+    });
+
+    $('#clear-forum').addEventListener('click', ()=>{
+      if(confirm('This will clear forum posts saved on this device only. Continue?')){
+        state.forum = []; saveForum(); renderForum();
+      }
+    });
+
+    // ============================
+    // Boot
+    // ============================
+    $('#year').textContent = new Date().getFullYear();
+    loadFeeds();
+    renderForum();
+    revealAllVisible();
+  </script>
+</body>
+</html>
