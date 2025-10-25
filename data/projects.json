@@ -1,0 +1,86 @@
+[
+  {
+    "title": "E-Commerce Platform",
+    "description": "A full-stack e-commerce platform with real-time inventory management, payment processing, and admin dashboard. Built with modern web technologies for optimal performance.",
+    "tags": ["JavaScript", "React", "Node.js", "MongoDB"],
+    "image": "./assets/img/projects/ecommerce.png",
+    "links": [
+      {
+        "label": "Live Demo",
+        "url": "https://example.com/demo"
+      },
+      {
+        "label": "GitHub",
+        "url": "https://github.com/username/project"
+      }
+    ]
+  },
+  {
+    "title": "Machine Learning Image Classifier",
+    "description": "Deep learning model for image classification using convolutional neural networks. Achieves 95% accuracy on test datasets with real-time inference capabilities.",
+    "tags": ["Python", "TensorFlow", "Machine Learning"],
+    "image": "./assets/img/projects/ml-classifier.png",
+    "links": [
+      {
+        "label": "Paper",
+        "url": "https://example.com/paper"
+      },
+      {
+        "label": "Code",
+        "url": "https://github.com/username/ml-project"
+      }
+    ]
+  },
+  {
+    "title": "Weather Dashboard",
+    "description": "Interactive weather dashboard with real-time data visualization, 7-day forecasts, and location-based weather alerts. Features responsive design and offline support.",
+    "tags": ["JavaScript", "API", "UI/UX"],
+    "image": "./assets/img/projects/weather.png",
+    "links": [
+      {
+        "label": "View",
+        "url": "https://example.com/weather"
+      }
+    ]
+  },
+  {
+    "title": "Task Management App",
+    "description": "Collaborative task management application with real-time updates, team chat, and project tracking. Supports kanban boards and Gantt charts.",
+    "tags": ["React", "Firebase", "UI/UX"],
+    "image": "./assets/img/projects/tasks.png",
+    "links": [
+      {
+        "label": "Demo",
+        "url": "https://example.com/tasks"
+      },
+      {
+        "label": "Source",
+        "url": "https://github.com/username/tasks"
+      }
+    ]
+  },
+  {
+    "title": "Data Visualization Tool",
+    "description": "Advanced data visualization toolkit for creating interactive charts and dashboards. Supports multiple chart types and real-time data streaming.",
+    "tags": ["JavaScript", "D3.js", "Data Science"],
+    "image": "./assets/img/projects/dataviz.png",
+    "links": [
+      {
+        "label": "Demo",
+        "url": "https://example.com/dataviz"
+      }
+    ]
+  },
+  {
+    "title": "Portfolio Generator",
+    "description": "Automated portfolio website generator with customizable themes and templates. Integrates with GitHub to showcase projects and contributions.",
+    "tags": ["Node.js", "JavaScript", "UI/UX"],
+    "image": "./assets/img/projects/portfolio-gen.png",
+    "links": [
+      {
+        "label": "GitHub",
+        "url": "https://github.com/username/portfolio-gen"
+      }
+    ]
+  }
+]

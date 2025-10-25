@@ -1,408 +1,423 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Alex Lee · Portfolio</title>
-  <meta name="description" content="Portfolio & resume of Alex Lee — Industrial Engineering student at Purdue University." />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root{
-      --bg: #f9fff9;        /* light green background */
-      --panel: #ffffff;     /* white panels */
-      --text: #1e2a1e;      /* dark green-gray text */
-      --muted: #5f6f5f;     /* softer muted text */
-      --primary: #4caf50;   /* soft green accent */
-      --ring: rgba(76,175,80,0.15);
-      --border: #dce5dc;    /* light greenish border */
-      --code: #f4f9f4;
-    }
-
-    *{box-sizing:border-box}
-    html,body{margin:0;height:100%;}
-    body{
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-    }
-
-    a{color:var(--primary);text-decoration:none}
-    a:hover{text-decoration:underline}
-    .container{max-width:1600px;margin:0 auto;padding:24px}
-
-    /* Make container use more of the screen on large displays */
-    @media (min-width: 1200px){
-      .container{ max-width: min(96vw, 1600px); }
-    }
-
-    /* Header */
-    header{
-      position:sticky;top:0;z-index:50;background:var(--bg);
-      border-bottom:1px solid var(--border);
-    }
-    .nav{display:flex;align-items:center;justify-content:space-between;gap:16px}
-    .brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:18px}
-    .brand .dot{width:10px;height:10px;border-radius:999px;background:var(--primary)}
-    .nav a{font-weight:600;color:var(--text);opacity:.85}
-    .nav a:hover{opacity:1}
-    .menu{display:flex;gap:18px;align-items:center}
-
-    /* -------- Hero (centered) -------- */
-    .hero{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      padding:50px 0 30px;
-      gap:16px;
-    }
-    .hero h1{font-size:68px;line-height:1.1;margin:6px 0 4px;color:var(--primary);font-weight:700;}
-    .hero p{color:var(--muted);font-size:18px;margin:0 0 8px}
-
-    .cta{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      justify-content:center;
-      align-items:center;
-    }
-    .btn{
-      background: var(--primary);color:white;border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer;
-    }
-    .btn.secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
-    .btn, .btn:visited { text-decoration:none; }
-
-    .card{
-      background: var(--panel);border:1px solid var(--border);border-radius:16px;padding:18px
-    }
-
-    /* Grid sections */
-    section{padding:22px 0}
-    h2{font-size:24px;margin:0 0 14px}
-    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
-
-    /* Avatar styling */
-    .avatar {
-      width: 300px;
-      height: 300px;
-      border-radius: 16px;
-      object-fit: cover;
-      flex-shrink: 0; /* keep avatar from shrinking */
-    }
-
-    /* Skills */
-    .chips{display:flex;flex-wrap:wrap;gap:10px}
-    .chip{border:1px dashed var(--border);background:var(--panel);padding:8px 10px;border-radius:999px;font-weight:600;color:var(--muted)}
-
-    /* Experience / Projects */
-    .list{display:grid;gap:12px}
-    .item{display:flex;gap:12px}
-    .item .dot{width:10px;height:10px;border-radius:999px;background:var(--primary);margin-top:10px}
-    .item .content{flex:1}
-    .item .title{display:flex;justify-content:space-between;gap:12px;font-weight:700}
-    .item .subtitle{color:var(--muted);font-weight:600}
-
-    /* Projects grid */
-    .projects{grid-column:span 12}
-    .project-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-    .project-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:8px}
-    .badge{font-size:12px;color:var(--muted)}
-    .project-card a{font-weight:700}
-
-    /* Resume & Contact */
-    .two-col{grid-column:span 12;display:grid;grid-template-columns:1fr 1fr;gap:18px}
-    .contact-row{display:grid;grid-template-columns:1fr 1fr;gap:10px; margin-bottom:14px;}
-    input, textarea{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--panel);color:var(--text)}
-    textarea{min-height:110px; margin-top:4px;}
-    .note{color:var(--muted);font-size:14px}
-
-    /* Footer */
-    footer{border-top:1px solid var(--border);margin-top:18px;color:var(--muted);padding:18px 0}
-    .social{display:flex;gap:12px}
-
-    /* Responsive */
-    @media (max-width: 900px){
-      /* About stacks vertically on small screens */
-      .about .card{flex-direction:column}
-      .project-grid{grid-template-columns:1fr}
-      .two-col{grid-template-columns:1fr}
-    }
-
-    /* Remove the grid constraints from the wrapper that has both classes */
-    .grid.about{display:block;}
-
-    /* Let the card control the layout with flex so text fills horizontally */
-    section#about .card{
-      display:flex;
-      align-items:flex-start;  /* top aligned */
-      gap:18px;
-    }
-
-    /* === Stats button (inline, no big box) === */
-    details.stats{
-      position:relative;
-      display:inline-block;
-    }
-    details.stats summary{
-      list-style:none;
-      cursor:pointer;
-      user-select:none;
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:12px 16px;
-      font-weight:700;
-      color:var(--text);
-      background:transparent;
-      outline:none;
-    }
-    details.stats summary::-webkit-details-marker{ display:none; }
-    .stats-body{
-      position:absolute;
-      top:110%;
-      left:0;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:12px;
-      min-width:220px;
-      box-shadow:0 6px 18px rgba(0,0,0,0.08);
-      text-align:left;
-      z-index:20;
-    }
-    details.stats[open] .stats-body{display:block;}
-  </style>
-
-  <!-- SEO / Schema -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Person",
-    "name": "Alex Lee",
-    "url": "https://alexleeza.github.io/",
-    "jobTitle": "Industrial Engineering Student",
-    "affiliation": {"@type":"CollegeOrUniversity","name":"Purdue University"},
-    "sameAs": [
-      "https://github.com/alexleeza",
-      "https://www.linkedin.com/alexleeza"
-    ]
-  }
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{YOUR_NAME}}'s pixel-art portfolio showcasing projects, experience, and research">
+    <meta name="author" content="{{YOUR_NAME}}">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{YOUR_NAME}} - Portfolio">
+    <meta property="og:description" content="{{YOUR_NAME}}'s pixel-art portfolio">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="./assets/img/preview.png">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{YOUR_NAME}} - Portfolio">
+    <meta name="twitter:description" content="{{YOUR_NAME}}'s pixel-art portfolio">
+    <meta name="twitter:image" content="./assets/img/preview.png">
+    
+    <title>{{YOUR_NAME}} - Portfolio</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/img/favicon-16x16.png">
+    
+    <!-- Fonts - Preload pixel font for performance -->
+    <link rel="preload" href="./assets/fonts/pixel-heading.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="./css/variables.css">
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/layout.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/themes.css">
 </head>
 <body>
-  <header>
-    <div class="container nav">
-      <div class="brand">My Portfolio</div>
-      <nav class="menu">
-        <a href="#about">About</a>
-        <a href="animation.html">Skills</a>
-        <a href="#projects">Projects</a>
-        <a href="#experience">Experience</a>
-        <a href="#resume">Resume</a>
-        <a href="#contact">Contact</a>
-      </nav>
-    </div>
-  </header>
-
-  <main class="container">
-    <!-- HERO (centered) -->
-    <section class="hero">
-      <h1>Alex Kyoungmoon Lee</h1>
-      <p>Industrial Engineering Student</p>
-      <div class="cta">
-        <a class="btn" href="projects.html">Projects</a>
-        <a class="btn secondary" href="slot.html">Click Me</a>
-
-        <!-- Stats inline button -->
-        <details class="stats">
-          <summary>Stats ▾</summary>
-          <div class="stats-body">
-            <ul style="margin:0;padding-left:18px">
-              <li>High School GPA: ---</li>
-              <li>BSIE GPA: ---</li>
-              <li>SAT: ----</li>
-              <li>GRE: ---</li>
-              <li>LSAT: ---</li>
-            </ul>
-          </div>
-        </details>
-      </div>
-    </section>
-
-    <!-- ABOUT -->
-    <section id="about">
-      <h2>About</h2>
-      <div class="grid about">
-        <div class="card">
-          <img src="assets/alex.jpg" alt="Alex Lee photo" class="avatar">
-          <div>
-            <p>
-              Hello! My name is Alex Lee, a Purdue Industrial Engineering student who is passionate about Operations Research and Statistics. Ever since high school I have always enjoyed seeing what decision trees scatter out just by living life. I also love applying my statistics knowledge with software to make interactable items to visualize probability first hand. This passion is shown in my career interests and previous work and research experience.
-            </p>
-            <p>
-              <strong>Career Interests:</strong> Operations Research, Data Science, Machine Learning, or Manufacturing.
-            </p>
-            <p>
-              <strong>Undergraduate University:</strong> Purdue University (West Lafayette, IN) <br>
-              <strong>Bachelor of Science:</strong> Industrial Engineering <br>
-              <strong>Undergraduate Minors:</strong> Statistics and Manufacturing <br>
-              <strong>Undergraduate Certificates from Purdue:</strong> Semiconductors and Microelectronics, Applications in Data Science
-            </p>
-          </div>
+    <!-- Skip to content for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Top Navigation Bar -->
+    <header class="header px-shadow-md" role="banner">
+        <div class="header-content">
+            <h1 class="site-title">{{YOUR_NAME}}</h1>
         </div>
-      </div>
-    </section>
-
-    <section id="experience">
-      <h2>Work and Research Experience</h2>
-      <div class="card list">
-        <div class="item">
-          <div class="dot"></div>
-          <div class="content">
-            <div class="title"><span>Undergraduate Research Asssistant | NHanCE Lab (Purdue University)</span><span class="subtitle">September 2025 - Present</span></div>
-            <div class="subtitle">West Lafayette, IN: Part-time</div>
-            <div class="subtitle">Website Creation · Autonomous Human-Systems</div>
-          </div>
-        </div>
-        <div class="item">
-          <div class="dot"></div>
-          <div class="content">
-            <div class="title"><span>Systems Validation Engineer | FLANDERS</span><span class="subtitle">September 2025 - Present</span></div>
-            <div class="subtitle">Carmel, IN: Part-time</div>
-            <div class="subtitle">Simulation Creation · Automation Integration</div>
-          </div>
-        </div>
-        <div class="item">
-          <div class="dot"></div>
-          <div class="content">
-            <div class="title"><span>Industrial Engineering Mentor | Purdue University</span><span class="subtitle">August 2025 - Present</span></div>
-            <div class="subtitle">West Lafayette, IN: Part-time</div>
-            <div class="subtitle">Leadership · Guidance · Mentorship</div>
-          </div>
-        </div>
-        <div class="item">
-          <div class="dot"></div>
-          <div class="content">
-            <div class="title"><span>Systems Validation Engineer | FLANDERS</span><span class="subtitle">June 2025 - August 2025</span></div>
-            <div class="subtitle">Carmel, IN: Internship</div>
-            <div class="subtitle">Testing and Validation · Test Case Creation · I/O Module Simulation Creation · Signal Automation Optimization</div>
-          </div>
-        </div>
-        <div class="item">
-          <div class="dot"></div>
-          <div class="content">
-            <div class="title"><span>Undergraduate Research Assistant | DC Lab (Purdue University)</span><span class="subtitle">May 2024 - June 2025</span></div>
-            <div class="subtitle">West Lafayette, IN: Part-time</div>
-            <div class="subtitle">Collaboration · Scheduling Algorithm · Presentations</div>
-          </div>
-        </div>
-        <div class="item">
-          <div class="dot"></div>
-          <div class="content">
-            <div class="title"><span>UI Engineer | Pearson VUE</span><span class="subtitle">June 2023 - August 2023</span></div>
-            <div class="subtitle">Remote: Internship</div>
-            <div class="subtitle">HTML · Design · Presentations</div>
-          </div>
-        </div>
-        <div class="item">
-          <div class="dot"></div>
-          <div class="content">
-            <div class="title"><span>Computer Science Instructor | Wonderland Education Inc</span><span class="subtitle">January 2022 - March 2023</span></div>
-            <div class="subtitle">West Lafayette, IN: Part-time</div>
-            <div class="subtitle">Collaboration · Curriculum Development · Presentations</div>
-          </div>
-        </div>
-        <div class="item">
-          <div class="dot"></div>
-          <div class="content">
-            <div class="title"><span>Laboratory Intern | SMART Lab (Purdue University)</span><span class="subtitle">May 2020 - August 2020</span></div>
-            <div class="subtitle">West Lafayette, IN: Internship</div>
-            <div class="subtitle">Python · LINUX · Mobile Robots</div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- <section id="projects">
-      <h2>Projects</h2>
-      <div class="projects">
-        <div class="project-grid">
-          <article class="project-card">
-            <div class="badge">2025 · Web · Tooling</div>
-            <h3 style="margin:4px 0">ORIES — IE Onboarding Tool</h3>
-            <p class="note">Streamlined course planning for IE students, reducing advisor workload; includes video walkthrough and roadmap.</p>
-            <a href="#" target="_blank" rel="noopener">View repo →</a>
-          </article>
-          <article class="project-card">
-            <div class="badge">2025 · R · Analytics</div>
-            <h3 style="margin:4px 0">Community & Crime Rates</h3>
-            <p class="note">Large-scale regression with diagnostics, Box–Cox, bootstrap CIs, and cross-validation on 2k+ communities.</p>
-            <a href="#" target="_blank" rel="noopener">Paper / Code →</a>
-          </article>
-          <article class="project-card">
-            <div class="badge">2024 · Python</div>
-            <h3 style="margin:4px 0">Finance Optimization</h3>
-            <p class="note">Desktop script to optimize contributions and allocations; simple GUI and reporting.</p>
-            <a href="#" target="_blank" rel="noopener">Repo →</a>
-          </article>
-        </div>
-      </div>
-    </section> -->
-
-    <!-- RESUME & CONTACT -->
-    <section id="resume">
-      <h2>Resume & Contact</h2>
-      <div class="two-col">
-        <div class="card">
-          <h3 style="margin:6px 0 10px">Resume</h3>
-          <p><a href="./Alex_Lee_Resume.pdf" download>Download my resume (PDF)</a></p>
-        </div>
-        <div class="card" id="contact">
-          <h3 style="margin:6px 0 10px">Contact</h3>
-          <form name="contact" onsubmit="event.preventDefault(); alert('Thanks! Replace this with your form handler or mailto link.');">
-            <div class="contact-row">
-              <input placeholder="Name" required>
-              <input placeholder="Email" type="email" required>
-            </div>
-            <textarea placeholder="Your message"></textarea>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-              <span class="note">Or email: <a href="mailto:alex@example.com">alex@example.com</a></span>
-              <button class="btn" type="submit">Send</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- WRITING -->
-    <section id="writing">
-      <h2>Writing</h2>
-      <div class="card">
-        <ul style="margin:0;padding-left:18px">
-          <li><a href="#">How I built ORIES for IE onboarding</a> — scope, tradeoffs, and roadmap</li>
-          <li><a href="#">Diagnostics in regression (WLS, Box–Cox, bootstrap)</a> — lessons learned</li>
+    </header>
+    
+    <!-- Left Sidebar Timeline Navigation -->
+    <nav class="sidebar-nav" role="navigation" aria-label="Section navigation">
+        <ul class="timeline-nav">
+            <li class="timeline-item">
+                <button class="timeline-btn" data-section="about" aria-label="Navigate to About section">
+                    <span class="timeline-node"></span>
+                    <span class="timeline-label">About</span>
+                </button>
+            </li>
+            <li class="timeline-item">
+                <button class="timeline-btn" data-section="work" aria-label="Navigate to Work Experience section">
+                    <span class="timeline-node"></span>
+                    <span class="timeline-label">Work Experience</span>
+                </button>
+            </li>
+            <li class="timeline-item">
+                <button class="timeline-btn" data-section="research" aria-label="Navigate to Research Experience section">
+                    <span class="timeline-node"></span>
+                    <span class="timeline-label">Research</span>
+                </button>
+            </li>
+            <li class="timeline-item">
+                <button class="timeline-btn" data-section="resume" aria-label="Navigate to Resume section">
+                    <span class="timeline-node"></span>
+                    <span class="timeline-label">Resume</span>
+                </button>
+            </li>
+            <li class="timeline-item">
+                <button class="timeline-btn" data-section="contact" aria-label="Navigate to Contact section">
+                    <span class="timeline-node"></span>
+                    <span class="timeline-label">Contact</span>
+                </button>
+            </li>
+            <li class="timeline-item">
+                <button class="timeline-btn" data-section="socials" aria-label="Navigate to Socials section">
+                    <span class="timeline-node"></span>
+                    <span class="timeline-label">Socials</span>
+                </button>
+            </li>
         </ul>
-      </div>
-    </section>
-
-    <footer class="container">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
-        <div>© <span id="year"></span> Alex Lee. All rights reserved.</div>
-        <div class="social">
-          <a href="https://github.com/alexleeza" target="_blank" rel="noopener">GitHub</a>
-          <a href="https://www.linkedin.com/in/alexleeza/" target="_blank" rel="noopener">LinkedIn</a>
-          <a href="#" target="_blank" rel="noopener">Resume</a>
+        
+        <!-- Theme Toggle -->
+        <button class="theme-toggle px-btn-small" aria-label="Toggle color theme">
+            <span class="theme-icon"></span>
+        </button>
+    </nav>
+    
+    <!-- Main Content -->
+    <main id="main-content" class="main-content">
+        
+        <!-- Hero Section -->
+        <section class="hero" id="hero">
+            <div class="hero-content">
+                <h2 class="hero-title">{{YOUR_NAME}}</h2>
+                <p class="hero-tagline">{{TAGLINE}}</p>
+                
+                <!-- Pixel Art Accent Elements -->
+                <div class="pixel-accent pixel-accent-1" aria-hidden="true"></div>
+                <div class="pixel-accent pixel-accent-2" aria-hidden="true"></div>
+                
+                <!-- Primary Action Buttons -->
+                <div class="hero-actions">
+                    <button class="px-btn px-btn-primary" id="stats-btn" aria-label="View statistics">
+                        <span class="btn-icon"></span>
+                        Stats
+                    </button>
+                    <button class="px-btn px-btn-secondary" id="projects-btn" aria-label="View projects">
+                        <span class="btn-icon"></span>
+                        Projects
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- About Section -->
+        <section class="section" id="about">
+            <div class="section-content">
+                <h2 class="section-title px-border">About Me</h2>
+                <div class="about-grid">
+                    <div class="about-bio">
+                        <p>Hello! I'm a passionate developer and researcher with a love for creating innovative solutions. My work spans across web development, machine learning, and creative coding.</p>
+                        <p>I believe in writing clean, maintainable code and building accessible experiences that delight users.</p>
+                    </div>
+                    
+                    <!-- Skills Grid -->
+                    <div class="skills-grid">
+                        <div class="skill-badge px-border">
+                            <span class="skill-icon" data-icon="code"></span>
+                            <span class="skill-name">JavaScript</span>
+                        </div>
+                        <div class="skill-badge px-border">
+                            <span class="skill-icon" data-icon="code"></span>
+                            <span class="skill-name">Python</span>
+                        </div>
+                        <div class="skill-badge px-border">
+                            <span class="skill-icon" data-icon="design"></span>
+                            <span class="skill-name">UI/UX</span>
+                        </div>
+                        <div class="skill-badge px-border">
+                            <span class="skill-icon" data-icon="data"></span>
+                            <span class="skill-name">Data Science</span>
+                        </div>
+                        <div class="skill-badge px-border">
+                            <span class="skill-icon" data-icon="web"></span>
+                            <span class="skill-name">React</span>
+                        </div>
+                        <div class="skill-badge px-border">
+                            <span class="skill-icon" data-icon="cloud"></span>
+                            <span class="skill-name">Cloud</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Work Experience Section -->
+        <section class="section" id="work">
+            <div class="section-content">
+                <h2 class="section-title px-border">Work Experience</h2>
+                <div class="experience-list">
+                    
+                    <article class="experience-card px-border px-shadow-sm">
+                        <div class="card-header">
+                            <h3 class="card-title">Senior Software Engineer</h3>
+                            <span class="card-org">Tech Company Inc.</span>
+                        </div>
+                        <div class="card-meta">
+                            <time datetime="2022-01">Jan 2022</time> - <time datetime="2024-12">Present</time>
+                        </div>
+                        <ul class="card-achievements">
+                            <li>Led development of scalable web applications serving 100K+ users</li>
+                            <li>Architected microservices infrastructure reducing latency by 40%</li>
+                            <li>Mentored team of 5 junior developers</li>
+                        </ul>
+                    </article>
+                    
+                    <article class="experience-card px-border px-shadow-sm">
+                        <div class="card-header">
+                            <h3 class="card-title">Software Developer</h3>
+                            <span class="card-org">Startup Labs</span>
+                        </div>
+                        <div class="card-meta">
+                            <time datetime="2020-06">Jun 2020</time> - <time datetime="2021-12">Dec 2021</time>
+                        </div>
+                        <ul class="card-achievements">
+                            <li>Built responsive web applications using React and Node.js</li>
+                            <li>Implemented CI/CD pipelines improving deployment efficiency by 60%</li>
+                            <li>Collaborated with designers to create pixel-perfect UIs</li>
+                        </ul>
+                    </article>
+                    
+                </div>
+            </div>
+        </section>
+        
+        <!-- Research Experience Section -->
+        <section class="section" id="research">
+            <div class="section-content">
+                <h2 class="section-title px-border">Research Experience</h2>
+                <div class="experience-list">
+                    
+                    <article class="experience-card px-border px-shadow-sm">
+                        <div class="card-header">
+                            <h3 class="card-title">Research Assistant</h3>
+                            <span class="card-org">University Research Lab</span>
+                        </div>
+                        <div class="card-meta">
+                            <time datetime="2019-09">Sep 2019</time> - <time datetime="2020-05">May 2020</time>
+                        </div>
+                        <ul class="card-achievements">
+                            <li>Conducted research on machine learning applications in computer vision</li>
+                            <li>Published paper on novel image classification techniques</li>
+                            <li>Presented findings at international conference</li>
+                        </ul>
+                        <div class="card-links">
+                            <a href="https://doi.org/10.1000/example" class="px-link" target="_blank" rel="noopener noreferrer">DOI: 10.1000/example</a>
+                        </div>
+                    </article>
+                    
+                </div>
+            </div>
+        </section>
+        
+        <!-- Projects Section -->
+        <section class="section" id="projects">
+            <div class="section-content">
+                <h2 class="section-title px-border">Projects</h2>
+                
+                <!-- Project Filters -->
+                <div class="project-filters" role="group" aria-label="Filter projects by tag">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <!-- Dynamic filter buttons will be added by JS -->
+                </div>
+                
+                <!-- Projects Grid -->
+                <div class="projects-grid">
+                    <!-- Projects will be loaded dynamically from projects.json -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Stats Section (can be hidden by default if modal is preferred) -->
+        <section class="section stats-section" id="stats">
+            <div class="section-content">
+                <h2 class="section-title px-border">Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-card px-border px-shadow-sm">
+                        <div class="stat-value">5+</div>
+                        <div class="stat-label">Years Coding</div>
+                    </div>
+                    <div class="stat-card px-border px-shadow-sm">
+                        <div class="stat-value">50+</div>
+                        <div class="stat-label">Projects</div>
+                    </div>
+                    <div class="stat-card px-border px-shadow-sm">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Publications</div>
+                    </div>
+                    <div class="stat-card px-border px-shadow-sm">
+                        <div class="stat-value">10+</div>
+                        <div class="stat-label">Hackathons</div>
+                    </div>
+                </div>
+                
+                <!-- Pixel Chart Example -->
+                <div class="chart-container px-border">
+                    <h3 class="chart-title">Activity Over Time</h3>
+                    <canvas id="pixel-chart" aria-label="Activity chart showing contributions over time"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Resume Section -->
+        <section class="section" id="resume">
+            <div class="section-content">
+                <h2 class="section-title px-border">Resume</h2>
+                <div class="resume-container">
+                    <div class="resume-viewer px-border">
+                        <embed src="./assets/resume.pdf" type="application/pdf" width="100%" height="600px" aria-label="Resume PDF viewer">
+                        <p class="pdf-fallback">
+                            Your browser doesn't support embedded PDFs. 
+                            <a href="./assets/resume.pdf" download class="px-link">Download the resume instead</a>.
+                        </p>
+                    </div>
+                    <div class="resume-actions">
+                        <a href="./assets/resume.pdf" download class="px-btn px-btn-primary">
+                            <span class="btn-icon"></span>
+                            Download Resume
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Contact Section -->
+        <section class="section" id="contact">
+            <div class="section-content">
+                <h2 class="section-title px-border">Get In Touch</h2>
+                <form class="contact-form px-border px-shadow-sm" id="contact-form" novalidate>
+                    <div class="form-group">
+                        <label for="contact-name" class="form-label">Name</label>
+                        <input 
+                            type="text" 
+                            id="contact-name" 
+                            name="name" 
+                            class="form-input px-border" 
+                            required 
+                            aria-required="true"
+                            aria-describedby="name-error">
+                        <span class="form-error" id="name-error" role="alert"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact-email" class="form-label">Email</label>
+                        <input 
+                            type="email" 
+                            id="contact-email" 
+                            name="email" 
+                            class="form-input px-border" 
+                            required 
+                            aria-required="true"
+                            aria-describedby="email-error">
+                        <span class="form-error" id="email-error" role="alert"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contact-message" class="form-label">Message</label>
+                        <textarea 
+                            id="contact-message" 
+                            name="message" 
+                            class="form-input form-textarea px-border" 
+                            rows="5" 
+                            required 
+                            aria-required="true"
+                            aria-describedby="message-error"></textarea>
+                        <span class="form-error" id="message-error" role="alert"></span>
+                    </div>
+                    
+                    <button type="submit" class="px-btn px-btn-primary">
+                        <span class="btn-icon"></span>
+                        Send Message
+                    </button>
+                    
+                    <div class="form-status" role="status" aria-live="polite"></div>
+                </form>
+            </div>
+        </section>
+        
+        <!-- Socials Section -->
+        <section class="section" id="socials">
+            <div class="section-content">
+                <h2 class="section-title px-border">Connect With Me</h2>
+                <div class="socials-grid">
+                    <a href="https://github.com/{{USERNAME}}" class="social-link px-border px-shadow-sm" target="_blank" rel="noopener noreferrer" aria-label="GitHub profile">
+                        <span class="social-icon" data-icon="github"></span>
+                        <span class="social-label">GitHub</span>
+                    </a>
+                    <a href="https://linkedin.com/in/{{USERNAME}}" class="social-link px-border px-shadow-sm" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile">
+                        <span class="social-icon" data-icon="linkedin"></span>
+                        <span class="social-label">LinkedIn</span>
+                    </a>
+                    <a href="mailto:{{EMAIL}}" class="social-link px-border px-shadow-sm" aria-label="Email contact">
+                        <span class="social-icon" data-icon="email"></span>
+                        <span class="social-label">Email</span>
+                    </a>
+                    <a href="https://twitter.com/{{USERNAME}}" class="social-link px-border px-shadow-sm" target="_blank" rel="noopener noreferrer" aria-label="Twitter profile">
+                        <span class="social-icon" data-icon="twitter"></span>
+                        <span class="social-label">Twitter</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+    
+    <!-- Stats Modal (alternative to inline section) -->
+    <div class="modal" id="stats-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+        <div class="modal-overlay"></div>
+        <div class="modal-content px-border px-shadow-md">
+            <div class="modal-header">
+                <h2 id="modal-title" class="modal-title">My Stats</h2>
+                <button class="modal-close px-btn-small" aria-label="Close modal">×</button>
+            </div>
+            <div class="modal-body">
+                <!-- Stats content mirrored from stats section -->
+                <div class="stats-grid">
+                    <div class="stat-card px-border">
+                        <div class="stat-value">5+</div>
+                        <div class="stat-label">Years Coding</div>
+                    </div>
+                    <div class="stat-card px-border">
+                        <div class="stat-value">50+</div>
+                        <div class="stat-label">Projects</div>
+                    </div>
+                    <div class="stat-card px-border">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Publications</div>
+                    </div>
+                    <div class="stat-card px-border">
+                        <div class="stat-value">10+</div>
+                        <div class="stat-label">Hackathons</div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 {{YOUR_NAME}}. Built with pixel-perfect love.</p>
     </footer>
-  </main>
-
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
+    
+    <!-- Scripts - Load as modules -->
+    <script type="module" src="./js/main.js"></script>
 </body>
 </html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Art Image Generator</title>
+    <style>
+        body {
+            font-family: monospace;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #fafaf8;
+        }
+        h1 {
+            color: #7dad7d;
+        }
+        .controls {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border: 3px solid #7dad7d;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        input, select, button {
+            padding: 8px;
+            margin: 5px 0;
+            font-family: monospace;
+        }
+        button {
+            background: #7dad7d;
+            color: white;
+            border: 2px solid #5a8c5a;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #5a8c5a;
+        }
+        canvas {
+            border: 3px solid #7dad7d;
+            margin: 20px 0;
+            image-rendering: pixelated;
+            display: block;
+        }
+        .output {
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border: 3px solid #7dad7d;
+        }
+    </style>
+</head>
+<body>
+    <h1>🎨 Pixel Art Placeholder Generator</h1>
+    <p>Generate placeholder images for your portfolio with a pixel-art aesthetic.</p>
+    
+    <div class="controls">
+        <label for="width">Width (px):</label>
+        <input type="number" id="width" value="600" min="100" max="2000">
+        
+        <label for="height">Height (px):</label>
+        <input type="number" id="height" value="400" min="100" max="2000">
+        
+        <label for="bgColor">Background Color:</label>
+        <input type="color" id="bgColor" value="#7dad7d">
+        
+        <label for="text">Text:</label>
+        <input type="text" id="text" value="Project Image" maxlength="30">
+        
+        <label for="textColor">Text Color:</label>
+        <input type="color" id="textColor" value="#ffffff">
+        
+        <label for="pattern">Pattern:</label>
+        <select id="pattern">
+            <option value="solid">Solid</option>
+            <option value="grid">Grid</option>
+            <option value="dots">Dots</option>
+            <option value="diagonal">Diagonal Lines</option>
+        </select>
+        
+        <br><br>
+        <button onclick="generateImage()">Generate Image</button>
+        <button onclick="downloadImage()">Download PNG</button>
+    </div>
+    
+    <canvas id="canvas"></canvas>
+    
+    <div class="output">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Adjust the settings above</li>
+            <li>Click "Generate Image" to preview</li>
+            <li>Click "Download PNG" to save</li>
+            <li>Place in <code>/assets/img/projects/</code></li>
+        </ol>
+    </div>
+
+    <script>
+        function generateImage() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const width = parseInt(document.getElementById('width').value);
+            const height = parseInt(document.getElementById('height').value);
+            const bgColor = document.getElementById('bgColor').value;
+            const text = document.getElementById('text').value;
+            const textColor = document.getElementById('textColor').value;
+            const pattern = document.getElementById('pattern').value;
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            // Disable smoothing for pixel aesthetic
+            ctx.imageSmoothingEnabled = false;
+            
+            // Background
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, width, height);
+            
+            // Pattern
+            drawPattern(ctx, width, height, pattern, bgColor);
+            
+            // Border
+            ctx.strokeStyle = darkenColor(bgColor, 40);
+            ctx.lineWidth = 6;
+            ctx.strokeRect(3, 3, width - 6, height - 6);
+            
+            // Text
+            ctx.fillStyle = textColor;
+            ctx.font = 'bold 48px monospace';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, width / 2, height / 2);
+            
+            // Shadow effect
+            ctx.fillStyle = darkenColor(bgColor, 60);
+            ctx.fillRect(width - 20, height - 20, 20, 20);
+        }
+        
+        function drawPattern(ctx, width, height, pattern, baseColor) {
+            const lightColor = lightenColor(baseColor, 20);
+            
+            ctx.fillStyle = lightColor;
+            
+            switch(pattern) {
+                case 'grid':
+                    for (let x = 0; x < width; x += 40) {
+                        ctx.fillRect(x, 0, 2, height);
+                    }
+                    for (let y = 0; y < height; y += 40) {
+                        ctx.fillRect(0, y, width, 2);
+                    }
+                    break;
+                    
+                case 'dots':
+                    for (let x = 20; x < width; x += 40) {
+                        for (let y = 20; y < height; y += 40) {
+                            ctx.fillRect(x - 4, y - 4, 8, 8);
+                        }
+                    }
+                    break;
+                    
+                case 'diagonal':
+                    for (let i = -height; i < width; i += 40) {
+                        ctx.fillRect(i, 0, 4, height);
+                        ctx.save();
+                        ctx.translate(0, 0);
+                        ctx.rotate(45 * Math.PI / 180);
+                    }
+                    break;
+            }
+        }
+        
+        function downloadImage() {
+            const canvas = document.getElementById('canvas');
+            const text = document.getElementById('text').value.replace(/\s+/g, '-').toLowerCase();
+            const filename = `${text || 'placeholder'}.png`;
+            
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+        
+        function darkenColor(color, percent) {
+            const num = parseInt(color.replace('#', ''), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) - amt;
+            const G = (num >> 8 & 0x00FF) - amt;
+            const B = (num & 0x0000FF) - amt;
+            return '#' + (
+                0x1000000 +
+                (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+                (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+                (B < 255 ? (B < 1 ? 0 : B) : 255)
+            ).toString(16).slice(1);
+        }
+        
+        function lightenColor(color, percent) {
+            const num = parseInt(color.replace('#', ''), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = (num >> 16) + amt;
+            const G = (num >> 8 & 0x00FF) + amt;
+            const B = (num & 0x0000FF) + amt;
+            return '#' + (
+                0x1000000 +
+                (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+                (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+                (B < 255 ? (B < 1 ? 0 : B) : 255)
+            ).toString(16).slice(1);
+        }
+        
+        // Generate initial image on load
+        window.onload = generateImage;
+    </script>
+</body>
+</html>

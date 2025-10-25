@@ -1,0 +1,183 @@
+/**
+ * Theme Styles
+ * Color theme variations (Charcoal vs Cream)
+ */
+
+/* Default theme uses Charcoal as secondary */
+/* Variables are already set in variables.css */
+
+/* ===== CREAM THEME ===== */
+
+[data-theme="cream"] {
+  /* Colors are handled in variables.css */
+}
+
+/* Cream theme specific component adjustments */
+[data-theme="cream"] .px-btn-secondary {
+  background-color: var(--color-cream-base);
+  border-color: var(--color-cream-dark);
+  color: var(--color-charcoal-darkest);
+}
+
+[data-theme="cream"] .px-btn-secondary:hover {
+  background-color: var(--color-cream-dark);
+}
+
+[data-theme="cream"] .social-icon {
+  background-color: var(--color-cream-base);
+  color: var(--color-charcoal-darkest);
+  border: 2px solid var(--color-cream-dark);
+}
+
+[data-theme="cream"] .skill-icon {
+  background-color: var(--color-cream-base);
+  color: var(--color-charcoal-darkest);
+  border: 2px solid var(--color-cream-dark);
+}
+
+[data-theme="cream"] .project-tag {
+  background-color: var(--color-cream-lightest);
+  border-color: var(--color-cream-base);
+  color: var(--color-cream-darkest);
+}
+
+[data-theme="cream"] .timeline-btn.active {
+  background-color: var(--color-cream-light);
+}
+
+[data-theme="cream"] .timeline-btn:hover {
+  background-color: var(--color-cream-lightest);
+}
+
+[data-theme="cream"] .filter-btn:hover {
+  background-color: var(--color-cream-lightest);
+}
+
+[data-theme="cream"] .skill-badge:hover {
+  background-color: var(--color-cream-lightest);
+}
+
+[data-theme="cream"] .stats-section {
+  background-color: var(--color-cream-lightest);
+}
+
+[data-theme="cream"] .pixel-accent {
+  background-color: var(--color-cream-light);
+  border-color: var(--color-cream-dark);
+}
+
+/* ===== DARK MODE (Optional Enhancement) ===== */
+
+/* System preference dark mode */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    /* Dark mode colors are already set in variables.css */
+  }
+  
+  /* Adjust components for dark mode */
+  :root:not([data-theme]) .px-border {
+    border-color: var(--color-border);
+  }
+  
+  :root:not([data-theme]) .px-shadow-sm {
+    box-shadow: 2px 2px 0 rgba(122, 173, 125, 0.5);
+  }
+  
+  :root:not([data-theme]) .px-shadow-md {
+    box-shadow: 
+      2px 2px 0 rgba(122, 173, 125, 0.5),
+      4px 4px 0 rgba(90, 140, 90, 0.5);
+  }
+  
+  :root:not([data-theme]) .skill-badge:hover,
+  :root:not([data-theme]) .timeline-btn:hover,
+  :root:not([data-theme]) .filter-btn:hover {
+    background-color: rgba(122, 173, 125, 0.2);
+  }
+  
+  :root:not([data-theme]) .stats-section {
+    background-color: rgba(122, 173, 125, 0.1);
+  }
+  
+  :root:not([data-theme]) .pixel-accent {
+    opacity: 0.2;
+  }
+  
+  :root:not([data-theme]) .social-link:hover,
+  :root:not([data-theme]) .experience-card:hover,
+  :root:not([data-theme]) .project-card:hover {
+    background-color: var(--color-charcoal-dark);
+  }
+}
+
+/* Manual dark mode toggle (if implemented) */
+[data-mode="dark"] {
+  --color-bg: #1a1a1a;
+  --color-surface: #2d2d2d;
+  --color-text-primary: #e8e8e8;
+  --color-text-secondary: #b8b8b8;
+  --color-text-muted: #8a8a8a;
+  --color-border: #4a4a4a;
+  --color-border-light: #3a3a3a;
+}
+
+[data-mode="dark"] .px-shadow-sm {
+  box-shadow: 2px 2px 0 rgba(122, 173, 125, 0.5);
+}
+
+[data-mode="dark"] .px-shadow-md {
+  box-shadow: 
+    2px 2px 0 rgba(122, 173, 125, 0.5),
+    4px 4px 0 rgba(90, 140, 90, 0.5);
+}
+
+[data-mode="dark"] .skill-badge:hover,
+[data-mode="dark"] .timeline-btn:hover,
+[data-mode="dark"] .filter-btn:hover {
+  background-color: rgba(122, 173, 125, 0.2);
+}
+
+[data-mode="dark"] .stats-section {
+  background-color: rgba(122, 173, 125, 0.1);
+  border-color: var(--color-border);
+}
+
+[data-mode="dark"] .social-link:hover,
+[data-mode="dark"] .experience-card:hover,
+[data-mode="dark"] .project-card:hover {
+  background-color: var(--color-charcoal-dark);
+}
+
+[data-mode="dark"] .pixel-accent {
+  opacity: 0.2;
+}
+
+[data-mode="dark"] .header {
+  background-color: var(--color-surface);
+  border-bottom-color: var(--color-border);
+}
+
+[data-mode="dark"] .sidebar-nav {
+  background-color: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+/* ===== THEME TRANSITION ===== */
+
+body,
+.header,
+.sidebar-nav,
+.section,
+.px-btn,
+.card,
+.form-input {
+  transition: background-color var(--duration-base) var(--ease-out),
+              color var(--duration-base) var(--ease-out),
+              border-color var(--duration-base) var(--ease-out);
+}
+
+/* Disable transitions when switching themes to avoid flash */
+body.theme-transitioning,
+body.theme-transitioning * {
+  transition: none !important;
+}

@@ -1,0 +1,215 @@
+/**
+ * CSS Variables - Design Tokens
+ * Centralized design system variables for the pixel-art portfolio
+ */
+
+:root {
+  /* ===== COLOR PALETTE ===== */
+  
+  /* Primary: Sage Green with 3-shade ramp for pixel shadows */
+  --color-sage-lightest: #d4e5d4;
+  --color-sage-light: #a8c9a8;
+  --color-sage-base: #7dad7d;
+  --color-sage-dark: #5a8c5a;
+  --color-sage-darkest: #3d6b3d;
+  
+  /* Secondary: Charcoal (warm, passes contrast) */
+  --color-charcoal-lightest: #e8e8e8;
+  --color-charcoal-light: #b8b8b8;
+  --color-charcoal-base: #4a4a4a;
+  --color-charcoal-dark: #2d2d2d;
+  --color-charcoal-darkest: #1a1a1a;
+  
+  /* Alternative Secondary: Warm Cream */
+  --color-cream-lightest: #fffef8;
+  --color-cream-light: #f8f4e8;
+  --color-cream-base: #e8dcc8;
+  --color-cream-dark: #d4c4a8;
+  --color-cream-darkest: #b8a888;
+  
+  /* Semantic Colors */
+  --color-bg: #fafaf8;
+  --color-surface: #ffffff;
+  --color-text-primary: #2d2d2d;
+  --color-text-secondary: #5a5a5a;
+  --color-text-muted: #8a8a8a;
+  --color-border: #d4d4d4;
+  --color-border-light: #e8e8e8;
+  
+  /* Accent Colors */
+  --color-accent-primary: var(--color-sage-base);
+  --color-accent-secondary: var(--color-charcoal-base);
+  --color-success: #6bb36b;
+  --color-error: #d85050;
+  --color-warning: #e8a850;
+  --color-info: #5090d8;
+  
+  /* Focus State */
+  --color-focus: var(--color-sage-dark);
+  --color-focus-ring: var(--color-sage-light);
+  
+  /* ===== SPACING SCALE (8px base) ===== */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+  --space-4xl: 96px;
+  
+  /* ===== TYPOGRAPHY ===== */
+  
+  /* Font Families */
+  --font-heading: 'Press Start 2P', 'Courier New', monospace;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'Courier New', Courier, monospace;
+  
+  /* Font Sizes */
+  --text-xs: 0.75rem;    /* 12px */
+  --text-sm: 0.875rem;   /* 14px */
+  --text-base: 1rem;     /* 16px */
+  --text-lg: 1.125rem;   /* 18px */
+  --text-xl: 1.25rem;    /* 20px */
+  --text-2xl: 1.5rem;    /* 24px */
+  --text-3xl: 1.875rem;  /* 30px */
+  --text-4xl: 2.25rem;   /* 36px */
+  
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+  
+  /* Font Weights */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  
+  /* ===== PIXEL SHADOWS ===== */
+  
+  /* Small stepped shadow (2px offset) */
+  --shadow-sm: 
+    2px 2px 0 var(--color-sage-dark);
+  
+  /* Medium stepped shadow (4px offset with steps) */
+  --shadow-md: 
+    2px 2px 0 var(--color-sage-dark),
+    4px 4px 0 var(--color-sage-darkest);
+  
+  /* Large stepped shadow (6px offset with steps) */
+  --shadow-lg: 
+    2px 2px 0 var(--color-sage-dark),
+    4px 4px 0 var(--color-sage-darkest),
+    6px 6px 0 var(--color-charcoal-dark);
+  
+  /* Charcoal variant shadows */
+  --shadow-charcoal-sm: 2px 2px 0 var(--color-charcoal-dark);
+  --shadow-charcoal-md: 
+    2px 2px 0 var(--color-charcoal-dark),
+    4px 4px 0 var(--color-charcoal-darkest);
+  
+  /* Button press shadow (inset effect) */
+  --shadow-inset: 
+    inset 2px 2px 0 rgba(0, 0, 0, 0.2);
+  
+  /* Card shadow */
+  --shadow-card: var(--shadow-md);
+  
+  /* ===== LAYOUT ===== */
+  
+  /* Container widths */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  
+  /* Section spacing */
+  --section-padding-y: var(--space-4xl);
+  --section-padding-x: var(--space-lg);
+  
+  /* Header height */
+  --header-height: 64px;
+  
+  /* Sidebar width */
+  --sidebar-width: 200px;
+  
+  /* ===== Z-INDEX SCALE ===== */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-fixed: 300;
+  --z-modal-overlay: 400;
+  --z-modal: 500;
+  --z-popover: 600;
+  --z-tooltip: 700;
+  
+  /* ===== BORDERS ===== */
+  
+  /* Pixel border widths */
+  --border-width-sm: 2px;
+  --border-width-md: 3px;
+  --border-width-lg: 4px;
+  
+  /* Border radius (minimal for pixel aesthetic) */
+  --radius-none: 0;
+  --radius-sm: 2px;
+  
+  /* ===== TRANSITIONS ===== */
+  
+  /* Animation durations */
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 350ms;
+  
+  /* Easing functions */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* ===== BREAKPOINTS (for reference in JS) ===== */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+/* ===== THEME VARIANTS ===== */
+
+/* Cream theme variant */
+[data-theme="cream"] {
+  --color-accent-secondary: var(--color-cream-base);
+  --color-bg: #fefef8;
+  --color-surface: #fffef8;
+  --color-border: var(--color-cream-dark);
+  --color-border-light: var(--color-cream-light);
+  
+  /* Update shadows for cream theme */
+  --shadow-md: 
+    2px 2px 0 var(--color-cream-dark),
+    4px 4px 0 var(--color-cream-darkest);
+  
+  --shadow-sm: 2px 2px 0 var(--color-cream-dark);
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --color-bg: #1a1a1a;
+    --color-surface: #2d2d2d;
+    --color-text-primary: #e8e8e8;
+    --color-text-secondary: #b8b8b8;
+    --color-text-muted: #8a8a8a;
+    --color-border: #4a4a4a;
+    --color-border-light: #3a3a3a;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+  }
+}
