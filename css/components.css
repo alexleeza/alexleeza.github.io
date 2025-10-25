@@ -77,12 +77,16 @@
 .btn-icon {
   width: 16px;
   height: 16px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-icon::before {
   content: '▸';
   font-size: var(--text-sm);
+  line-height: 1;
+  display: block;
 }
 
 /* Filter buttons */
@@ -329,7 +333,7 @@
 
 .contact-form {
   max-width: 600px;
-  margin: 0 auto;
+  margin: 0;
   padding: var(--space-xl);
   background-color: var(--color-surface);
 }

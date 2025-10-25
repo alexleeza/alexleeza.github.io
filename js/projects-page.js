@@ -1,36 +1,20 @@
 /**
- * Main JavaScript Entry Point
- * Initializes all modules and sets up event listeners
+ * Projects Page JavaScript
+ * Initializes projects loading and filtering
  */
 
 'use strict';
 
-import { initNavigation } from './nav.js';
-import { initModal } from './modal.js';
-import { initForm } from './form.js';
-import { initChart } from './charts.js';
 import { loadProjects, filterProjects } from './utils.js';
 
 /**
- * Initialize the application when DOM is ready
+ * Initialize the projects page
  */
 function init() {
-  console.log('🎮 Pixel Portfolio initializing...');
+  console.log('🎮 Projects Page initializing...');
   
-  // Initialize navigation and section tracking
-  initNavigation();
-  
-  // Initialize stats modal
-  initModal();
-  
-  // Initialize contact form
-  initForm();
-  
-  // Initialize pixel chart
-  initChart();
-  
-  // Set up hero button listeners
-  setupHeroButtons();
+  // Load and render projects
+  loadProjects();
   
   // Set up theme toggle
   setupThemeToggle();
@@ -38,31 +22,7 @@ function init() {
   // Set up lazy loading for images
   setupLazyLoading();
   
-  console.log('✅ Pixel Portfolio ready!');
-}
-
-/**
- * Set up hero section button event listeners
- */
-function setupHeroButtons() {
-  const statsBtn = document.getElementById('stats-btn');
-  
-  if (statsBtn) {
-    statsBtn.addEventListener('click', () => {
-      // Option 1: Open modal (uncomment to use modal instead of scroll)
-      // const modal = document.getElementById('stats-modal');
-      // if (modal) {
-      //   modal.removeAttribute('hidden');
-      //   modal.querySelector('.modal-close')?.focus();
-      // }
-      
-      // Option 2: Scroll to stats section (default)
-      const statsSection = document.getElementById('stats');
-      if (statsSection) {
-        statsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    });
-  }
+  console.log('✅ Projects Page ready!');
 }
 
 /**
@@ -135,20 +95,6 @@ function setupLazyLoading() {
     });
   }
 }
-
-/**
- * Handle errors globally
- */
-window.addEventListener('error', (event) => {
-  console.error('Global error:', event.error);
-});
-
-/**
- * Handle unhandled promise rejections
- */
-window.addEventListener('unhandledrejection', (event) => {
-  console.error('Unhandled promise rejection:', event.reason);
-});
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {

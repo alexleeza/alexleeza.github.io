@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{YOUR_NAME}}'s projects - explore my portfolio of work">
+    <meta name="author" content="{{YOUR_NAME}}">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{YOUR_NAME}} - Projects">
+    <meta property="og:description" content="{{YOUR_NAME}}'s portfolio projects">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="./assets/img/preview.png">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{YOUR_NAME}} - Projects">
+    <meta name="twitter:description" content="{{YOUR_NAME}}'s portfolio projects">
+    <meta name="twitter:image" content="./assets/img/preview.png">
+    
+    <title>{{YOUR_NAME}} - Projects</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/img/favicon-16x16.png">
+    
+    <!-- Fonts - Preload pixel font for performance -->
+    <link rel="preload" href="./assets/fonts/pixel-heading.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="./css/variables.css">
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/layout.css">
+    <link rel="stylesheet" href="./css/components.css">
+    <link rel="stylesheet" href="./css/themes.css">
+    <link rel="stylesheet" href="./css/projects-styles.css">
+</head>
+<body>
+    <!-- Skip to content for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
+    <!-- Top Navigation Bar -->
+    <header class="header px-shadow-md" role="banner">
+        <div class="header-content">
+            <h1 class="site-title">{{YOUR_NAME}}</h1>
+            <nav class="header-nav">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="projects.html" class="nav-link active" aria-current="page">Projects</a>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Main Content -->
+    <main id="main-content" class="main-content projects-page">
+        
+        <!-- Projects Section -->
+        <section class="section" id="projects">
+            <div class="section-content">
+                <h2 class="section-title px-border">My Projects</h2>
+                
+                <!-- Project Filters -->
+                <div class="project-filters-container">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <!-- Additional filter buttons will be dynamically added here -->
+                </div>
+                
+                <!-- Projects Grid -->
+                <div class="projects-grid">
+                    <!-- Projects will be dynamically loaded here -->
+                    <div class="loading-message px-border">
+                        <p>Loading projects...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+    
+    <!-- Theme Toggle (floating button) -->
+    <button class="theme-toggle theme-toggle-floating px-btn-small" aria-label="Toggle color theme">
+        <span class="theme-icon"></span>
+    </button>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 {{YOUR_NAME}}. Built with pixel-perfect love.</p>
+    </footer>
+    
+    <!-- Scripts - Load as modules -->
+    <script type="module" src="./js/projects-page.js"></script>
+</body>
+</html>
