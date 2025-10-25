@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Alex Lee's Portfolio">
-    <meta name="author" content="Alex Lee">
+    <meta name="description" content="{{YOUR_NAME}}'s pixel-art portfolio showcasing projects, experience, and research">
+    <meta name="author" content="{{YOUR_NAME}}">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="Alex Lee's Portfolio">
-    <meta property="og:description" content="Alex Lee's Portfolio">
+    <meta property="og:title" content="{{YOUR_NAME}} - Portfolio">
+    <meta property="og:description" content="{{YOUR_NAME}}'s pixel-art portfolio">
     <meta property="og:type" content="website">
     <meta property="og:image" content="./assets/img/preview.png">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Alex Lee's Portfolio">
-    <meta name="twitter:description" content="Alex Lee's Portfolio">
+    <meta name="twitter:title" content="{{YOUR_NAME}} - Portfolio">
+    <meta name="twitter:description" content="{{YOUR_NAME}}'s pixel-art portfolio">
     <meta name="twitter:image" content="./assets/img/preview.png">
     
     <title>{{YOUR_NAME}} - Portfolio</title>
@@ -42,7 +42,7 @@
     <!-- Top Navigation Bar -->
     <header class="header px-shadow-md" role="banner">
         <div class="header-content">
-            <h1 class="site-title">Alex K. Lee</h1>
+            <h1 class="site-title">{{YOUR_NAME}}</h1>
             <nav class="header-nav">
                 <a href="index.html" class="nav-link active" aria-current="page">Home</a>
                 <a href="projects.html" class="nav-link">Projects</a>
@@ -103,8 +103,8 @@
         <!-- Hero Section -->
         <section class="hero" id="hero">
             <div class="hero-content">
-                <h2 class="hero-title">Alex Kyoungmoon Lee</h2>
-                <p class="hero-tagline">Industrial Engineering Student</p>
+                <h2 class="hero-title">{{YOUR_NAME}}</h2>
+                <p class="hero-tagline">{{TAGLINE}}</p>
                 
                 <!-- Pixel Art Accent Elements -->
                 <div class="pixel-accent pixel-accent-1" aria-hidden="true"></div>
@@ -130,21 +130,15 @@
                 <h2 class="section-title px-border">About Me</h2>
                 <div class="about-grid">
                     <div class="about-bio">
-                        <p>Hello! My name is Alex Lee, a Purdue Industrial Engineering student who is passionate about Operations Research and Statistics. Ever since high school I have always enjoyed seeing what decision trees scatter out just by living life. I also love applying my statistics knowledge with software to make interactable items to visualize probability first hand. This passion is shown in my career interests and previous work and research experience.</p>
-                        <p><strong>Career Interests:</strong> Operations Research, Data Science, Machine Learning, or Manufacturing.</p>
-                        <p>
-                            <strong>Undergraduate University:</strong> Purdue University (West Lafayette, IN) <br>
-                            <strong>Bachelor of Science:</strong> Industrial Engineering <br>
-                            <strong>Undergraduate Minors:</strong> Statistics and Manufacturing <br>
-                            <strong>Undergraduate Certificates from Purdue:</strong> Semiconductors and Microelectronics, Applications in Data Science
-                        </p>
+                        <p>Hello! I'm a passionate developer and researcher with a love for creating innovative solutions. My work spans across web development, machine learning, and creative coding.</p>
+                        <p>I believe in writing clean, maintainable code and building accessible experiences that delight users.</p>
                     </div>
                     
                     <!-- Skills Grid -->
                     <div class="skills-grid">
                         <div class="skill-badge px-border">
                             <span class="skill-icon" data-icon="code"></span>
-                            <span class="skill-name">Statistics and Probability</span>
+                            <span class="skill-name">JavaScript</span>
                         </div>
                         <div class="skill-badge px-border">
                             <span class="skill-icon" data-icon="code"></span>
@@ -152,7 +146,7 @@
                         </div>
                         <div class="skill-badge px-border">
                             <span class="skill-icon" data-icon="design"></span>
-                            <span class="skill-name">Operations Research: Optimization and Stochastic Modeling</span>
+                            <span class="skill-name">UI/UX</span>
                         </div>
                         <div class="skill-badge px-border">
                             <span class="skill-icon" data-icon="data"></span>
@@ -160,11 +154,11 @@
                         </div>
                         <div class="skill-badge px-border">
                             <span class="skill-icon" data-icon="web"></span>
-                            <span class="skill-name">Software Development</span>
+                            <span class="skill-name">React</span>
                         </div>
                         <div class="skill-badge px-border">
                             <span class="skill-icon" data-icon="cloud"></span>
-                            <span class="skill-name">R</span>
+                            <span class="skill-name">Cloud</span>
                         </div>
                     </div>
                 </div>
@@ -239,51 +233,67 @@
             </div>
         </section>
         
-        <!-- Projects Section -->
-        <section class="section" id="projects">
+        <!-- Stats Section (Hidden by default, shown when Stats button is clicked) -->
+        <section class="section stats-section hidden" id="stats">
             <div class="section-content">
-                <h2 class="section-title px-border">Projects</h2>
+                <h2 class="section-title px-border">Academic Stats</h2>
                 
-                <!-- Project Filters -->
-                <div class="project-filters" role="group" aria-label="Filter projects by tag">
-                    <button class="filter-btn active" data-filter="all">All</button>
-                    <!-- Dynamic filter buttons will be added by JS -->
-                </div>
-                
-                <!-- Projects Grid -->
-                <div class="projects-grid">
-                    <!-- Projects will be loaded dynamically from projects.json -->
-                </div>
-            </div>
-        </section>
-        
-        <!-- Stats Section (can be hidden by default if modal is preferred) -->
-        <section class="section stats-section" id="stats">
-            <div class="section-content">
-                <h2 class="section-title px-border">Stats</h2>
-                <div class="stats-grid">
-                    <div class="stat-card px-border px-shadow-sm">
-                        <div class="stat-value">5+</div>
-                        <div class="stat-label">Years Coding</div>
+                <!-- Academic Stats with Bar Graphs -->
+                <div class="academic-stats">
+                    <!-- High School GPA -->
+                    <div class="stat-bar-item">
+                        <div class="stat-bar-header">
+                            <span class="stat-bar-label">High School GPA</span>
+                            <span class="stat-bar-value">3.8 / 4.0</span>
+                        </div>
+                        <div class="stat-bar-track px-border">
+                            <div class="stat-bar-fill" style="width: 95%;" data-value="3.8" data-max="4.0"></div>
+                        </div>
                     </div>
-                    <div class="stat-card px-border px-shadow-sm">
-                        <div class="stat-value">50+</div>
-                        <div class="stat-label">Projects</div>
+                    
+                    <!-- SAT -->
+                    <div class="stat-bar-item">
+                        <div class="stat-bar-header">
+                            <span class="stat-bar-label">SAT Score</span>
+                            <span class="stat-bar-value">1450 / 1600</span>
+                        </div>
+                        <div class="stat-bar-track px-border">
+                            <div class="stat-bar-fill" style="width: 90.6%;" data-value="1450" data-max="1600"></div>
+                        </div>
                     </div>
-                    <div class="stat-card px-border px-shadow-sm">
-                        <div class="stat-value">3</div>
-                        <div class="stat-label">Publications</div>
+                    
+                    <!-- Undergraduate GPA -->
+                    <div class="stat-bar-item">
+                        <div class="stat-bar-header">
+                            <span class="stat-bar-label">Undergraduate GPA</span>
+                            <span class="stat-bar-value">3.1 / 4.0</span>
+                        </div>
+                        <div class="stat-bar-track px-border">
+                            <div class="stat-bar-fill" style="width: 77.5%;" data-value="3.1" data-max="4.0"></div>
+                        </div>
                     </div>
-                    <div class="stat-card px-border px-shadow-sm">
-                        <div class="stat-value">10+</div>
-                        <div class="stat-label">Hackathons</div>
+                    
+                    <!-- GRE -->
+                    <div class="stat-bar-item">
+                        <div class="stat-bar-header">
+                            <span class="stat-bar-label">GRE Score</span>
+                            <span class="stat-bar-value">320 / 340</span>
+                        </div>
+                        <div class="stat-bar-track px-border">
+                            <div class="stat-bar-fill" style="width: 94.1%;" data-value="320" data-max="340"></div>
+                        </div>
                     </div>
-                </div>
-                
-                <!-- Pixel Chart Example -->
-                <div class="chart-container px-border">
-                    <h3 class="chart-title">Activity Over Time</h3>
-                    <canvas id="pixel-chart" aria-label="Activity chart showing contributions over time"></canvas>
+                    
+                    <!-- LSAT -->
+                    <div class="stat-bar-item">
+                        <div class="stat-bar-header">
+                            <span class="stat-bar-label">LSAT Score</span>
+                            <span class="stat-bar-value">165 / 180</span>
+                        </div>
+                        <div class="stat-bar-track px-border">
+                            <div class="stat-bar-fill" style="width: 91.7%;" data-value="165" data-max="180"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -390,38 +400,6 @@
         </section>
         
     </main>
-    
-    <!-- Stats Modal (alternative to inline section) -->
-    <div class="modal" id="stats-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
-        <div class="modal-overlay"></div>
-        <div class="modal-content px-border px-shadow-md">
-            <div class="modal-header">
-                <h2 id="modal-title" class="modal-title">My Stats</h2>
-                <button class="modal-close px-btn-small" aria-label="Close modal">×</button>
-            </div>
-            <div class="modal-body">
-                <!-- Stats content mirrored from stats section -->
-                <div class="stats-grid">
-                    <div class="stat-card px-border">
-                        <div class="stat-value">5+</div>
-                        <div class="stat-label">Years Coding</div>
-                    </div>
-                    <div class="stat-card px-border">
-                        <div class="stat-value">50+</div>
-                        <div class="stat-label">Projects</div>
-                    </div>
-                    <div class="stat-card px-border">
-                        <div class="stat-value">3</div>
-                        <div class="stat-label">Publications</div>
-                    </div>
-                    <div class="stat-card px-border">
-                        <div class="stat-value">10+</div>
-                        <div class="stat-label">Hackathons</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     
     <!-- Footer -->
     <footer class="footer">

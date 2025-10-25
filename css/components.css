@@ -556,6 +556,98 @@
   to { transform: rotate(360deg); }
 }
 
+/* ===== ACADEMIC STATS BAR GRAPHS ===== */
+
+.academic-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+  max-width: 800px;
+}
+
+.stat-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.stat-bar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xs);
+}
+
+.stat-bar-label {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+  font-family: var(--font-heading);
+}
+
+.stat-bar-value {
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent-primary);
+  font-family: var(--font-mono);
+}
+
+.stat-bar-track {
+  height: 32px;
+  background-color: var(--color-sage-lightest);
+  border: var(--border-width-md) solid var(--color-border);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent-primary) 0%,
+    var(--color-sage-dark) 100%
+  );
+  border-right: var(--border-width-sm) solid var(--color-sage-darkest);
+  transition: width 1s ease-out;
+  position: relative;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+/* Hidden state for stats section */
+.hidden {
+  display: none !important;
+}
+
+/* Stats section animation when shown */
+.stats-section:not(.hidden) {
+  animation: slideDown 0.4s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ===== TOOLTIPS (optional) ===== */
 
 [data-tooltip] {
@@ -602,5 +694,21 @@
   
   .stat-value {
     font-size: var(--text-3xl);
+  }
+  
+  .stat-bar-label {
+    font-size: var(--text-base);
+  }
+  
+  .stat-bar-value {
+    font-size: var(--text-sm);
+  }
+  
+  .stat-bar-track {
+    height: 28px;
+  }
+  
+  .academic-stats {
+    gap: var(--space-lg);
   }
 }

@@ -49,17 +49,28 @@ function setupHeroButtons() {
   
   if (statsBtn) {
     statsBtn.addEventListener('click', () => {
-      // Option 1: Open modal (uncomment to use modal instead of scroll)
-      // const modal = document.getElementById('stats-modal');
-      // if (modal) {
-      //   modal.removeAttribute('hidden');
-      //   modal.querySelector('.modal-close')?.focus();
-      // }
-      
-      // Option 2: Scroll to stats section (default)
       const statsSection = document.getElementById('stats');
       if (statsSection) {
-        statsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Toggle the hidden class
+        const isHidden = statsSection.classList.contains('hidden');
+        
+        if (isHidden) {
+          // Show the stats section
+          statsSection.classList.remove('hidden');
+          // Scroll to it smoothly
+          setTimeout(() => {
+            statsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+          // Update button text
+          statsBtn.innerHTML = '<span class="btn-icon"></span>Hide Stats';
+        } else {
+          // Hide the stats section
+          statsSection.classList.add('hidden');
+          // Update button text
+          statsBtn.innerHTML = '<span class="btn-icon"></span>Stats';
+          // Scroll back to hero
+          document.getElementById('hero').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
     });
   }
