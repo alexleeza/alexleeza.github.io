@@ -196,7 +196,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-xl);
+  gap: var(--space-md);
   max-width: var(--container-lg);
   width: 100%;
   position: relative;
@@ -454,7 +454,7 @@
   }
   
   .hero-content {
-    gap: var(--space-lg);
+    gap: var(--space-md);
   }
 }
 
