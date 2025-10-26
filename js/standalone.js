@@ -27,6 +27,9 @@
     // Set up lazy loading for images
     setupLazyLoading();
     
+    // Set up expandable skills
+    setupSkillToggle();
+    
     console.log('✅ Pixel Portfolio ready!');
   }
 
@@ -188,6 +191,35 @@
         img.removeAttribute('data-src');
       });
     }
+  }
+
+  /**
+   * Set up expandable skills functionality
+   */
+  function setupSkillToggle() {
+    const skillBadges = document.querySelectorAll('.skill-badge[data-skill]');
+    
+    skillBadges.forEach(badge => {
+      badge.addEventListener('click', () => {
+        const skillId = badge.dataset.skill;
+        const subSkills = document.querySelector(`.sub-skills[data-sub-skill="${skillId}"]`);
+        
+        if (subSkills) {
+          // Toggle the expanded state
+          const isExpanded = badge.classList.contains('expanded');
+          
+          // Close all other expanded skills
+          document.querySelectorAll('.skill-badge').forEach(b => b.classList.remove('expanded'));
+          document.querySelectorAll('.sub-skills').forEach(s => s.classList.remove('show'));
+          
+          // Toggle this skill
+          if (!isExpanded) {
+            badge.classList.add('expanded');
+            subSkills.classList.add('show');
+          }
+        }
+      });
+    });
   }
 
   /**

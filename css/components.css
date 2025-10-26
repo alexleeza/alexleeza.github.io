@@ -289,6 +289,12 @@
 
 /* ===== SKILL BADGES ===== */
 
+.skill-badge-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
 .skill-badge {
   display: flex;
   flex-direction: column;
@@ -300,6 +306,10 @@
   transition: all var(--duration-fast) var(--ease-out);
   min-height: 80px;
   box-sizing: border-box;
+  cursor: pointer;
+  position: relative;
+  width: 100%;
+  border: var(--border-width-md) solid var(--color-border);
 }
 
 .skill-badge:hover {
@@ -307,11 +317,60 @@
   transform: translateY(-2px);
 }
 
+.skill-badge.expanded {
+  background-color: var(--color-sage-light);
+}
+
+.skill-expand-icon {
+  position: absolute;
+  top: var(--space-xs);
+  right: var(--space-xs);
+  font-size: var(--text-lg);
+  color: var(--color-accent-primary);
+  font-weight: bold;
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+.skill-badge.expanded .skill-expand-icon {
+  transform: rotate(45deg);
+}
+
+.sub-skills {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  background-color: var(--color-sage-lightest);
+  border: var(--border-width-sm) solid var(--color-sage-light);
+  animation: slideDown 0.3s ease-out;
+}
+
+.sub-skills.show {
+  display: flex;
+}
+
+.sub-skill-item {
+  padding: var(--space-xs) var(--space-sm);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  font-family: var(--font-readable);
+  text-align: center;
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.sub-skill-item:hover {
+  background-color: var(--color-cream-light);
+  color: var(--color-text-primary);
+  border-color: var(--color-sage-light);
+}
+
 .skill-icon {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  min-height: 32px;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
   background-color: var(--color-accent-primary);
   border: var(--border-width-sm) solid var(--color-sage-dark);
   display: flex;
@@ -321,12 +380,12 @@
   font-weight: bold;
   box-sizing: border-box;
   overflow: hidden;
-  padding: 2px;
+  padding: 4px;
 }
 
 .skill-icon::before {
   content: '◆';
-  font-size: var(--text-sm);
+  font-size: 10px;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -338,6 +397,8 @@
 .skill-icon[data-icon="data"]::before { content: '▣' }
 .skill-icon[data-icon="web"]::before { content: '◈' }
 .skill-icon[data-icon="cloud"]::before { content: '☁' }
+.skill-icon[data-icon="python"]::before { content: '~' }
+.skill-icon[data-icon="fullstack"]::before { content: '≡' }
 
 .skill-name {
   font-size: var(--text-sm);

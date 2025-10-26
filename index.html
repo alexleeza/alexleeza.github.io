@@ -204,40 +204,106 @@
                 <h2 class="section-title px-border">About Me</h2>
                 <div class="about-grid">
                     <div class="about-bio">
-                        <p><strong>Undergraduate University:</strong> Purdue University (West Lafayette, IN)</p>
-                        <p><strong>Bachelor of Science:</strong> Industrial Engineering</p>
-                        <p><strong>Undergraduate Minors:</strong> Statistics, Manufacturing</p>
-                        <p><strong>Undergraduate Certificates from Purdue:</strong> Semiconductors and Microelectronics, Applications in Data Science</p>
-                        <p><strong>Career Interests:</strong> Operations Research, Data Science, Machine Learning, or Manufacturing.</p>
-                        <br>
                         <p>Hello! My name is Alex Lee, a Purdue Industrial Engineering student who is passionate about Operations Research and Statistics. Ever since high school I have always enjoyed seeing what decision trees scatter out just by living life. I also love applying my statistics knowledge with software to make interactable items to visualize probability first hand. This passion is shown in my career interests and previous work and research experience.</p>
+                        <p><strong>Career Interests:</strong> Operations Research, Data Science, Machine Learning, or Manufacturing.</p>
+                        <p>
+                            <strong>Undergraduate University:</strong> Purdue University (West Lafayette, IN) <br>
+                            <strong>Bachelor of Science:</strong> Industrial Engineering <br>
+                            <strong>Undergraduate Minors:</strong> Statistics, Manufacturing <br>
+                            <strong>Undergraduate Certificates from Purdue:</strong> Semiconductors and Microelectronics, Applications in Data Science
+                        </p>
                     </div>
                     
                     <!-- Skills Grid -->
                     <div class="skills-grid">
-                        <div class="skill-badge px-border">
-                            <span class="skill-icon" data-icon="code"></span>
-                            <span class="skill-name">Statistics and Probability</span>
+                        <div class="skill-badge-wrapper">
+                            <button class="skill-badge px-border" data-skill="stats">
+                                <span class="skill-icon" data-icon="code"></span>
+                                <span class="skill-name">stats</span>
+                                <span class="skill-expand-icon">+</span>
+                            </button>
+                            <div class="sub-skills" data-sub-skill="stats">
+                                <span class="sub-skill-item">Box-Cox Transformations</span>
+                                <span class="sub-skill-item">Multi-Linear Regression</span>
+                                <span class="sub-skill-item">Hypothesis Testing</span>
+                                <span class="sub-skill-item">ANOVA</span>
+                                <span class="sub-skill-item">Statistical Process Control</span>
+                            </div>
                         </div>
-                        <div class="skill-badge px-border">
-                            <span class="skill-icon" data-icon="code"></span>
-                            <span class="skill-name">Python</span>
+                        
+                        <div class="skill-badge-wrapper">
+                            <button class="skill-badge px-border" data-skill="code">
+                                <span class="skill-icon" data-icon="python"></span>
+                                <span class="skill-name">code</span>
+                                <span class="skill-expand-icon">+</span>
+                            </button>
+                            <div class="sub-skills" data-sub-skill="python">
+                                <span class="sub-skill-item">Python</span>
+                                <span class="sub-skill-item">R</span>
+                                <span class="sub-skill-item">Javascript</span>
+                                <span class="sub-skill-item">CSS</span>
+                                <span class="sub-skill-item">HTML</span>
+                            </div>
                         </div>
-                        <div class="skill-badge px-border">
-                            <span class="skill-icon" data-icon="design"></span>
-                            <span class="skill-name">Operations Research: Optimization and Stochastic Modeling</span>
+                        
+                        <div class="skill-badge-wrapper">
+                            <button class="skill-badge px-border" data-skill="operations">
+                                <span class="skill-icon" data-icon="design"></span>
+                                <span class="skill-name">operations research</span>
+                                <span class="skill-expand-icon">+</span>
+                            </button>
+                            <div class="sub-skills" data-sub-skill="operations">
+                                <span class="sub-skill-item">Linear Programming</span>
+                                <span class="sub-skill-item">Integer Programming</span>
+                                <span class="sub-skill-item">Mixed-Integer Programming</span>
+                                <span class="sub-skill-item">Stochastic Modeling</span>
+                                <span class="sub-skill-item">Simulation</span>
+                            </div>
                         </div>
-                        <div class="skill-badge px-border">
-                            <span class="skill-icon" data-icon="data"></span>
-                            <span class="skill-name">Data Science</span>
+                        
+                        <div class="skill-badge-wrapper">
+                            <button class="skill-badge px-border" data-skill="datascience">
+                                <span class="skill-icon" data-icon="data"></span>
+                                <span class="skill-name">data sci</span>
+                                <span class="skill-expand-icon">+</span>
+                            </button>
+                            <div class="sub-skills" data-sub-skill="datascience">
+                                <span class="sub-skill-item">Machine Learning</span>
+                                <span class="sub-skill-item">Data Visualization</span>
+                                <span class="sub-skill-item">Markov Chains</span>
+                                <span class="sub-skill-item">Decision Trees</span>
+                                <span class="sub-skill-item">Multi-Linear Regression</span>
+                            </div>
                         </div>
-                        <div class="skill-badge px-border">
-                            <span class="skill-icon" data-icon="web"></span>
-                            <span class="skill-name">R</span>
+                        
+                        <div class="skill-badge-wrapper">
+                            <button class="skill-badge px-border" data-skill="r">
+                                <span class="skill-icon" data-icon="web"></span>
+                                <span class="skill-name">Logistics</span>
+                                <span class="skill-expand-icon">+</span>
+                            </button>
+                            <div class="sub-skills" data-sub-skill="r">
+                                <span class="sub-skill-item">Inventory Management</span>
+                                <span class="sub-skill-item">Production Scheduling</span>
+                                <span class="sub-skill-item">Schedule Optimization</span>
+                                <span class="sub-skill-item">Transportation Optimization</span>
+                                <span class="sub-skill-item">Process Flow Design</span>
+                            </div>
                         </div>
-                        <div class="skill-badge px-border">
-                            <span class="skill-icon" data-icon="cloud"></span>
-                            <span class="skill-name">Software Development</span>
+                        
+                        <div class="skill-badge-wrapper">
+                            <button class="skill-badge px-border" data-skill="software">
+                                <span class="skill-icon" data-icon="cloud"></span>
+                                <span class="skill-name">software dev</span>
+                                <span class="skill-expand-icon">+</span>
+                            </button>
+                            <div class="sub-skills" data-sub-skill="software">
+                                <span class="sub-skill-item">Git & Version Control</span>
+                                <span class="sub-skill-item">API Development</span>
+                                <span class="sub-skill-item">Database Design</span>
+                                <span class="sub-skill-item">Testing & Debugging</span>
+                                <span class="sub-skill-item">Agile Methodology</span>
+                            </div>
                         </div>
                     </div>
                 </div>
