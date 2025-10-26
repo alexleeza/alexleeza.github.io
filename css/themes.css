@@ -66,6 +66,16 @@
   border-color: var(--color-cream-dark);
 }
 
+[data-theme="cream"] .footer {
+  background-color: var(--color-cream-light);
+  color: var(--color-charcoal-darkest);
+  border-top-color: var(--color-cream-dark);
+}
+
+[data-theme="cream"] .footer p {
+  color: var(--color-charcoal-darkest);
+}
+
 /* ===== DARK MODE (Optional Enhancement) ===== */
 
 /* System preference dark mode */
@@ -107,6 +117,16 @@
   :root:not([data-theme]) .experience-card:hover,
   :root:not([data-theme]) .project-card:hover {
     background-color: var(--color-charcoal-dark);
+  }
+  
+  :root:not([data-theme]) .footer {
+    background-color: var(--color-charcoal-darkest);
+    color: var(--color-charcoal-lightest);
+    border-top-color: var(--color-border);
+  }
+  
+  :root:not([data-theme]) .footer p {
+    color: var(--color-charcoal-lightest);
   }
 }
 
@@ -162,11 +182,22 @@
   border-color: var(--color-border);
 }
 
+[data-mode="dark"] .footer {
+  background-color: var(--color-charcoal-darkest);
+  color: var(--color-charcoal-lightest);
+  border-top-color: var(--color-border);
+}
+
+[data-mode="dark"] .footer p {
+  color: var(--color-charcoal-lightest);
+}
+
 /* ===== THEME TRANSITION ===== */
 
 body,
 .header,
 .sidebar-nav,
+.footer,
 .section,
 .px-btn,
 .card,

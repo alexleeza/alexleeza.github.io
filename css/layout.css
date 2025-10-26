@@ -189,14 +189,24 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: var(--space-4xl) 0;
+  padding: var(--space-4xl) var(--section-padding-x);
 }
 
 .hero-content {
-  text-align: center;
-  max-width: 800px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3xl);
+  max-width: var(--container-lg);
+  width: 100%;
   position: relative;
   z-index: var(--z-base);
+}
+
+.hero-text {
+  flex: 1;
+  text-align: left;
+  position: relative;
 }
 
 .hero-title {
@@ -217,8 +227,30 @@
 .hero-actions {
   display: flex;
   gap: var(--space-md);
-  justify-content: center;
+  justify-content: flex-start;
   flex-wrap: wrap;
+}
+
+/* Profile Picture Styles */
+.hero-image {
+  flex-shrink: 0;
+}
+
+.profile-picture-container {
+  width: 280px;
+  height: 280px;
+  background-color: var(--color-surface);
+  padding: var(--space-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-picture {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  image-rendering: auto;
 }
 
 /* Pixel art accent elements */
@@ -358,15 +390,16 @@
 /* ===== FOOTER ===== */
 
 .footer {
-  background-color: var(--color-charcoal-darkest);
-  color: var(--color-charcoal-lightest);
+  background-color: var(--color-sage-light);
+  color: var(--color-charcoal-darkest);
   text-align: center;
   padding: var(--space-xl) var(--section-padding-x);
   margin-left: calc(var(--sidebar-width) + var(--space-lg) * 2);
+  border-top: var(--border-width-md) solid var(--color-sage-dark);
 }
 
 .footer p {
-  color: var(--color-charcoal-lightest);
+  color: var(--color-charcoal-darkest);
   margin: 0;
   font-size: var(--text-sm);
 }
@@ -458,6 +491,26 @@
   
   .hero {
     min-height: calc(100vh - var(--header-height) - 80px);
+    padding: var(--space-2xl) var(--space-md);
+  }
+  
+  .hero-content {
+    flex-direction: column;
+    gap: var(--space-2xl);
+    text-align: center;
+  }
+  
+  .hero-text {
+    text-align: center;
+  }
+  
+  .hero-actions {
+    justify-content: center;
+  }
+  
+  .profile-picture-container {
+    width: 200px;
+    height: 200px;
   }
   
   .projects-grid {

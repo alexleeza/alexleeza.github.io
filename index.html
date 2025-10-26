@@ -21,10 +21,11 @@
     <title>Alex Lee's Portfolio</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="./assets/img/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="./assets/img/favicon-16x16.png">
-    <link rel="apple-touch-icon" href="./assets/img/favicon-32x32.png">
-    <link rel="shortcut icon" href="./assets/img/favicon-32x32.png">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="32x32" href="/assets/img/favicon-32x32.png">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
     
     <!-- Fonts - Preload pixel font for performance -->
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -38,6 +39,8 @@
     <link rel="stylesheet" href="./css/projects-styles.css">
 </head>
 <body>
+    <!-- Skip to content for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     
     <!-- Top Navigation Bar -->
     <header class="header px-shadow-md" role="banner">
@@ -103,18 +106,28 @@
         <!-- Hero Section -->
         <section class="hero" id="hero">
             <div class="hero-content">
-                <h2 class="hero-title">Alex K. Lee</h2>
-                <p class="hero-tagline">Industrial Engineer</p>
+                <div class="hero-text">
+                    <h2 class="hero-title">Alex K. Lee</h2>
+                    <p class="hero-tagline">Industrial Engineer</p>
+                    
+                    <!-- Pixel Art Accent Elements -->
+                    <div class="pixel-accent pixel-accent-1" aria-hidden="true"></div>
+                    <div class="pixel-accent pixel-accent-2" aria-hidden="true"></div>
+                    
+                    <!-- Primary Action Buttons -->
+                    <div class="hero-actions">
+                        <button class="px-btn px-btn-primary" id="stats-btn" aria-label="View statistics">
+                            <span class="btn-icon"></span>
+                            Stats
+                        </button>
+                    </div>
+                </div>
                 
-                <!-- Pixel Art Accent Elements -->
-                <div class="pixel-accent pixel-accent-1" aria-hidden="true"></div>
-                <div class="pixel-accent pixel-accent-2" aria-hidden="true"></div>
-                
-                <!-- Primary Action Buttons -->
-                <div class="hero-actions">
-                    <button class="px-btn px-btn-primary" id="stats-btn" aria-label="View statistics">
-                        <span class="btn-icon"></span>
-                        Stats
+                <!-- Profile Picture -->
+                <div class="hero-image">
+                    <div class="profile-picture-container px-border px-shadow-lg">
+                        <img src="./assets/img/profile.jpg" alt="Alex K. Lee profile picture" class="profile-picture">
+                    </div>
                 </div>
             </div>
         </section>
@@ -244,7 +257,7 @@
                             <span class="card-org">Industrial Engineering: Purdue University</span>
                         </div>
                         <div class="card-meta">
-                            <time datetime="2025-10">PlaceHolder</time> - <time datetime="2025-10">Placeholder</time>
+                            <time datetime="2025-10">October 2025</time> - <time datetime="2025-10">Present</time>
                         </div>
                         <ul class="card-achievements">
                             <li>Web Application Development</li>
@@ -258,7 +271,7 @@
                             <span class="card-org">NHanCE Lab: Purdue University</span>
                         </div>
                         <div class="card-meta">
-                            <time datetime="2025-08">Placeholder</time> - <time datetime="2025-10">Placeholder</time>
+                            <time datetime="2025-08">August 2025</time> - <time datetime="2025-10">Present</time>
                         </div>
                         <ul class="card-achievements">
                             <li>Web Application Development/li>

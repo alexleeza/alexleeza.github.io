@@ -83,7 +83,7 @@
 }
 
 .btn-icon::before {
-  content: '▸';
+  content: '◆';
   font-size: var(--text-sm);
   line-height: 1;
   display: block;
@@ -289,10 +289,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
   gap: var(--space-sm);
   padding: var(--space-md);
   background-color: var(--color-surface);
   transition: all var(--duration-fast) var(--ease-out);
+  min-height: 80px;
+  box-sizing: border-box;
 }
 
 .skill-badge:hover {
@@ -303,17 +306,26 @@
 .skill-icon {
   width: 32px;
   height: 32px;
+  min-width: 32px;
+  min-height: 32px;
   background-color: var(--color-accent-primary);
+  border: var(--border-width-sm) solid var(--color-sage-dark);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: bold;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .skill-icon::before {
   content: '◆';
-  font-size: var(--text-lg);
+  font-size: var(--text-base);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .skill-icon[data-icon="code"]::before { content: '</>' }
