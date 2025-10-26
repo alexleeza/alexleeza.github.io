@@ -8,10 +8,6 @@
 
 /* ===== CREAM THEME ===== */
 
-[data-theme="cream"] {
-  /* Colors are handled in variables.css */
-}
-
 /* Cream theme specific component adjustments */
 [data-theme="cream"] .px-btn-secondary {
   background-color: var(--color-cream-base);
@@ -80,10 +76,6 @@
 
 /* System preference dark mode */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    /* Dark mode colors are already set in variables.css */
-  }
-  
   /* Adjust components for dark mode */
   :root:not([data-theme]) .px-border {
     border-color: var(--color-border);

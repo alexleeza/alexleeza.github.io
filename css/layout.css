@@ -424,10 +424,20 @@
   .timeline-label {
     font-size: var(--text-xs);
   }
+  
+  /* Keep hero side-by-side on tablet but make picture smaller */
+  .profile-picture-container {
+    width: 220px;
+    height: 220px;
+  }
+  
+  .hero-content {
+    gap: var(--space-2xl);
+  }
 }
 
-/* Mobile */
-@media (max-width: 768px) {
+/* Mobile - only stack on very small screens */
+@media (max-width: 640px) {
   .header-content {
     padding: 0 var(--space-md);
   }
