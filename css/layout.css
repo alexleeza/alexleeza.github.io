@@ -195,7 +195,7 @@
 .hero-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: var(--space-md);
   max-width: var(--container-lg);
   width: 100%;
