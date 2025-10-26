@@ -310,6 +310,8 @@
 .about-bio {
   font-size: var(--text-lg);
   line-height: var(--leading-relaxed);
+  font-family: var(--font-readable);
+  font-size: 16px;
 }
 
 .skills-grid {

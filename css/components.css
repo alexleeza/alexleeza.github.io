@@ -164,6 +164,8 @@
   margin-bottom: var(--space-sm);
   color: var(--color-text-secondary);
   line-height: var(--leading-relaxed);
+  font-family: var(--font-readable);
+  font-size: 15px;
 }
 
 .card-achievements li::before {
@@ -253,6 +255,8 @@
   color: var(--color-text-secondary);
   margin-bottom: var(--space-md);
   line-height: var(--leading-relaxed);
+  font-family: var(--font-readable);
+  font-size: 15px;
 }
 
 .project-links {

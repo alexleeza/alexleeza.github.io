@@ -64,6 +64,7 @@
   --font-heading: 'Press Start 2P', 'Courier New', monospace;
   --font-body: 'Press Start 2P', 'Courier New', monospace;
   --font-mono: 'Press Start 2P', 'Courier New', monospace;
+  --font-readable: 'Courier New', 'Courier', 'Lucida Console', 'Monaco', monospace;
   
   /* Font Sizes */
   --text-xs: 0.625rem;   /* 10px */
