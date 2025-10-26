@@ -196,7 +196,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3xl);
+  gap: var(--space-xl);
   max-width: var(--container-lg);
   width: 100%;
   position: relative;
@@ -234,6 +234,7 @@
 /* Profile Picture Styles */
 .hero-image {
   flex-shrink: 0;
+  position: relative;
 }
 
 .profile-picture-container {
@@ -253,6 +254,25 @@
   image-rendering: auto;
 }
 
+/* Decorative boxes around profile picture */
+.pixel-accent-3 {
+  top: -30px;
+  right: -30px;
+  width: 40px;
+  height: 40px;
+  transform: rotate(25deg);
+  z-index: -1;
+}
+
+.pixel-accent-4 {
+  bottom: -25px;
+  left: -25px;
+  width: 56px;
+  height: 56px;
+  transform: rotate(-20deg);
+  z-index: -1;
+}
+
 /* Pixel art accent elements */
 .pixel-accent {
   position: absolute;
@@ -265,17 +285,19 @@
 }
 
 .pixel-accent-1 {
-  top: 20%;
-  left: 10%;
+  top: -10px;
+  left: -20px;
   transform: rotate(15deg);
+  z-index: -1;
 }
 
 .pixel-accent-2 {
-  bottom: 20%;
-  right: 10%;
+  bottom: -10px;
+  right: -20px;
   width: 48px;
   height: 48px;
   transform: rotate(-15deg);
+  z-index: -1;
 }
 
 /* ===== ABOUT SECTION ===== */
@@ -432,7 +454,7 @@
   }
   
   .hero-content {
-    gap: var(--space-2xl);
+    gap: var(--space-lg);
   }
 }
 
