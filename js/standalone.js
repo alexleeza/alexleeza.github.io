@@ -229,13 +229,16 @@
     const form = document.getElementById('contact-form');
     if (!form) return;
     
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      // Clear previous errors
+      // Clear previous errors and status
       document.querySelectorAll('.form-error').forEach(error => {
         error.textContent = '';
       });
+      
+      const statusDiv = form.querySelector('.form-status');
+      statusDiv.textContent = '';
       
       // Get form data
       const name = document.getElementById('contact-name').value.trim();
@@ -267,15 +270,44 @@
       }
       
       if (isValid) {
-        const statusDiv = form.querySelector('.form-status');
-        statusDiv.textContent = 'Message sent successfully! (Demo mode - not actually sent)';
-        statusDiv.style.color = '#6B8E6F';
-        statusDiv.style.marginTop = '16px';
-        form.reset();
+        // Disable submit button
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="btn-icon"></span>Sending...';
         
-        setTimeout(() => {
-          statusDiv.textContent = '';
-        }, 5000);
+        try {
+          // Submit to Formspree
+          const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+              'Accept': 'application/json'
+            }
+          });
+          
+          if (response.ok) {
+            statusDiv.textContent = 'Message sent successfully! I\'ll get back to you soon.';
+            statusDiv.style.color = '#6B8E6F';
+            statusDiv.style.marginTop = '16px';
+            form.reset();
+          } else {
+            throw new Error('Form submission failed');
+          }
+        } catch (error) {
+          statusDiv.textContent = 'Oops! There was a problem sending your message. Please try again.';
+          statusDiv.style.color = '#d9534f';
+          statusDiv.style.marginTop = '16px';
+        } finally {
+          // Re-enable submit button
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+          
+          // Clear status after 5 seconds
+          setTimeout(() => {
+            statusDiv.textContent = '';
+          }, 5000);
+        }
       }
     });
   }
