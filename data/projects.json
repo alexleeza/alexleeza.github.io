@@ -1,7 +1,7 @@
 [
   {
-    "title": "E-Commerce Platform",
-    "description": "A full-stack e-commerce platform with real-time inventory management, payment processing, and admin dashboard. Built with modern web technologies for optimal performance.",
+    "title": "BoilerOptimizer",
+    "description": "A full - stack web application that uses a custom built MIP solver to optimize a schedule",
     "tags": ["JavaScript", "React", "Node.js", "MongoDB"],
     "image": "./assets/img/projects/ecommerce.png",
     "links": [
