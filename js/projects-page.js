@@ -11,7 +11,7 @@ import { loadProjects, filterProjects } from './utils.js';
  * Initialize the projects page
  */
 function init() {
-  console.log('🎮 Projects Page initializing...');
+  console.log('Projects Page initializing...');
   
   // Load and render projects
   loadProjects();
@@ -22,7 +22,7 @@ function init() {
   // Set up lazy loading for images
   setupLazyLoading();
   
-  console.log('✅ Projects Page ready!');
+  console.log('Projects Page ready!');
 }
 
 /**
