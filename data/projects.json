@@ -1,13 +1,13 @@
 [
   {
-    "title": "BoilerOptimizer",
+    "title": "Boiler Optimizer",
     "description": "A full - stack web application that uses a custom built MIP solver to optimize a schedule",
-    "tags": ["JavaScript", "React", "Node.js", "MongoDB"],
+    "tags": ["TextScript", "React", "Node.js", "Neon Postgres"],
     "image": "./assets/img/projects/ecommerce.png",
     "links": [
       {
-        "label": "Live Demo",
-        "url": "https://example.com/demo"
+        "label": "Live Website",
+        "url": "https://boileroptimizer.com"
       },
       {
         "label": "GitHub",
@@ -16,14 +16,14 @@
     ]
   },
   {
-    "title": "Machine Learning Image Classifier",
-    "description": "Deep learning model for image classification using convolutional neural networks. Achieves 95% accuracy on test datasets with real-time inference capabilities.",
-    "tags": ["Python", "TensorFlow", "Machine Learning"],
+    "title": "Fountain Of Tech",
+    "description": "Website development where older adults are able to access the latest technological news catered towards their interests.",
+    "tags": ["Typescript", "Web Development", "API"],
     "image": "./assets/img/projects/ml-classifier.png",
     "links": [
       {
         "label": "Paper",
-        "url": "https://example.com/paper"
+        "url": "https://fountainoftech.pages.dev"
       },
       {
         "label": "Code",
