@@ -3,47 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Alex Lee's Projects">
+    <meta name="description" content="Alex K. Lee's Projects - Full-stack applications, research tools, and data science projects">
     <meta name="author" content="Alex K. Lee">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="Alex Lee's Projects">
-    <meta property="og:description" content="Alex Lee's Projects">
+    <meta property="og:title" content="Alex K. Lee - Projects">
+    <meta property="og:description" content="Full-stack applications, research tools, and data science projects">
     <meta property="og:type" content="website">
-    <meta property="og:image" content="./assets/img/preview.png">
+    <meta property="og:image" content="https://alexleeza.github.io/assets/img/favicon-32x32.png">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Alex Lee's Projects">
-    <meta name="twitter:description" content="Alex Lee's Projects">
-    <meta name="twitter:image" content="./assets/img/preview.png">
+    <meta name="twitter:title" content="Alex K. Lee - Projects">
+    <meta name="twitter:description" content="Full-stack applications, research tools, and data science projects">
     
-    <title>Alex K. Lee - Projects</title>
+    <title>Projects | Alex K. Lee</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="32x32" href="/assets/img/favicon-32x32.png">
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/img/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/img/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="32x32" href="./assets/img/favicon-32x32.png">
     
-    <!-- Fonts - Preload pixel font for performance -->
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="./css/variables.css">
-    <link rel="stylesheet" href="./css/base.css">
-    <link rel="stylesheet" href="./css/layout.css">
-    <link rel="stylesheet" href="./css/components.css">
-    <link rel="stylesheet" href="./css/themes.css">
-    <link rel="stylesheet" href="./css/projects-styles.css">
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>  
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
     <!-- Top Navigation Bar -->
     <header class="header px-shadow-md" role="banner">
         <div class="header-content">
             <h1 class="site-title">Alex K. Lee</h1>
-            <nav class="header-nav">
+            <nav class="header-nav" aria-label="Main navigation">
                 <a href="index.html" class="nav-link">Home</a>
                 <a href="projects.html" class="nav-link active" aria-current="page">Projects</a>
             </nav>
@@ -59,14 +57,12 @@
                 <h2 class="section-title px-border">My Projects</h2>
                 
                 <!-- Project Filters -->
-                <div class="project-filters-container">
+                <div class="project-filters" role="group" aria-label="Filter projects by category">
                     <button class="filter-btn active" data-filter="all">All</button>
-                    <!-- Additional filter buttons will be dynamically added here -->
                 </div>
                 
                 <!-- Projects Grid -->
-                <div class="projects-grid">
-                    <!-- Projects will be dynamically loaded here -->
+                <div class="projects-grid" id="projects-grid">
                     <div class="loading-message px-border">
                         <p>Loading projects...</p>
                     </div>
@@ -83,10 +79,10 @@
     
     <!-- Footer -->
     <footer class="footer">
-        <p>&copy; 2025 Alex Lee</p>
+        <p>&copy; 2025 Alex K. Lee. All rights reserved.</p>
     </footer>
     
-    <!-- Scripts - Standalone (works without server) -->
-    <script src="./js/projects-standalone.js"></script>
+    <!-- Scripts -->
+    <script src="./js/projects.js"></script>
 </body>
 </html>

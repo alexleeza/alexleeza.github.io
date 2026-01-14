@@ -3,47 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Alex Lee's Portfolio">
+    <meta name="description" content="Alex K. Lee - Industrial Engineering Student at Purdue University specializing in Operations Research, Statistics, and Data Science">
     <meta name="author" content="Alex K. Lee">
+    <meta name="keywords" content="Industrial Engineering, Operations Research, Data Science, Purdue University, Alex Lee">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="Alex Lee's Portfolio">
-    <meta property="og:description" content="Alex Lee's Portfolio">
+    <meta property="og:title" content="Alex K. Lee - Industrial Engineer">
+    <meta property="og:description" content="Industrial Engineering Student at Purdue University specializing in Operations Research and Data Science">
     <meta property="og:type" content="website">
     <meta property="og:image" content="https://alexleeza.github.io/assets/img/favicon-32x32.png">
+    <meta property="og:url" content="https://alexleeza.github.io">
     
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Alex Lee's Portfolio">
-    <meta name="twitter:description" content="Alex Lee's Portfolio">
+    <meta name="twitter:title" content="Alex K. Lee - Industrial Engineer">
+    <meta name="twitter:description" content="Industrial Engineering Student at Purdue University specializing in Operations Research and Data Science">
     <meta name="twitter:image" content="https://alexleeza.github.io/assets/img/favicon-32x32.png">
     
-    <title>Alex Lee's Portfolio</title>
+    <title>Alex K. Lee | Industrial Engineer</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicon-16x16.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicon-32x32.png">
-    <link rel="apple-touch-icon" sizes="32x32" href="/assets/img/favicon-32x32.png">
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <link rel="icon" type="image/png" sizes="16x16" href="./assets/img/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./assets/img/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="32x32" href="./assets/img/favicon-32x32.png">
     
-    <!-- Fonts - Preload pixel font for performance -->
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
     <!-- Stylesheets -->
-    <link rel="stylesheet" href="./css/variables.css">
-    <link rel="stylesheet" href="./css/base.css">
-    <link rel="stylesheet" href="./css/layout.css">
-    <link rel="stylesheet" href="./css/components.css">
-    <link rel="stylesheet" href="./css/themes.css">
-    <link rel="stylesheet" href="./css/projects-styles.css">
+    <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body> 
+    <!-- Skip Link for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    
     <!-- Top Navigation Bar -->
     <header class="header px-shadow-md" role="banner">
         <div class="header-content">
             <h1 class="site-title">Alex K. Lee</h1>
-            <nav class="header-nav">
+            <nav class="header-nav" aria-label="Main navigation">
                 <a href="index.html" class="nav-link active" aria-current="page">Home</a>
                 <a href="projects.html" class="nav-link">Projects</a>
             </nav>
@@ -62,7 +63,7 @@
             <li class="timeline-item">
                 <button class="timeline-btn" data-section="work" aria-label="Navigate to Work Experience section">
                     <span class="timeline-node"></span>
-                    <span class="timeline-label">Work Experience</span>
+                    <span class="timeline-label">Work</span>
                 </button>
             </li>
             <li class="timeline-item">
@@ -113,7 +114,7 @@
                     
                     <!-- Primary Action Buttons -->
                     <div class="hero-actions">
-                        <button class="px-btn px-btn-primary" id="stats-btn" aria-label="View statistics">
+                        <button class="px-btn px-btn-primary" id="stats-btn" aria-expanded="false" aria-controls="stats">
                             <span class="btn-icon"></span>
                             Stats
                         </button>
@@ -123,56 +124,50 @@
                 <!-- Profile Picture -->
                 <div class="hero-image">
                     <div class="profile-picture-container px-border px-shadow-lg">
-                        <img src="./assets/img/profile.jpg" alt="Alex K. Lee profile picture" class="profile-picture">
+                        <img src="./assets/img/profile.jpg" alt="Alex K. Lee - Industrial Engineering Student" class="profile-picture" loading="eager">
                     </div>
-                    <!-- Decorative pixel accents around picture -->
                     <div class="pixel-accent pixel-accent-3" aria-hidden="true"></div>
                     <div class="pixel-accent pixel-accent-4" aria-hidden="true"></div>
                 </div>
             </div>
         </section>
 
-        <!-- Stats Section (Hidden by default, shown when Stats button is clicked) -->
-        <section class="section stats-section hidden" id="stats">
+        <!-- Stats Section (Hidden by default) -->
+        <section class="section stats-section hidden" id="stats" aria-hidden="true">
             <div class="section-content">
                 <h2 class="section-title px-border">Academic Stats</h2>
                 
-                <!-- Academic Stats with Bar Graphs -->
                 <div class="academic-stats">
-                    <!-- High School GPA -->
                     <div class="stat-bar-item">
                         <div class="stat-bar-header">
                             <span class="stat-bar-label">High School GPA</span>
                             <span class="stat-bar-value">3.68 / 4.0</span>
                         </div>
                         <div class="stat-bar-track px-border">
-                            <div class="stat-bar-fill" style="width: 95%;" data-value="3.8" data-max="4.0"></div>
+                            <div class="stat-bar-fill" style="width: 92%;" data-value="3.68" data-max="4.0"></div>
                         </div>
                     </div>
                     
-                    <!-- SAT -->
                     <div class="stat-bar-item">
                         <div class="stat-bar-header">
                             <span class="stat-bar-label">SAT Score</span>
                             <span class="stat-bar-value">1540 / 1600</span>
                         </div>
                         <div class="stat-bar-track px-border">
-                            <div class="stat-bar-fill" style="width: 90.6%;" data-value="1450" data-max="1600"></div>
+                            <div class="stat-bar-fill" style="width: 96.25%;" data-value="1540" data-max="1600"></div>
                         </div>
                     </div>
                     
-                    <!-- Undergraduate GPA -->
                     <div class="stat-bar-item">
                         <div class="stat-bar-header">
                             <span class="stat-bar-label">Undergraduate GPA</span>
                             <span class="stat-bar-value">3.48 / 4.0</span>
                         </div>
                         <div class="stat-bar-track px-border">
-                            <div class="stat-bar-fill" style="width: 77.5%;" data-value="3.1" data-max="4.0"></div>
+                            <div class="stat-bar-fill" style="width: 87%;" data-value="3.48" data-max="4.0"></div>
                         </div>
                     </div>
                     
-                    <!-- GRE -->
                     <div class="stat-bar-item">
                         <div class="stat-bar-header">
                             <span class="stat-bar-label">GRE Score</span>
@@ -183,7 +178,6 @@
                         </div>
                     </div>
                     
-                    <!-- LSAT -->
                     <div class="stat-bar-item">
                         <div class="stat-bar-header">
                             <span class="stat-bar-label">LSAT Score</span>
@@ -197,111 +191,111 @@
             </div>
         </section>
 
-        
         <!-- About Section -->
         <section class="section" id="about">
             <div class="section-content">
                 <h2 class="section-title px-border">About Me</h2>
                 <div class="about-grid">
                     <div class="about-bio">
-                        <p><strong>Undergraduate University:</strong> Purdue University (West Lafayette, IN)</p>
-                        <p><strong>Bachelor of Science:</strong> Industrial Engineering</p>
-                        <p><strong>Undergraduate Minors:</strong> Statistics, Manufacturing</p>
-                        <p><strong>Undergraduate Certificates from Purdue:</strong> Semiconductors and Microelectronics, Applications in Data Science</p>
-                        <p><strong>Career Interests:</strong> Operations Research, Data Science, Machine Learning, or IP Law.</p>
+                        <p><strong>University:</strong> Purdue University, West Lafayette, IN</p>
+                        <p><strong>Degree:</strong> Bachelor of Science in Industrial Engineering (Expected Aug 2026)</p>
+                        <p><strong>Minors:</strong> Statistics, Management</p>
+                        <p><strong>Certificates:</strong> Semiconductors & Microelectronics; Data Science Applications</p>
+                        <p><strong>Career Interests:</strong> Operations Research, Data Science, Machine Learning, IP Law</p>
                         <br>
-                        <p>Hi, I am Alex Lee, an Industrial Engineering Student at Purdue University who is passionate about Operations Research and Statistics. I have always been intrigued by how decisions branch and evolve, much like a living decision tree. I love transforming complex data into interactive visuals that bring probability and optimization to life. Whether through research, coursework, or personal projects, I am driven by the challenge of making analytical insights both accessible and impactful.</p>
+                        <p>Hi, I'm Alex Lee, an Industrial Engineering student at Purdue University passionate about Operations Research and Statistics. I've always been intrigued by how decisions branch and evolve, much like a living decision tree. I love transforming complex data into interactive visuals that bring probability and optimization to life. Whether through research, coursework, or personal projects, I'm driven by the challenge of making analytical insights both accessible and impactful.</p>
                     </div>
                     
                     <!-- Skills Grid -->
                     <div class="skills-grid">
                         <div class="skill-badge-wrapper">
-                            <button class="skill-badge px-border" data-skill="stats">
+                            <button class="skill-badge px-border" data-skill="languages" aria-expanded="false">
                                 <span class="skill-icon" data-icon="code"></span>
-                                <span class="skill-name">Stats</span>
+                                <span class="skill-name">Languages</span>
+                                <span class="skill-expand-icon">+</span>
+                            </button>
+                            <div class="sub-skills" data-sub-skill="languages">
+                                <span class="sub-skill-item">Python</span>
+                                <span class="sub-skill-item">TypeScript</span>
+                                <span class="sub-skill-item">R</span>
+                                <span class="sub-skill-item">SQL</span>
+                                <span class="sub-skill-item">MATLAB</span>
+                                <span class="sub-skill-item">C</span>
+                                <span class="sub-skill-item">JavaScript</span>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-badge-wrapper">
+                            <button class="skill-badge px-border" data-skill="frameworks" aria-expanded="false">
+                                <span class="skill-icon" data-icon="fullstack"></span>
+                                <span class="skill-name">Frameworks</span>
+                                <span class="skill-expand-icon">+</span>
+                            </button>
+                            <div class="sub-skills" data-sub-skill="frameworks">
+                                <span class="sub-skill-item">Next.js</span>
+                                <span class="sub-skill-item">React</span>
+                                <span class="sub-skill-item">Node.js</span>
+                                <span class="sub-skill-item">Robot Framework</span>
+                                <span class="sub-skill-item">Tailwind CSS</span>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-badge-wrapper">
+                            <button class="skill-badge px-border" data-skill="methods" aria-expanded="false">
+                                <span class="skill-icon" data-icon="design"></span>
+                                <span class="skill-name">Methods</span>
+                                <span class="skill-expand-icon">+</span>
+                            </button>
+                            <div class="sub-skills" data-sub-skill="methods">
+                                <span class="sub-skill-item">Mixed-Integer Programming</span>
+                                <span class="sub-skill-item">Regression Analysis</span>
+                                <span class="sub-skill-item">Stochastic Modeling</span>
+                                <span class="sub-skill-item">Markov Chains</span>
+                                <span class="sub-skill-item">PCA</span>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-badge-wrapper">
+                            <button class="skill-badge px-border" data-skill="tools" aria-expanded="false">
+                                <span class="skill-icon" data-icon="cloud"></span>
+                                <span class="skill-name">Tools</span>
+                                <span class="skill-expand-icon">+</span>
+                            </button>
+                            <div class="sub-skills" data-sub-skill="tools">
+                                <span class="sub-skill-item">Git</span>
+                                <span class="sub-skill-item">PostgreSQL</span>
+                                <span class="sub-skill-item">Kubernetes</span>
+                                <span class="sub-skill-item">AutoCAD</span>
+                                <span class="sub-skill-item">LabJack</span>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-badge-wrapper">
+                            <button class="skill-badge px-border" data-skill="stats" aria-expanded="false">
+                                <span class="skill-icon" data-icon="data"></span>
+                                <span class="skill-name">Statistics</span>
                                 <span class="skill-expand-icon">+</span>
                             </button>
                             <div class="sub-skills" data-sub-skill="stats">
-                                <span class="sub-skill-item">Box-Cox Transformations</span>
-                                <span class="sub-skill-item">Multi-Linear Regression</span>
                                 <span class="sub-skill-item">Hypothesis Testing</span>
                                 <span class="sub-skill-item">ANOVA</span>
-                                <span class="sub-skill-item">Statistical Process Control</span>
-                            </div>
-                        </div>
-                        
-                        <div class="skill-badge-wrapper">
-                            <button class="skill-badge px-border" data-skill="code">
-                                <span class="skill-icon" data-icon="python"></span>
-                                <span class="skill-name">Code</span>
-                                <span class="skill-expand-icon">+</span>
-                            </button>
-                            <div class="sub-skills" data-sub-skill="code">
-                                <span class="sub-skill-item">Python</span>
-                                <span class="sub-skill-item">R</span>
-                                <span class="sub-skill-item">Javascript</span>
-                                <span class="sub-skill-item">CSS</span>
-                                <span class="sub-skill-item">HTML</span>
-                            </div>
-                        </div>
-                        
-                        <div class="skill-badge-wrapper">
-                            <button class="skill-badge px-border" data-skill="operations">
-                                <span class="skill-icon" data-icon="design"></span>
-                                <span class="skill-name">OR</span>
-                                <span class="skill-expand-icon">+</span>
-                            </button>
-                            <div class="sub-skills" data-sub-skill="operations">
-                                <span class="sub-skill-item">Linear Programming</span>
-                                <span class="sub-skill-item">Integer Programming</span>
-                                <span class="sub-skill-item">Mixed-Integer Programming</span>
-                                <span class="sub-skill-item">Stochastic Modeling</span>
-                                <span class="sub-skill-item">Simulation</span>
-                            </div>
-                        </div>
-                        
-                        <div class="skill-badge-wrapper">
-                            <button class="skill-badge px-border" data-skill="datascience">
-                                <span class="skill-icon" data-icon="data"></span>
-                                <span class="skill-name">Data Sci</span>
-                                <span class="skill-expand-icon">+</span>
-                            </button>
-                            <div class="sub-skills" data-sub-skill="datascience">
-                                <span class="sub-skill-item">Machine Learning</span>
-                                <span class="sub-skill-item">Data Visualization</span>
-                                <span class="sub-skill-item">Markov Chains</span>
-                                <span class="sub-skill-item">Decision Trees</span>
                                 <span class="sub-skill-item">Multi-Linear Regression</span>
+                                <span class="sub-skill-item">Ridge Regression</span>
+                                <span class="sub-skill-item">Data Visualization</span>
                             </div>
                         </div>
                         
                         <div class="skill-badge-wrapper">
-                            <button class="skill-badge px-border" data-skill="r">
+                            <button class="skill-badge px-border" data-skill="domain" aria-expanded="false">
                                 <span class="skill-icon" data-icon="web"></span>
-                                <span class="skill-name">Logistics</span>
+                                <span class="skill-name">Domain</span>
                                 <span class="skill-expand-icon">+</span>
                             </button>
-                            <div class="sub-skills" data-sub-skill="r">
-                                <span class="sub-skill-item">Inventory Management</span>
-                                <span class="sub-skill-item">Production Scheduling</span>
-                                <span class="sub-skill-item">Schedule Optimization</span>
-                                <span class="sub-skill-item">Transportation Optimization</span>
-                                <span class="sub-skill-item">Process Flow Design</span>
-                            </div>
-                        </div>
-                        
-                        <div class="skill-badge-wrapper">
-                            <button class="skill-badge px-border" data-skill="software">
-                                <span class="skill-icon" data-icon="cloud"></span>
-                                <span class="skill-name">Software Dev</span>
-                                <span class="skill-expand-icon">+</span>
-                            </button>
-                            <div class="sub-skills" data-sub-skill="software">
-                                <span class="sub-skill-item">Git & Version Control</span>
-                                <span class="sub-skill-item">API Development</span>
-                                <span class="sub-skill-item">Database Design</span>
-                                <span class="sub-skill-item">Testing & Debugging</span>
-                                <span class="sub-skill-item">Agile Methodology</span>
+                            <div class="sub-skills" data-sub-skill="domain">
+                                <span class="sub-skill-item">Semiconductor Manufacturing</span>
+                                <span class="sub-skill-item">Autonomous Systems</span>
+                                <span class="sub-skill-item">Process Optimization</span>
+                                <span class="sub-skill-item">Scheduling Algorithms</span>
                             </div>
                         </div>
                     </div>
@@ -317,107 +311,62 @@
                     
                     <article class="experience-card px-border px-shadow-sm">
                         <div class="card-header">
-                            <h3 class="card-title">Student Developer</h3>
-                            <span class="card-org">Industrial Engineering: Purdue University (West Lafayette, IN)</span>
+                            <h3 class="card-title">Student Developer (Boiler Optimizer Lead)</h3>
+                            <span class="card-org">Purdue University | West Lafayette, IN</span>
                         </div>
                         <div class="card-meta">
-                            <time datetime="2025-10">Placeholder</time> - <time datetime="2025-10">Placeholder</time>
+                            <time datetime="2025-10">Oct 2025</time> – Present
                         </div>
                         <ul class="card-achievements">
-                            <li>Part-Time</li>
-                            <li>Web Application Development</li>
-                            <li>Mixed-Integer Programming Model</li>
-                            <li>Data Analysis</li>
+                            <li>Deployed "Boiler Optimizer", a full-stack academic planning platform using Next.js 14 and PostgreSQL to reduce degree planning complexity</li>
+                            <li>Built a custom Mixed-Integer Programming (MIP) engine and Multi-Criteria Decision Making (MCDM) chatbot to automate schedule generation based on 10-dimensional user vectors</li>
+                            <li>Implemented a PCA-style (10D→6D→6D) projection algorithm to map student traits to college profiles</li>
                         </ul>
+                        <div class="card-links">
+                            <a href="https://boileroptimizer.com" class="px-link" target="_blank" rel="noopener noreferrer">View Project</a>
+                        </div>
                     </article>
-                    
+
                     <article class="experience-card px-border px-shadow-sm">
                         <div class="card-header">
-                            <h3 class="card-title">Undergraduate Mentor</h3>
-                            <span class="card-org">Industrial Engineering: Purdue University (West Lafayette, IN)</span>
+                            <h3 class="card-title">Industrial Engineering Mentor</h3>
+                            <span class="card-org">Purdue University | West Lafayette, IN</span>
                         </div>
                         <div class="card-meta">
-                            <time datetime="2025-08">Placeholder</time> - <time datetime="2025-10">Placeholder</time>
+                            <time datetime="2025-08">Aug 2025</time> – Present
                         </div>
                         <ul class="card-achievements">
-                            <li>Part-Time</li>
-                            <li>Mentor of 8 undergrduate engineering students</li>
-                            <li>Guidance</li>
+                            <li>Mentor 8 undergraduates on curriculum planning and internship sourcing</li>
+                            <li>Resulted in 10 successful placements through guidance and career coaching</li>
                         </ul>
                     </article>
 
                     <article class="experience-card px-border px-shadow-sm">
                         <div class="card-header">
-                            <h3 class="card-title">System Validation Engineer</h3>
-                            <span class="card-org">Flanders Electric (Carmel, IN)</span>
+                            <h3 class="card-title">Systems Validation Engineer</h3>
+                            <span class="card-org">Flanders Electric | Carmel, IN</span>
                         </div>
                         <div class="card-meta">
-                            <time datetime="2025-09">September 2025</time> - <time datetime="2025-10">Present</time>
+                            <time datetime="2025-06">Jun 2025</time> – Present <span class="experience-type">(Intern Jun–Aug 2025; Part-time thereafter)</span>
                         </div>
                         <ul class="card-achievements">
-                            <li>Part-Time</li>
-                            <li>Integration of I/O module simulation</li>
-                            <li>Standardization of testing workflows</li>
-                        </ul>
-                    </article>
-
-                    <article class="experience-card px-border px-shadow-sm">
-                        <div class="card-header">
-                            <h3 class="card-title">System Validation Engineer</h3>
-                            <span class="card-org">Flanders Electric (Carmel, IN)</span>
-                        </div>
-                        <div class="card-meta">
-                            <time datetime="2025-06">June 2025</time> - <time datetime="2025-08">August 2025</time>
-                        </div>
-                        <ul class="card-achievements">
-                            <li>Internship</li>
-                            <li>Creation of I/O module simulation</li>
-                            <li>Testing and Validation</li>
-                        </ul>
-                    </article>
-
-                    <article class="experience-card px-border px-shadow-sm">
-                        <div class="card-header">
-                            <h3 class="card-title">UI Engineer</h3>
-                            <span class="card-org">Pearson VUE (Bloomington, MN (REMOTE))</span>
-                        </div>
-                        <div class="card-meta">
-                            <time datetime="2023-06">June 2023</time> - <time datetime="2023-08">August 2023</time>
-                        </div>
-                        <ul class="card-achievements">
-                            <li>Internship</li>
-                            <li>Frontend: HTML, CSS, Javascript</li>
-                            <li>Interactable Functions</li>
+                            <li>Standardized validation workflows, increasing test coverage by 30% and reducing manual debugging time by 4+ hours per sprint</li>
+                            <li>Maintain and scale 80+ automated test scripts in Robot Framework across SQL and Kubernetes environments</li>
+                            <li>Designed a Python-driven hardware I/O simulation (LabJack, RPi) to control PLC signals, eliminating the need for expensive physical hardware</li>
                         </ul>
                     </article>
 
                     <article class="experience-card px-border px-shadow-sm">
                         <div class="card-header">
                             <h3 class="card-title">Computer Science Instructor</h3>
-                            <span class="card-org">Wonderland Education Inc. (West Lafayette, IN)</span>
+                            <span class="card-org">Part-Time</span>
                         </div>
                         <div class="card-meta">
-                            <time datetime="2022-01">January 2022</time> - <time datetime="2023-03">March 2023</time>
+                            <time datetime="2022-01">Jan 2022</time> – <time datetime="2023-03">Mar 2023</time>
                         </div>
                         <ul class="card-achievements">
-                            <li>Part-Time</li>
-                            <li>Designed coding curricula</li>
-                            <li>Taught K-8 students</li>
-                        </ul>
-                    </article>
-
-                    <article class="experience-card px-border px-shadow-sm">
-                        <div class="card-header">
-                            <h3 class="card-title">Data Engineer</h3>
-                            <span class="card-org">Dell Technologies (Round Rock, TX (REMOTE))</span>
-                        </div>
-                        <div class="card-meta">
-                            <time datetime="2022-01">January 2022</time> - <time datetime="2023-03">March 2023</time>
-                        </div>
-                        <ul class="card-achievements">
-                            <li>Internship</li>
-                            <li>Linear Regression on EMFs</li>
-                            <li>SQL Management</li>
+                            <li>Taught fundamental programming concepts to 16 students</li>
+                            <li>Improved students' debugging and algorithmic thinking skills</li>
                         </ul>
                     </article>
                     
@@ -434,44 +383,31 @@
                     <article class="experience-card px-border px-shadow-sm">
                         <div class="card-header">
                             <h3 class="card-title">Undergraduate Research Assistant</h3>
-                            <span class="card-org">NHanCE Lab: Purdue University (West Lafayette, IN)</span>
+                            <span class="card-org">NHanCE Lab | West Lafayette, IN</span>
                         </div>
                         <div class="card-meta">
-                            <time datetime="2024-05">Placeholder</time> - <time datetime="2025-06">Placeholder</time>
+                            <time datetime="2025-09">Sep 2025</time> – Present
                         </div>
                         <ul class="card-achievements">
-                            <li>Web application development</li>
-                            <li>Full-Stack</li>
-                            <li>Human-Autonomous Systems</li>
+                            <li>Owned the development of "Fountain of Tech", an automated news aggregation platform curating 20 daily items with 90%+ tagging accuracy for autonomous vehicle research</li>
+                            <li>Shipped "SHanCE", an interactive survey tool using JavaScript to capture real-time human-autonomy interaction data and physiological sensor streams for 50 participants</li>
                         </ul>
+                        <div class="card-links">
+                            <a href="https://fountainoftech.pages.dev" class="px-link" target="_blank" rel="noopener noreferrer">View Fountain of Tech</a>
+                        </div>
                     </article>
                     
                     <article class="experience-card px-border px-shadow-sm">
                         <div class="card-header">
                             <h3 class="card-title">Undergraduate Research Assistant</h3>
-                            <span class="card-org">DC Lab: Purdue University (West Lafayette, IN)</span>
+                            <span class="card-org">DC Lab | West Lafayette, IN</span>
                         </div>
                         <div class="card-meta">
-                            <time datetime="2024-05">May 2024</time> - <time datetime="2025-06">June 2025</time>
+                            <time datetime="2024-05">May 2024</time> – <time datetime="2025-06">Jun 2025</time>
                         </div>
                         <ul class="card-achievements">
-                            <li>Optimzation-based scheduling algorithim</li>
-                            <li>Semiconductor fabs</li>
-                            <li>Automated Material Handling Systems</li>
-                        </ul>
-                    </article>
-
-                    <article class="experience-card px-border px-shadow-sm">
-                        <div class="card-header">
-                            <h3 class="card-title">Research Lab Intern</h3>
-                            <span class="card-org">SMART Lab: Purdue University (West Lafayette, IN)</span>
-                        </div>
-                        <div class="card-meta">
-                            <time datetime="2020-05">May 2020</time> - <time datetime="2020-08">August 2020</time>
-                        </div>
-                        <ul class="card-achievements">
-                            <li>Self-navigating robot</li>
-                            <li>Mobile Robots</li>
+                            <li>Formulated a scheduling algorithm for simulated Overhead Hoist Transports (OHTs) to optimize utilization in Autonomous Material Handling Systems</li>
+                            <li>Conducted stochastic modeling to simulate industrial throughput, identifying bottlenecks in semiconductor manufacturing logic</li>
                         </ul>
                     </article>
                     
@@ -485,7 +421,7 @@
                 <h2 class="section-title px-border">Resume</h2>
                 <div class="resume-container">
                     <div class="resume-viewer px-border">
-                        <embed src="./assets/resume.pdf" type="application/pdf" width="100%" height="600px" aria-label="Resume PDF viewer">
+                        <embed src="./assets/resume.pdf" type="application/pdf" width="100%" height="600px" title="Alex K. Lee Resume">
                         <p class="pdf-fallback">
                             Your browser doesn't support embedded PDFs. 
                             <a href="./assets/resume.pdf" download class="px-link">Download the resume instead</a>.
@@ -506,8 +442,7 @@
             <div class="section-content">
                 <h2 class="section-title px-border">Get In Touch</h2>
                 <form class="contact-form px-border px-shadow-sm" id="contact-form" action="https://formspree.io/f/mpwowyag" method="POST">
-                    <!-- Honeypot for spam protection -->
-                    <input type="text" name="_gotcha" style="display:none">
+                    <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
                     
                     <div class="form-group">
                         <label for="contact-name" class="form-label">Name</label>
@@ -517,7 +452,7 @@
                             name="name" 
                             class="form-input px-border" 
                             required 
-                            aria-required="true"
+                            autocomplete="name"
                             aria-describedby="name-error">
                         <span class="form-error" id="name-error" role="alert"></span>
                     </div>
@@ -530,7 +465,7 @@
                             name="email" 
                             class="form-input px-border" 
                             required 
-                            aria-required="true"
+                            autocomplete="email"
                             aria-describedby="email-error">
                         <span class="form-error" id="email-error" role="alert"></span>
                     </div>
@@ -543,7 +478,6 @@
                             class="form-input form-textarea px-border" 
                             rows="5" 
                             required 
-                            aria-required="true"
                             aria-describedby="message-error"></textarea>
                         <span class="form-error" id="message-error" role="alert"></span>
                     </div>
@@ -563,13 +497,17 @@
             <div class="section-content">
                 <h2 class="section-title px-border">Connect With Me</h2>
                 <div class="socials-grid">
-                    <a href="https://github.com/alexleeza" class="social-link px-border px-shadow-sm" target="_blank" rel="noopener noreferrer" aria-label="GitHub profile">
+                    <a href="https://github.com/alexleeza" class="social-link px-border px-shadow-sm" target="_blank" rel="noopener noreferrer">
                         <span class="social-icon" data-icon="github"></span>
                         <span class="social-label">GitHub</span>
                     </a>
-                    <a href="https://linkedin.com/in/alexleeza" class="social-link px-border px-shadow-sm" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile">
+                    <a href="https://linkedin.com/in/alexleeza" class="social-link px-border px-shadow-sm" target="_blank" rel="noopener noreferrer">
                         <span class="social-icon" data-icon="linkedin"></span>
                         <span class="social-label">LinkedIn</span>
+                    </a>
+                    <a href="mailto:lee3509@purdue.edu" class="social-link px-border px-shadow-sm">
+                        <span class="social-icon" data-icon="email"></span>
+                        <span class="social-label">Email</span>
                     </a>
                 </div>
             </div>
@@ -579,10 +517,10 @@
     
     <!-- Footer -->
     <footer class="footer">
-        <p>&copy; 2025 Alex Lee</p>
+        <p>&copy; 2025 Alex K. Lee. All rights reserved.</p>
     </footer>
     
-    <!-- Scripts - Standalone (works without server) -->
-    <script src="./js/standalone.js"></script>
+    <!-- Scripts -->
+    <script src="./js/main.js"></script>
 </body>
 </html>

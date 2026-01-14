@@ -1,86 +1,63 @@
 [
   {
     "title": "Boiler Optimizer",
-    "description": "A full - stack web application that uses a custom built MIP solver to optimize a schedule",
-    "tags": ["TextScript", "React", "Node.js", "Neon Postgres"],
-    "image": "./assets/img/projects/ecommerce.png",
+    "description": "A full-stack academic planning platform using Next.js 14 and PostgreSQL. Features a custom Mixed-Integer Programming (MIP) engine and Multi-Criteria Decision Making (MCDM) chatbot that automates schedule generation based on 10-dimensional user preference vectors. Includes PCA-style projection algorithm to map student traits to college profiles.",
+    "tags": ["TypeScript", "Next.js", "PostgreSQL", "MIP", "Full-Stack"],
+    "image": "./assets/img/projects/boiler-optimizer.png",
+    "featured": true,
     "links": [
       {
-        "label": "Live Website",
+        "label": "Live Site",
         "url": "https://boileroptimizer.com"
-      },
-      {
-        "label": "GitHub",
-        "url": "https://github.com/username/project"
       }
     ]
   },
   {
-    "title": "Fountain Of Tech",
-    "description": "Website development where older adults are able to access the latest technological news catered towards their interests.",
-    "tags": ["Typescript", "Web Development", "API"],
-    "image": "./assets/img/projects/ml-classifier.png",
+    "title": "Fountain of Tech",
+    "description": "Automated news aggregation platform for autonomous vehicle research. Curates 20 daily technology news items with 90%+ tagging accuracy, helping older adults access the latest technological news tailored to their interests.",
+    "tags": ["TypeScript", "Web Development", "API", "Automation"],
+    "image": "./assets/img/projects/fountain-of-tech.png",
+    "featured": true,
     "links": [
       {
-        "label": "Paper",
+        "label": "Live Site",
         "url": "https://fountainoftech.pages.dev"
-      },
-      {
-        "label": "Code",
-        "url": "https://github.com/username/ml-project"
       }
     ]
   },
   {
-    "title": "Weather Dashboard",
-    "description": "Interactive weather dashboard with real-time data visualization, 7-day forecasts, and location-based weather alerts. Features responsive design and offline support.",
-    "tags": ["JavaScript", "API", "UI/UX"],
-    "image": "./assets/img/projects/weather.png",
-    "links": [
-      {
-        "label": "View",
-        "url": "https://example.com/weather"
-      }
-    ]
+    "title": "SHanCE Survey Tool",
+    "description": "Interactive survey tool built with JavaScript to capture real-time human-autonomy interaction data and physiological sensor streams. Designed for research studies with 50+ participants at the NHanCE Lab.",
+    "tags": ["JavaScript", "Research", "Data Collection", "UI/UX"],
+    "image": "./assets/img/projects/shance.png",
+    "links": []
   },
   {
-    "title": "Task Management App",
-    "description": "Collaborative task management application with real-time updates, team chat, and project tracking. Supports kanban boards and Gantt charts.",
-    "tags": ["React", "Firebase", "UI/UX"],
-    "image": "./assets/img/projects/tasks.png",
-    "links": [
-      {
-        "label": "Demo",
-        "url": "https://example.com/tasks"
-      },
-      {
-        "label": "Source",
-        "url": "https://github.com/username/tasks"
-      }
-    ]
+    "title": "StatWorkbench",
+    "description": "Comprehensive statistical analysis tool built in R that ingests CSV data to auto-generate diagnostic plots (QQ, Residuals) and perform multivariate analyses. Implements advanced modeling capabilities including Multiple Linear Regression and Ridge Regression for complex dataset interpretation.",
+    "tags": ["R", "Statistics", "Data Visualization", "Regression"],
+    "image": "./assets/img/projects/statworkbench.png",
+    "links": []
   },
   {
-    "title": "Data Visualization Tool",
-    "description": "Advanced data visualization toolkit for creating interactive charts and dashboards. Supports multiple chart types and real-time data streaming.",
-    "tags": ["JavaScript", "D3.js", "Data Science"],
-    "image": "./assets/img/projects/dataviz.png",
-    "links": [
-      {
-        "label": "Demo",
-        "url": "https://example.com/dataviz"
-      }
-    ]
+    "title": "MarkovSim",
+    "description": "Competitive simulation environment pitting human users against a Multi-Criteria Decision Making (MCDM) model. Utilizes Markov Chains to predict user behavior patterns and adapt the strategy matrix in real-time, demonstrating predictive modeling concepts.",
+    "tags": ["Stochastic Modeling", "Game Theory", "Markov Chains", "Simulation"],
+    "image": "./assets/img/projects/markovsim.png",
+    "links": []
   },
   {
-    "title": "Portfolio Generator",
-    "description": "Automated portfolio website generator with customizable themes and templates. Integrates with GitHub to showcase projects and contributions.",
-    "tags": ["Node.js", "JavaScript", "UI/UX"],
-    "image": "./assets/img/projects/portfolio-gen.png",
-    "links": [
-      {
-        "label": "GitHub",
-        "url": "https://github.com/username/portfolio-gen"
-      }
-    ]
+    "title": "OHT Scheduling Algorithm",
+    "description": "Optimization-based scheduling algorithm for simulated Overhead Hoist Transports (OHTs) in semiconductor fabs. Conducts stochastic modeling to simulate industrial throughput and identify bottlenecks in Autonomous Material Handling Systems.",
+    "tags": ["Python", "Optimization", "Simulation", "Semiconductors"],
+    "image": "./assets/img/projects/oht-scheduler.png",
+    "links": []
+  },
+  {
+    "title": "Hardware I/O Simulation",
+    "description": "Python-driven hardware I/O simulation using LabJack and Raspberry Pi to control PLC signals. Eliminates the need for expensive physical hardware during systems validation testing at Flanders Electric.",
+    "tags": ["Python", "Hardware", "Automation", "Testing"],
+    "image": "./assets/img/projects/io-simulation.png",
+    "links": []
   }
 ]
