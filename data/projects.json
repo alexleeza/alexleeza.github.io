@@ -5,6 +5,7 @@
     "tags": ["TypeScript", "Next.js", "PostgreSQL", "MIP", "Full-Stack"],
     "image": "./assets/img/projects/boiler-optimizer.png",
     "featured": true,
+    "video": "",
     "links": [
       {
         "label": "Live Site",
@@ -18,6 +19,7 @@
     "tags": ["TypeScript", "Web Development", "API", "Automation"],
     "image": "./assets/img/projects/fountain-of-tech.png",
     "featured": true,
+    "video": "",
     "links": [
       {
         "label": "Live Site",
@@ -26,10 +28,21 @@
     ]
   },
   {
-    "title": "SHanCE Survey Tool",
-    "description": "Interactive survey tool built with JavaScript to capture real-time human-autonomy interaction data and physiological sensor streams. Designed for research studies with 50+ participants at the NHanCE Lab.",
-    "tags": ["JavaScript", "Research", "Data Collection", "UI/UX"],
-    "image": "./assets/img/projects/shance.png",
+    "title": "MLR Crime Rate Analysis",
+    "description": "Multiple Linear Regression analysis examining crime rates versus socioeconomic factors. Standardized data using R with target variables and predictors to create null and alternate hypotheses. Utilized residual plots, Q-Q plots, Box-Cox transformations, influence points, multicollinearity analysis, ridge regression, and stepwise model selection.",
+    "tags": ["R", "Statistics", "MLR", "Data Analysis", "Regression"],
+    "image": "./assets/img/projects/mlr-crime.png",
+    "featured": false,
+    "video": "",
+    "links": []
+  },
+  {
+    "title": "Bottle It Up IMS",
+    "description": "Full-stack information management system for a simulated bottling facility. Built with PHP backend, SQL database, and modern frontend technologies to manage inventory, production, and facility operations.",
+    "tags": ["PHP", "SQL", "JavaScript", "HTML/CSS", "Full-Stack"],
+    "image": "./assets/img/projects/bottle-ims.png",
+    "featured": false,
+    "video": "",
     "links": []
   },
   {
@@ -37,6 +50,8 @@
     "description": "Comprehensive statistical analysis tool built in R that ingests CSV data to auto-generate diagnostic plots (QQ, Residuals) and perform multivariate analyses. Implements advanced modeling capabilities including Multiple Linear Regression and Ridge Regression for complex dataset interpretation.",
     "tags": ["R", "Statistics", "Data Visualization", "Regression"],
     "image": "./assets/img/projects/statworkbench.png",
+    "featured": true,
+    "video": "",
     "links": []
   },
   {
@@ -44,6 +59,62 @@
     "description": "Competitive simulation environment pitting human users against a Multi-Criteria Decision Making (MCDM) model. Utilizes Markov Chains to predict user behavior patterns and adapt the strategy matrix in real-time, demonstrating predictive modeling concepts.",
     "tags": ["Stochastic Modeling", "Game Theory", "Markov Chains", "Simulation"],
     "image": "./assets/img/projects/markovsim.png",
+    "featured": true,
+    "video": "",
+    "links": []
+  },
+  {
+    "title": "Certain Gold Foundry",
+    "description": "A pixel art generator that creates randomly generated pixel art assets for the game Certain Gold. Procedurally generates unique visual elements with a retro aesthetic.",
+    "tags": ["JavaScript", "Pixel Art", "Procedural Generation", "Game Dev"],
+    "image": "./assets/img/projects/certain-gold-foundry.png",
+    "featured": false,
+    "video": "",
+    "links": []
+  },
+  {
+    "title": "Certain Gold",
+    "description": "An incremental clicker game where players accumulate gold through clicking and automated upgrades. Features progression systems, achievements, and idle mechanics.",
+    "tags": ["JavaScript", "Game Dev", "Idle Game", "Web Game"],
+    "image": "./assets/img/projects/certain-gold.png",
+    "featured": false,
+    "video": "",
+    "links": []
+  },
+  {
+    "title": "YearlyChex",
+    "description": "A New Year's resolution tracking web application. Helps users set, track, and maintain their yearly goals with progress visualization and reminders.",
+    "tags": ["JavaScript", "Web App", "Productivity", "Full-Stack"],
+    "image": "./assets/img/projects/yearlychex.png",
+    "featured": false,
+    "video": "",
+    "links": []
+  },
+  {
+    "title": "Financial Management Helper",
+    "description": "A personal finance management tool to help users track expenses, budget, and plan for financial goals. Features data visualization and spending insights.",
+    "tags": ["JavaScript", "Finance", "Data Visualization", "Web App"],
+    "image": "./assets/img/projects/finance-helper.png",
+    "featured": false,
+    "video": "",
+    "links": []
+  },
+  {
+    "title": "Living Art Simulation",
+    "description": "An interactive simulation that generates living, evolving art pieces. Creates dynamic visual experiences through algorithmic art generation.",
+    "tags": ["JavaScript", "Simulation", "Generative Art", "Creative Coding"],
+    "image": "./assets/img/projects/living-art.png",
+    "featured": false,
+    "video": "",
+    "links": []
+  },
+  {
+    "title": "SHanCE Survey Tool",
+    "description": "Interactive survey tool built with JavaScript to capture real-time human-autonomy interaction data and physiological sensor streams. Designed for research studies with 50+ participants at the NHanCE Lab.",
+    "tags": ["JavaScript", "Research", "Data Collection", "UI/UX"],
+    "image": "./assets/img/projects/shance.png",
+    "featured": false,
+    "video": "",
     "links": []
   },
   {
@@ -51,6 +122,8 @@
     "description": "Optimization-based scheduling algorithm for simulated Overhead Hoist Transports (OHTs) in semiconductor fabs. Conducts stochastic modeling to simulate industrial throughput and identify bottlenecks in Autonomous Material Handling Systems.",
     "tags": ["Python", "Optimization", "Simulation", "Semiconductors"],
     "image": "./assets/img/projects/oht-scheduler.png",
+    "featured": false,
+    "video": "",
     "links": []
   },
   {
@@ -58,6 +131,18 @@
     "description": "Python-driven hardware I/O simulation using LabJack and Raspberry Pi to control PLC signals. Eliminates the need for expensive physical hardware during systems validation testing at Flanders Electric.",
     "tags": ["Python", "Hardware", "Automation", "Testing"],
     "image": "./assets/img/projects/io-simulation.png",
+    "featured": false,
+    "video": "",
+    "links": []
+  },
+  {
+    "title": "ZeroedAscent",
+    "description": "Future indie game company website. Currently in planning phase - will showcase games, development blogs, and company information.",
+    "tags": ["Coming Soon", "Game Dev", "Web Development"],
+    "image": "./assets/img/projects/zeroed-ascent.png",
+    "featured": false,
+    "video": "",
+    "status": "coming-soon",
     "links": []
   }
 ]

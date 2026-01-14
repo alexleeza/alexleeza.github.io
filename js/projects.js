@@ -73,27 +73,80 @@
       ? '<span class="featured-badge">Featured</span>' 
       : '';
     
-    const imageHtml = project.image 
-      ? `<img src="${escapeHtml(project.image)}" 
+    const comingSoonBadge = project.status === 'coming-soon'
+      ? '<span class="coming-soon-badge">Coming Soon</span>'
+      : '';
+    
+    // YouTube video embed or image thumbnail
+    let mediaHtml = '';
+    if (project.video) {
+      // Extract YouTube video ID from various URL formats
+      const videoId = extractYouTubeId(project.video);
+      if (videoId) {
+        mediaHtml = `
+          <div class="project-video-container">
+            <iframe 
+              src="https://www.youtube.com/embed/${videoId}" 
+              title="${escapeHtml(project.title)} demo video"
+              frameborder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowfullscreen
+              loading="lazy">
+            </iframe>
+          </div>`;
+      }
+    } else if (project.image) {
+      mediaHtml = `
+        <img src="${escapeHtml(project.image)}" 
              alt="${escapeHtml(project.title)} screenshot" 
              class="project-thumbnail" 
              loading="lazy" 
              decoding="async"
-             onerror="this.style.display='none'">`
+             onerror="this.parentElement.classList.add('no-image')">`;
+    }
+    
+    // Video button if video exists
+    const videoBtn = project.video 
+      ? `<a href="${escapeHtml(project.video)}" class="px-btn px-btn-small video-btn" target="_blank" rel="noopener noreferrer">
+           <span class="btn-icon video-icon"></span>
+           Watch Demo
+         </a>`
       : '';
     
     return `
-      <article class="project-card px-border px-shadow-sm" 
+      <article class="project-card px-border px-shadow-sm ${project.status === 'coming-soon' ? 'coming-soon' : ''}" 
                data-tags="${project.tags.join(',').toLowerCase()}"
                style="position: relative;">
         ${featuredBadge}
-        ${imageHtml}
+        ${comingSoonBadge}
+        ${mediaHtml}
         <h3 class="project-title">${escapeHtml(project.title)}</h3>
         <div class="project-tags">${tags}</div>
         <p class="project-description">${escapeHtml(project.description)}</p>
-        <div class="project-links">${links}</div>
+        <div class="project-links">
+          ${videoBtn}
+          ${links}
+        </div>
       </article>
     `;
+  }
+
+  // Extract YouTube video ID from various URL formats
+  function extractYouTubeId(url) {
+    if (!url) return null;
+    
+    // Match various YouTube URL formats
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+      /^([a-zA-Z0-9_-]{11})$/ // Direct video ID
+    ];
+    
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) return match[1];
+    }
+    
+    return null;
   }
 
   // ===== FILTERING =====

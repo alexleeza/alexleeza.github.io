@@ -484,6 +484,68 @@ button:disabled {
   font-size: var(--text-xs);
   text-transform: uppercase;
   letter-spacing: 1px;
+  z-index: 2;
+}
+
+.coming-soon-badge {
+  position: absolute;
+  top: var(--space-sm);
+  left: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  background-color: var(--color-charcoal-base);
+  color: white;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  z-index: 2;
+}
+
+.project-card.coming-soon {
+  opacity: 0.8;
+}
+
+.project-card.coming-soon:hover {
+  opacity: 1;
+}
+
+/* Video Container */
+.project-video-container {
+  position: relative;
+  width: calc(100% + var(--space-lg) * 2);
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  margin: calc(var(--space-lg) * -1);
+  margin-bottom: var(--space-md);
+  overflow: hidden;
+  border-bottom: var(--border-width-sm) solid var(--color-border);
+}
+
+.project-video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Video button styling */
+.video-btn {
+  background-color: #ff0000;
+  border-color: #cc0000;
+  color: white;
+}
+
+.video-btn:hover {
+  background-color: #cc0000;
+}
+
+.video-icon::before {
+  content: '▶';
+}
+
+/* No image fallback */
+.project-card.no-image .project-thumbnail {
+  display: none;
 }
 
 /* ===== SKILL BADGES ===== */
