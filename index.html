@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Alex K. Lee — Industrial Engineer · Operations Researcher</title>
+  <meta name="description" content="Recruiter resume for Alex K. Lee — Industrial Engineering, Operations Research, Stochastic Modeling, Monte Carlo Simulation. Purdue University." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Alex K. Lee — Industrial Engineer" />
+  <meta property="og:description" content="B.S. Industrial Engineering · Operations Research · Purdue University" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://alexleeza.github.io" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23050505'/><text x='16' y='23' text-anchor='middle' font-family='monospace' font-size='20' fill='%23c8c8c8'>A</text></svg>" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── Color tokens ──────────────────────────────────── */
+    :root {
+      --bp-bg:         #050505;
+      --bp-surface:    #0a0a0a;
+      --bp-border:     #1a1a1a;
+      --bp-rule:       #222222;
+      --bp-text:       #c8c8c8;
+      --bp-dim:        #555555;
+      --bp-bright:     #e8e8e8;
+      --bp-accent:     #3a6b7c;
+      --bp-accent-dim: #1e3d47;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-body: 'IBM Plex Sans', sans-serif;
+    }
+    body.comfort {
+      --bp-bg:         #111114;
+      --bp-surface:    #17171a;
+      --bp-border:     #2a2a2e;
+      --bp-rule:       #2f2f33;
+      --bp-text:       #9a9a9f;
+      --bp-dim:        #5e5e65;
+      --bp-bright:     #b8b8be;
+      --bp-accent:     #4a7f90;
+      --bp-accent-dim: #2a4f5a;
+    }
+
+    /* ── Reset & base ──────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      background-color: var(--bp-bg);
+      color: var(--bp-text);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    ul { list-style: none; }
+
+    /* ── Layout ────────────────────────────────────────── */
+    .page-wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 64px 20px 32px;
+    }
+    @media (min-width: 640px) { .page-wrap { padding: 96px 32px 32px; } }
+
+    /* ── Contrast toggle ───────────────────────────────── */
+    .contrast-toggle {
+      position: fixed;
+      top: 16px; left: 16px;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      background: none;
+      border: 1px solid var(--bp-border);
+      padding: 4px 10px;
+      font-family: var(--font-mono);
+      font-size: 8px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--bp-dim);
+      transition: border-color 0.3s ease, color 0.3s ease;
+    }
+    .contrast-toggle:hover { border-color: var(--bp-dim); color: var(--bp-text); }
+    .toggle-pip {
+      width: 5px; height: 5px;
+      border: 1px solid var(--bp-dim);
+      background-color: transparent;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    body.comfort .toggle-pip { background-color: var(--bp-accent); border-color: var(--bp-accent); }
+    @media (min-width: 640px) { .contrast-toggle { top: 24px; left: 24px; } }
+
+    /* ── Corner brackets ───────────────────────────────── */
+    .bracket-box { position: relative; }
+    .bracket-box::before,
+    .bracket-box::after {
+      content: ''; position: absolute;
+      width: 12px; height: 12px;
+      pointer-events: none;
+      transition: width 0.3s ease, height 0.3s ease;
+    }
+    .bracket-box::before {
+      top: -1px; left: -1px;
+      border-top: 1px solid rgba(85,85,85,0.3);
+      border-left: 1px solid rgba(85,85,85,0.3);
+    }
+    .bracket-box::after {
+      bottom: -1px; right: -1px;
+      border-bottom: 1px solid rgba(85,85,85,0.3);
+      border-right: 1px solid rgba(85,85,85,0.3);
+    }
+    .bracket-box:hover::before,
+    .bracket-box:hover::after { width: 14px; height: 14px; }
+
+    .card { padding: 24px; background-color: var(--bp-surface); border: 1px solid var(--bp-border); }
+    .card-sm { padding: 20px; }
+
+    /* ── Guide lines ───────────────────────────────────── */
+    .guide-line {
+      height: 1px;
+      background: repeating-linear-gradient(to right, var(--bp-border) 0px, var(--bp-border) 3px, transparent 3px, transparent 8px);
+    }
+
+    /* ── Section markers ───────────────────────────────── */
+    .section-marker { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+    .marker-label {
+      flex-shrink: 0; font-family: var(--font-mono);
+      font-size: 9px; color: var(--bp-dim);
+      letter-spacing: 0.2em; text-transform: uppercase;
+    }
+    .marker-line {
+      flex-grow: 1; height: 1px;
+      background: repeating-linear-gradient(to right, var(--bp-border) 0px, var(--bp-border) 3px, transparent 3px, transparent 8px);
+    }
+    .section { padding-bottom: 64px; }
+    @media (min-width: 640px) { .section { padding-bottom: 80px; } }
+
+    /* ── Hero ───────────────────────────────────────────── */
+    .hero { padding-bottom: 48px; }
+    @media (min-width: 640px) { .hero { padding-bottom: 64px; } }
+    .hero-inner { display: flex; flex-direction: column; gap: 24px; }
+    @media (min-width: 640px) { .hero-inner { flex-direction: row; align-items: flex-start; gap: 28px; } }
+    .hero-photo {
+      width: 128px; height: 128px;
+      border: 1px solid var(--bp-border);
+      background-color: var(--bp-bg);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; overflow: hidden;
+    }
+    .hero-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero-photo-placeholder {
+      font-family: var(--font-mono); font-size: 7px; color: var(--bp-dim);
+      letter-spacing: 0.15em; text-transform: uppercase; text-align: center; line-height: 1.4;
+    }
+    .hero-content { flex-grow: 1; }
+    .hero-name {
+      font-family: var(--font-mono); color: var(--bp-bright);
+      font-size: 24px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    @media (min-width: 640px) { .hero-name { font-size: 30px; } }
+    .hero-title { font-family: var(--font-mono); color: var(--bp-dim); font-size: 12px; letter-spacing: 0.08em; margin-top: 8px; }
+    @media (min-width: 640px) { .hero-title { font-size: 14px; } }
+
+    /* ── Contact row ───────────────────────────────────── */
+    .contact-row {
+      margin-top: 20px; display: flex; flex-wrap: wrap;
+      align-items: center; gap: 8px;
+      font-family: var(--font-mono); font-size: 11px;
+    }
+    @media (min-width: 640px) { .contact-row { font-size: 12px; } }
+    .contact-link {
+      position: relative; display: inline-block;
+      color: var(--bp-dim); transition: color 0.2s ease;
+    }
+    .contact-link::after {
+      content: ''; position: absolute; bottom: -2px; left: 0;
+      width: 0; height: 1px; background-color: var(--bp-text);
+      transition: width 0.2s ease-out;
+    }
+    .contact-link:hover { color: var(--bp-text); }
+    .contact-link:hover::after { width: 100%; }
+    .contact-sep { color: var(--bp-border); }
+
+    /* ── Overview ──────────────────────────────────────── */
+    .bio { font-size: 14px; line-height: 1.7; max-width: 640px; }
+    .blueprint-btn {
+      position: relative; display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; margin-top: 32px;
+      border: 1px solid rgba(58,107,124,0.4);
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--bp-accent);
+      transition: border-color 0.3s ease, background-color 0.3s ease;
+    }
+    @media (min-width: 640px) { .blueprint-btn { font-size: 10px; } }
+    .blueprint-btn::before, .blueprint-btn::after { content: ''; position: absolute; width: 6px; height: 6px; }
+    .blueprint-btn::before { top: -1px; left: -1px; border-top: 1px solid var(--bp-accent); border-left: 1px solid var(--bp-accent); }
+    .blueprint-btn::after { bottom: -1px; right: -1px; border-bottom: 1px solid var(--bp-accent); border-right: 1px solid var(--bp-accent); }
+    .blueprint-btn:hover { border-color: rgba(58,107,124,0.7); background-color: rgba(58,107,124,0.05); }
+    .crosshair { display: inline-block; width: 10px; height: 10px; position: relative; }
+    .crosshair::before, .crosshair::after { content: ''; position: absolute; background-color: var(--bp-accent); }
+    .crosshair::before { top: 50%; left: 0; width: 100%; height: 1px; transform: translateY(-50%); }
+    .crosshair::after { left: 50%; top: 0; height: 100%; width: 1px; transform: translateX(-50%); }
+    .ref-note {
+      display: block; font-family: var(--font-mono); font-size: 7px;
+      color: var(--bp-border); letter-spacing: 0.15em; text-transform: uppercase;
+      margin-top: 6px; margin-left: 4px; user-select: none;
+    }
+
+    /* ── Education ─────────────────────────────────────── */
+    .edu-header { display: flex; flex-direction: column; gap: 4px; margin-bottom: 16px; }
+    @media (min-width: 640px) { .edu-header { flex-direction: row; justify-content: space-between; align-items: flex-start; } }
+    .edu-inst { font-family: var(--font-mono); font-size: 14px; color: var(--bp-bright); letter-spacing: 0.08em; text-transform: uppercase; }
+    .edu-loc { font-family: var(--font-mono); font-size: 12px; color: var(--bp-dim); letter-spacing: 0.08em; margin-top: 4px; }
+    .edu-date { font-family: var(--font-mono); font-size: 10px; color: var(--bp-dim); letter-spacing: 0.15em; text-transform: uppercase; flex-shrink: 0; }
+    .edu-row { display: flex; flex-direction: column; margin-bottom: 12px; }
+    @media (min-width: 640px) { .edu-row { flex-direction: row; gap: 32px; } }
+    .edu-label { font-family: var(--font-mono); font-size: 10px; color: var(--bp-dim); letter-spacing: 0.2em; text-transform: uppercase; width: 112px; flex-shrink: 0; }
+    .edu-value { font-size: 14px; line-height: 1.6; }
+    .coord-label { font-family: var(--font-mono); font-size: 7px; color: var(--bp-border); letter-spacing: 0.15em; margin-top: 8px; user-select: none; }
+
+    /* ── Capabilities ──────────────────────────────────── */
+    .skills-grid { display: grid; grid-template-columns: 1fr; gap: 32px; }
+    @media (min-width: 640px) { .skills-grid { grid-template-columns: 1fr 1fr; gap: 48px; } }
+    .skills-col-label { font-family: var(--font-mono); font-size: 10px; color: var(--bp-dim); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 16px; }
+    .skill-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .skill-name { font-family: var(--font-mono); font-size: 12px; }
+    .pips { display: flex; gap: 3px; }
+    .pip { width: 4px; height: 4px; }
+    .pip-on  { background-color: var(--bp-dim); }
+    .pip-off { background-color: var(--bp-border); }
+
+    /* ── Experience ────────────────────────────────────── */
+    .category-label { font-family: var(--font-mono); font-size: 10px; color: var(--bp-dim); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 20px; }
+    .timeline { position: relative; padding-left: 24px; margin-bottom: 40px; }
+    .timeline-line { position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background-color: var(--bp-border); }
+    .timeline-entry { position: relative; margin-bottom: 32px; }
+    .timeline-entry:last-child { margin-bottom: 0; }
+    .timeline-dot { position: absolute; left: -27px; top: 6px; width: 7px; height: 7px; border: 1px solid var(--bp-dim); background-color: var(--bp-bg); }
+    .entry-header { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+    @media (min-width: 640px) { .entry-header { flex-direction: row; justify-content: space-between; align-items: flex-start; } }
+    .entry-title { font-family: var(--font-mono); font-size: 12px; color: var(--bp-bright); letter-spacing: 0.08em; text-transform: uppercase; }
+    .entry-org { font-family: var(--font-mono); font-size: 10px; color: var(--bp-dim); letter-spacing: 0.08em; margin-top: 2px; }
+    .entry-date { font-family: var(--font-mono); font-size: 10px; color: var(--bp-dim); letter-spacing: 0.15em; text-transform: uppercase; flex-shrink: 0; }
+    .entry-desc { font-size: 14px; line-height: 1.7; margin-bottom: 12px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      font-family: var(--font-mono); font-size: 9px; color: var(--bp-dim);
+      border: 1px solid var(--bp-border); padding: 2px 8px; letter-spacing: 0.08em;
+      transition: border-color 0.2s ease;
+    }
+    .tag:hover { border-color: var(--bp-dim); }
+    .dim-annotation { font-family: var(--font-mono); font-size: 7px; color: var(--bp-accent-dim); letter-spacing: 0.1em; margin-top: 8px; user-select: none; }
+
+    /* ── Projects ──────────────────────────────────────── */
+    .projects-stack > * + * { margin-top: 20px; }
+    .project-name {
+      font-family: var(--font-mono); font-size: 12px; color: var(--bp-bright);
+      letter-spacing: 0.08em; text-transform: uppercase; transition: color 0.2s ease;
+    }
+    a.project-name { position: relative; display: inline-block; }
+    a.project-name::after {
+      content: ''; position: absolute; bottom: -2px; left: 0;
+      width: 0; height: 1px; background-color: var(--bp-text);
+      transition: width 0.2s ease-out;
+    }
+    a.project-name:hover { color: var(--bp-text); }
+    a.project-name:hover::after { width: 100%; }
+    .project-desc { font-size: 14px; line-height: 1.7; margin: 8px 0 12px; }
+
+    /* ── Footer ────────────────────────────────────────── */
+    .site-footer { padding-bottom: 32px; }
+    .footer-wrap { max-width: 720px; margin: 0 auto; padding: 0 20px; }
+    @media (min-width: 640px) { .footer-wrap { padding: 0 32px; } }
+    .footer-text { font-family: var(--font-mono); font-size: 9px; color: var(--bp-dim); letter-spacing: 0.2em; text-transform: uppercase; text-align: center; }
+    .footer-sub { font-family: var(--font-mono); font-size: 7px; color: var(--bp-border); letter-spacing: 0.15em; text-transform: uppercase; text-align: center; margin-top: 4px; user-select: none; }
+
+    /* ── Error state ───────────────────────────────────── */
+    .load-error {
+      font-family: var(--font-mono); font-size: 12px; color: var(--bp-dim);
+      text-align: center; padding: 80px 20px; letter-spacing: 0.1em;
+    }
+    .load-error code { display: block; margin-top: 12px; font-size: 10px; color: var(--bp-border); }
+  </style>
+</head>
+
+<body class="comfort">
+
+  <!-- Contrast toggle -->
+  <button class="contrast-toggle" id="contrastToggle" aria-label="Toggle comfort contrast mode" title="Toggle contrast mode">
+    <span class="toggle-pip" aria-hidden="true"></span>
+    <span id="contrastLabel">CONTRAST: SOFT</span>
+  </button>
+
+  <main class="page-wrap" id="root">
+    <div class="load-error">Loading...</div>
+  </main>
+  <footer class="site-footer" id="siteFooter"></footer>
+
+  <script>
+  /* ════════════════════════════════════════════════════════
+     RENDERER
+     ════════════════════════════════════════════════════════
+     Fetches data.json and builds the page. You should not
+     need to edit anything in this file. Edit data.json
+     to update your resume content.
+     ════════════════════════════════════════════════════════ */
+  (function () {
+    var root   = document.getElementById('root');
+    var footer = document.getElementById('siteFooter');
+
+    fetch('data.json')
+      .then(function (res) {
+        if (!res.ok) throw new Error('Failed to load data.json (HTTP ' + res.status + ')');
+        return res.json();
+      })
+      .then(render)
+      .catch(function (err) {
+        root.innerHTML =
+          '<div class="load-error">' +
+            'Could not load resume data.' +
+            '<code>' + err.message + '</code>' +
+            '<code style="margin-top:8px;">If testing locally, run: python3 -m http.server</code>' +
+          '</div>';
+      });
+
+    function render(D) {
+
+      /* ── Helpers ──────────────────────────────────────── */
+      function esc(s) {
+        var d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+      }
+
+      function pips(level, max) {
+        max = max || 4;
+        var h = '';
+        for (var i = 0; i < max; i++) {
+          h += '<span class="pip ' + (i < level ? 'pip-on' : 'pip-off') + '"></span>';
+        }
+        return h;
+      }
+
+      function renderTags(arr) {
+        return arr.map(function (t) {
+          return '<span class="tag">' + esc(t) + '</span>';
+        }).join('');
+      }
+
+      function marker(label) {
+        return '<div class="section-marker">' +
+          '<span class="marker-label">' + esc(label) + '</span>' +
+          '<span class="marker-line" aria-hidden="true"></span></div>';
+      }
+
+      /* ── Build HTML ───────────────────────────────────── */
+      var html = '';
+
+      /* Hero */
+      var photoInner = D.photo
+        ? '<img src="' + esc(D.photo) + '" alt="' + esc(D.name) + '" />'
+        : '<span class="hero-photo-placeholder">PHOTO<br/>HERE</span>';
+
+      var contactHtml = '';
+      D.contact.forEach(function (c, i) {
+        if (i > 0) contactHtml += '<span class="contact-sep" aria-hidden="true">|</span>';
+        if (c.href) {
+          var ext = c.external ? ' target="_blank" rel="noopener"' : '';
+          contactHtml += '<a href="' + esc(c.href) + '" class="contact-link"' + ext + '>' + esc(c.label) + '</a>';
+        } else {
+          contactHtml += '<span style="color:var(--bp-dim);">' + esc(c.label) + '</span>';
+        }
+      });
+
+      html += '<section class="hero" aria-label="Identity"><div class="bracket-box card"><div class="hero-inner">' +
+        '<div class="hero-photo">' + photoInner + '</div>' +
+        '<div class="hero-content">' +
+          '<h1 class="hero-name">' + esc(D.name) + '</h1>' +
+          '<p class="hero-title">' + esc(D.title) + '</p>' +
+          '<nav class="contact-row" aria-label="Contact links">' + contactHtml + '</nav>' +
+        '</div></div></div></section>';
+
+
+
+      /* Overview */
+      html += '<section class="section" aria-label="Overview">' + marker('OVERVIEW') +
+        '<p class="bio">' + esc(D.bio) + '</p><div>' +
+        '<a href="' + esc(D.portfolioUrl) + '" target="_blank" rel="noopener" class="blueprint-btn" aria-label="View full portfolio">' +
+          '<span class="crosshair" aria-hidden="true"></span>' +
+          '<span>SEE FULL PORTFOLIO — ALEXKLEE.COM</span>' +
+          '<span style="color:var(--bp-accent-dim);" aria-hidden="true">&rarr;</span></a>' +
+        '<span class="ref-note" aria-hidden="true">REF DWG: MAIN SITE · COMPANION TO THIS DOCUMENT</span>' +
+        '</div></section>';
+
+      /* Education */
+      var ed = D.education;
+      html += '<section class="section" aria-label="Education">' + marker('EDUCATION') +
+        '<div class="bracket-box card"><div class="edu-header"><div>' +
+          '<h2 class="edu-inst">' + esc(ed.institution) + '</h2>' +
+          '<p class="edu-loc">' + esc(ed.location) + '</p></div>' +
+          '<time class="edu-date">' + esc(ed.graduation) + '</time></div>' +
+          '<div class="edu-row"><span class="edu-label">DEGREE</span><span class="edu-value">' + esc(ed.degree) + '</span></div>' +
+          '<div class="edu-row"><span class="edu-label">FOCUS</span><span class="edu-value">' + esc(ed.focus) + '</span></div>' +
+          '<div class="edu-row" style="margin-bottom:0;"><span class="edu-label">COURSEWORK</span><span class="edu-value">' + esc(ed.coursework) + '</span></div>' +
+        '</div>' +
+        '<div class="coord-label" aria-hidden="true">X: 40.4247&deg; N &nbsp; Y: 86.9214&deg; W</div></section>';
+
+      /* Capabilities */
+      html += '<section class="section" aria-label="Capabilities">' + marker('CAPABILITIES') +
+        '<div class="bracket-box card"><div class="skills-grid">';
+      D.capabilities.forEach(function (col) {
+        html += '<div><h3 class="skills-col-label">' + esc(col.label) + '</h3><ul>';
+        col.skills.forEach(function (s) {
+          html += '<li class="skill-row"><span class="skill-name">' + esc(s.name) + '</span><span class="pips">' + pips(s.level) + '</span></li>';
+        });
+        html += '</ul></div>';
+      });
+      html += '</div></div></section>';
+
+      /* Experience */
+      html += '<section class="section" aria-label="Experience">' + marker('EXPERIENCE');
+      D.experience.forEach(function (cat) {
+        html += '<h3 class="category-label">' + esc(cat.category) + '</h3>' +
+          '<div class="timeline"><div class="timeline-line" aria-hidden="true"></div>';
+        cat.entries.forEach(function (e) {
+          html += '<div class="timeline-entry"><div class="timeline-dot" aria-hidden="true"></div>' +
+            '<div class="bracket-box card card-sm"><div class="entry-header"><div>' +
+              '<h4 class="entry-title">' + esc(e.title) + '</h4>' +
+              '<p class="entry-org">' + esc(e.org) + '</p></div>' +
+              '<time class="entry-date">' + esc(e.date) + '</time></div>' +
+            '<p class="entry-desc">' + esc(e.desc) + '</p>' +
+            '<div class="tags">' + renderTags(e.tags) + '</div>' +
+            (e.span ? '<div class="dim-annotation" aria-hidden="true">&larr; ' + esc(e.span) + ' &rarr;</div>' : '') +
+            '</div></div>';
+        });
+        html += '</div>';
+      });
+      html += '</section>';
+
+      /* Projects */
+      html += '<section class="section" aria-label="Projects">' + marker('PROJECTS') + '<div class="projects-stack">';
+      D.projects.forEach(function (p) {
+        var nameEl = p.url
+          ? '<a href="' + esc(p.url) + '" target="_blank" rel="noopener" class="project-name">' + esc(p.name) + '</a>'
+          : '<span class="project-name">' + esc(p.name) + '</span>';
+        html += '<div class="bracket-box card card-sm">' + nameEl +
+          '<p class="project-desc">' + esc(p.desc) + '</p>' +
+          '<div class="tags">' + renderTags(p.tags) + '</div></div>';
+      });
+      html += '</div></section>';
+
+      root.innerHTML = html;
+
+      /* Footer */
+      footer.innerHTML =
+        '<div class="footer-wrap">' +
+          '<div class="guide-line" style="margin-bottom:24px;" aria-hidden="true"></div>' +
+          '<p class="footer-text">' + esc(D.name) + ' &middot; 2025</p>' +
+          '<p class="footer-sub" aria-hidden="true">COMPANION DRAWING TO ALEXKLEE.COM &middot; ALEXLEEZA.GITHUB.IO</p>' +
+        '</div>';
+    }
+
+    /* ── Contrast toggle ───────────────────────────────── */
+    var btn = document.getElementById('contrastToggle');
+    var lbl = document.getElementById('contrastLabel');
+    var KEY = 'bp-contrast-comfort';
+    if (localStorage.getItem(KEY) === '0') {
+      document.body.classList.remove('comfort');
+      lbl.textContent = 'CONTRAST: HIGH';
+    }
+    btn.addEventListener('click', function () {
+      var on = document.body.classList.toggle('comfort');
+      lbl.textContent = on ? 'CONTRAST: SOFT' : 'CONTRAST: HIGH';
+      localStorage.setItem(KEY, on ? '1' : '0');
+    });
+  })();
+  </script>
+
+</body>
+</html>
