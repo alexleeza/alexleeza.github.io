@@ -12,7 +12,7 @@
     { "label": "alexklee.com",                 "href": "https://alexklee.com",                  "external": true }
   ],
 
-  "bio": "B.S. Industrial Engineering student at Purdue University with minors in Statistics and Management. Focused on operations research, stochastic modeling, and simulation — building systems that make better decisions under uncertainty. Holds certificates in Semiconductors & Microelectronics and Data Science Applications.",
+  "bio": "B.S. Industrial Engineering student at Purdue University with minors in Statistics and Management. Focused on operations research, stochastic modeling, and simulation with an emphasis on building systems that make better decisions under uncertainty. Holds certificates in Semiconductors & Microelectronics and Data Science Applications.",
 
   "portfolioUrl": "https://alexklee.com",
 
@@ -20,7 +20,7 @@
     "institution": "Purdue University",
     "location":    "West Lafayette, IN",
     "degree":      "B.S. Industrial Engineering",
-    "focus":       "Minors: Statistics, Management",
+    "focus":       "Undergraduate Minors: Statistics, Management",
     "graduation":  "Expected May 2026",
     "coursework":   "Stochastic Models in IE, Simulation Modeling & Analysis, Statistical Quality Control, Production Systems, Operations Research, Probability & Statistics for Engineers, Data Analytics, Linear Algebra"
   },
@@ -89,12 +89,20 @@
           "date":  "May 2024 – Jun 2025",
           "desc":  "Developed a dispatch and scheduling algorithm for simulated OHT fleets in AMHS-style semiconductor fab environments, comparing utilization and flow metrics. Applied stochastic modeling to evaluate throughput under uncertainty, identifying bottleneck stages in wafer-lot material movement and proposing strategies.",
           "tags":  ["AMHS", "Simulation", "Stochastic Modeling", "Semiconductor"],
-          "span":  "1yr"
+          "span":  null
+        },
+        {
+          "title": "Lab Intern",
+          "org":   "SMART Lab, West Lafayette, IN",
+          "date":  "May 2020 – Aug 2020",
+          "desc":  "Programmed and optimized a mobile robot using Python and Linux to achieve autonomous maze navigation.",
+          "tags":  ["Mobile Robots", "Python", "Scripting", "LINUX"],
+          "span":  null
         }
       ]
     },
     {
-      "category": "LEADERSHIP & TEACHING",
+      "category": "LEADERSHIP & VOLUNTEERING",
       "entries": [
         {
           "title": "Industrial Engineering Mentor",
