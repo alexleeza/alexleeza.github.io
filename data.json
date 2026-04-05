@@ -1,0 +1,153 @@
+{
+  "name": "ALEX K. LEE",
+  "title": "Industrial Engineer · Operations Researcher",
+
+  "photo": "headshot.jpg",
+
+  "contact": [
+    { "label": "alexklee4222@gmail.com",       "href": "mailto:alexklee4222@gmail.com" },
+    { "label": "(765) 637-8022" },
+    { "label": "linkedin.com/in/alexleeza",    "href": "https://linkedin.com/in/alexleeza",    "external": true },
+    { "label": "alexleeza.github.io",          "href": "https://alexleeza.github.io",           "external": true },
+    { "label": "alexklee.com",                 "href": "https://alexklee.com",                  "external": true }
+  ],
+
+  "bio": "B.S. Industrial Engineering student at Purdue University with minors in Statistics and Management. Focused on operations research, stochastic modeling, and simulation with an emphasis on building systems that make better decisions under uncertainty. Holds certificates in Semiconductors & Microelectronics and Data Science Applications.",
+
+  "portfolioUrl": "https://alexklee.com",
+
+  "education": {
+    "institution": "Purdue University",
+    "location":    "West Lafayette, IN",
+    "degree":      "B.S. Industrial Engineering",
+    "focus":       "Undergraduate Minors: Statistics, Management",
+    "graduation":  "Expected May 2026",
+    "coursework":   "Stochastic Models in IE, Simulation Modeling & Analysis, Statistical Quality Control, Production Systems, Operations Research, Probability & Statistics for Engineers, Data Analytics, Linear Algebra"
+  },
+
+  "capabilities": [
+    {
+      "label": "A — OR & Analytics",
+      "skills": [
+        { "name": "Mixed-Integer Programming", "level": 4 },
+        { "name": "Stochastic Modeling",        "level": 4 },
+        { "name": "Discrete-Event Simulation",  "level": 4 },
+        { "name": "Monte Carlo Methods",        "level": 3 },
+        { "name": "Markov Chains",              "level": 4 },
+        { "name": "MCDM",                       "level": 3 },
+        { "name": "Regression",                 "level": 3 }
+      ]
+    },
+    {
+      "label": "B — Languages & Tools",
+      "skills": [
+        { "name": "Python",                     "level": 4 },
+        { "name": "R",                          "level": 3 },
+        { "name": "SQL",                        "level": 3 },
+        { "name": "MATLAB",                     "level": 3 },
+        { "name": "C",                          "level": 2 },
+        { "name": "TypeScript / JavaScript",    "level": 3 },
+        { "name": "Git",                        "level": 3 },
+        { "name": "Robot Framework",            "level": 3 },
+        { "name": "Kubernetes",                 "level": 2 },
+        { "name": "Gurobi / OR-Tools / Arena",  "level": 3 }
+      ]
+    }
+  ],
+
+  "experience": [
+    {
+      "category": "PROFESSIONAL",
+      "entries": [
+        {
+          "title": "Student Developer (Operations Research)",
+          "org":   "Boiler Optimizer — Official Senior Design Project, Purdue University",
+          "date":  "Oct 2025 – Present",
+          "desc":  "Designed a custom Mixed-Integer Programming model for academic planning with constraints on prerequisites, time conflicts, and degree audit rules to generate optimized multi-semester schedules. Secured faculty sponsorship and led the transition into an official Senior Design Project with defined deliverables and validation milestones. Built a multi-criteria decision chatbot with LLM integration to recommend majors or concentrations within Purdue Engineering.",
+          "tags":  ["MIP", "LLM Integration", "MCDM", "Python"],
+          "span":  null
+        },
+        {
+          "title": "Undergraduate Researcher (Promoted to Hourly-Funded)",
+          "org":   "NHanCE Lab, West Lafayette, IN",
+          "date":  "Sep 2025 – Present",
+          "desc":  "Built Fountain of Tech, a website optimized for older adults focused on autonomous vehicles, and deployed SHanCE, an AV assessment survey capturing responses from 50+ participants for factor analysis. Conducting a literature review and developing a research proposal on using AI and VR simulation to improve AV accessibility for people with disabilities.",
+          "tags":  ["Human Factors", "AV Research", "Survey Design", "VR Simulation"],
+          "span":  null
+        },
+        {
+          "title": "Systems Validation Engineer",
+          "org":   "Flanders Electric, Carmel, IN (Intern Jun–Aug 2025; Part-time thereafter)",
+          "date":  "Jun 2025 – Present",
+          "desc":  "Standardized validation procedures with repeatable workflows and traceability across test environments. Increased test coverage 30% and cut debug cycle time 4 hours per sprint. Built and maintained 80+ automated regression tests across SQL and containerized environments. Designed a simulation-based validation system using hardware I/O emulation (LabJack, RPi) to replicate PLC signals, eliminating the need for expensive physical test setups.",
+          "tags":  ["Validation", "Robot Framework", "SQL", "Kubernetes", "Hardware I/O"],
+          "span":  null
+        },
+        {
+          "title": "Undergraduate Research Assistant",
+          "org":   "DC Lab, West Lafayette, IN",
+          "date":  "May 2024 – Jun 2025",
+          "desc":  "Developed a dispatch and scheduling algorithm for simulated OHT fleets in AMHS-style semiconductor fab environments, comparing utilization and flow metrics. Applied stochastic modeling to evaluate throughput under uncertainty, identifying bottleneck stages in wafer-lot material movement and proposing strategies.",
+          "tags":  ["AMHS", "Simulation", "Stochastic Modeling", "Semiconductor"],
+          "span":  null
+        },
+        {
+          "title": "Lab Intern",
+          "org":   "SMART Lab, West Lafayette, IN",
+          "date":  "May 2020 – Aug 2020",
+          "desc":  "Programmed and optimized a mobile robot using Python and Linux to achieve autonomous maze navigation.",
+          "tags":  ["Mobile Robots", "Python", "Scripting", "LINUX"],
+          "span":  null
+        }
+      ]
+    },
+    {
+      "category": "LEADERSHIP & VOLUNTEERING",
+      "entries": [
+        {
+          "title": "Industrial Engineering Mentor",
+          "org":   "Purdue University",
+          "date":  "Aug 2025 – Present",
+          "desc":  "Mentored 16 undergraduates on curriculum planning and internship guidance; 12 have secured placements so far.",
+          "tags":  ["Mentorship", "Academic Advising"],
+          "span":  null
+        },
+        {
+          "title": "Computer Science Instructor",
+          "org":   "Part-Time",
+          "date":  "Jan 2022 – Mar 2023",
+          "desc":  "Taught fundamental programming concepts to 32 students, with a focus on coding projects to improve creativity and attentiveness.",
+          "tags":  ["Teaching", "Programming"],
+          "span":  "1yr"
+        }
+      ]
+    }
+  ],
+
+  "projects": [
+    {
+      "name": "Boiler Optimizer",
+      "url":  null,
+      "desc": "MIP-based academic planner that generates optimized multi-semester schedules respecting prerequisites, time conflicts, and degree audit rules. Includes an LLM-powered chatbot for major/concentration recommendations.",
+      "tags": ["Python", "MIP", "Gurobi", "LLM"]
+    },
+    {
+      "name": "StatWorkbench",
+      "url":  null,
+      "desc": "Analysis workflow that ingests CSV data and generates diagnostic visualizations (QQ plots, residual plots, leverage analysis). Implements Multiple Linear and Ridge Regression pipelines with side-by-side comparison via RMSE and adjusted R-squared.",
+      "tags": ["R", "Regression", "Statistical Diagnostics"]
+    },
+    {
+      "name": "MarkovSim",
+      "url":  null,
+      "desc": "Simulation pitting human judgment against an MCDM model to demonstrate continuous Markov Chains through a simple game. Models state transitions to evaluate strategy evolution under uncertainty.",
+      "tags": ["Stochastic Processes", "Markov Chains", "MCDM"]
+    },
+    {
+      "name": "alexklee.com",
+      "url":  "https://alexklee.com",
+      "desc": "Dual-mode portfolio site with AMHS background simulation, Monte Carlo slime generator, and collectibles inventory.",
+      "tags": ["Astro", "React", "Three.js", "Tailwind CSS"]
+    }
+  ]
+}
