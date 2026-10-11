@@ -2,80 +2,97 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alex Kyoungmoon Lee</title>
-  <meta name="description" content="Alex Kyoungmoon Lee — Industrial Engineer, Operations Research, Production Systems, Data Science/ML.">
-  <meta name="theme-color" content="#111111">
-
-  <!-- Security -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; script-src 'self'; frame-ancestors 'none'; form-action 'none'; base-uri 'self';">
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Alex K. Lee</title>
+  <meta name="description" content="Alex K. Lee — Industrial Engineering, Operations Research, Production Systems, Data Science/ML.">
+  <meta name="theme-color" content="#f6f5ef">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; font-src 'self'; img-src 'self'; script-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'; frame-src 'none';">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=()">
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="Alex Kyoungmoon Lee">
-  <meta property="og:description" content="Industrial Engineer — Operations Research, Production Systems, Data Science/ML.">
-  <meta property="og:url" content="https://alexleeza.github.io">
+  <meta name="color-scheme" content="light">
+  <meta property="og:title" content="Alex K. Lee">
+  <meta property="og:description" content="Industrial Engineering · Operations Research · Production Systems · Data Science/ML">
+  <meta property="og:url" content="https://alexleeza.github.io/">
   <meta property="og:type" content="profile">
-  <meta property="og:image" content="https://alexleeza.github.io/assets/logo-a.svg">
-
-  <!-- Twitter Card -->
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Alex Kyoungmoon Lee">
-  <meta name="twitter:description" content="Industrial Engineer — Operations Research, Production Systems, Data Science/ML.">
-
-  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500&display=swap">
-  <link rel="stylesheet" href="styles.css">
+  <meta name="twitter:title" content="Alex K. Lee">
+  <meta name="twitter:description" content="Industrial Engineering · Operations Research · Production Systems · Data Science/ML">
+  <link rel="canonical" href="https://alexleeza.github.io/">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg?v=b32d5d24e2">
+  <link rel="preload" href="assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css?v=a8f2318306">
 </head>
 <body>
-
-  <svg id="lines" aria-hidden="true"></svg>
-
-  <div class="page">
-    <svg class="logo" aria-hidden="true" viewBox="0 0 64 64" width="72" height="72">
-      <!-- Spearhead (rotates) -->
-      <g class="spearhead-spin">
-        <path d="M32 3 L54 32 L32 61 L10 32Z"
-              fill="none" stroke="#6a8070" stroke-opacity="0.5" stroke-width="1.4" stroke-linejoin="round"/>
-        <line x1="16" y1="19" x2="48" y2="45" stroke="#6a8070" stroke-opacity="0.08" stroke-width="0.5"/>
-        <line x1="48" y1="19" x2="16" y2="45" stroke="#6a8070" stroke-opacity="0.08" stroke-width="0.5"/>
-        <line x1="32" y1="6" x2="32" y2="12" stroke="#6a8070" stroke-opacity="0.2" stroke-width="0.7" stroke-linecap="round"/>
-        <line x1="51" y1="32" x2="46" y2="32" stroke="#6a8070" stroke-opacity="0.2" stroke-width="0.7" stroke-linecap="round"/>
-        <line x1="32" y1="58" x2="32" y2="52" stroke="#6a8070" stroke-opacity="0.2" stroke-width="0.7" stroke-linecap="round"/>
-        <line x1="13" y1="32" x2="18" y2="32" stroke="#6a8070" stroke-opacity="0.2" stroke-width="0.7" stroke-linecap="round"/>
-        <circle cx="32" cy="3" r="2.5" fill="#7a9080"/>
-        <circle cx="54" cy="32" r="2.5" fill="#6a8070"/>
-        <circle cx="32" cy="61" r="2.5" fill="#6a8070"/>
-        <circle cx="10" cy="32" r="2.5" fill="#6a8070"/>
-      </g>
-      <!-- A (static) -->
-      <line x1="32" y1="25" x2="27" y2="41" stroke="#7a9080" stroke-width="1.8" stroke-linecap="round"/>
-      <line x1="32" y1="25" x2="37" y2="41" stroke="#7a9080" stroke-width="1.8" stroke-linecap="round"/>
-      <line x1="29" y1="35" x2="35" y2="35" stroke="#7a9080" stroke-width="1.2" stroke-linecap="round"/>
-    </svg>
-
-    <div class="header-box" id="header-box">
-      <h1 class="name">Alex Kyoungmoon Lee</h1>
-      <p class="tagline">Industrial Engineer · Operations Research · Production Systems · Data Science/ML</p>
-    </div>
-
-    <nav class="actions" aria-label="Primary destinations">
-      <a class="action box" id="action-left" href="#" target="_blank" rel="noopener noreferrer"></a>
-      <a class="action box" id="action-right" href="#" target="_blank" rel="noopener noreferrer"></a>
-    </nav>
-
-    <div class="projects-area">
-      <button class="toggle box" id="toggle" aria-expanded="false" aria-controls="drawer">View Projects</button>
-      <div class="drawer" id="drawer"></div>
-    </div>
-
-    <footer class="foot" id="foot" aria-label="Links"></footer>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <canvas class="portal-effects" aria-hidden="true" hidden></canvas>
+  <div class="page" data-view="lobby">
+    <main id="main">
+      <div class="portal-lobby">
+      <header class="identity">
+        <img class="spearhead" src="assets/logo-a.svg?v=b32d5d24e2" alt="" width="38" height="38">
+        <h1>Alex K. Lee</h1>
+        <ul class="focus-areas" aria-label="Areas of interest">
+          <li>Industrial Engineering</li>
+          <li>Operations Research</li>
+          <li>Production Systems</li>
+          <li>Data Science / ML</li>
+        </ul>
+      </header>
+      <figure class="hero-art" data-motion="paused" aria-label="Interactive pixel portal">
+        <button class="portal-trigger" type="button" aria-label="Enter the portal to view projects" aria-controls="project-catalog" aria-expanded="false" title="Enter the portal · View Projects" disabled>
+          <img class="portal-fallback" src="assets/brand/portal-idle.png?v=a82b41e037" alt="A moss-covered stone portal with carved runes and swirling green energy" width="160" height="176">
+          <canvas class="portal-sprite" width="160" height="176" aria-hidden="true" hidden></canvas>
+          <span class="portal-hint" aria-hidden="true">Enter the portal</span>
+        </button>
+        <button class="motion-toggle" type="button" aria-label="Pause portal animation" hidden><span class="motion-glyph" aria-hidden="true">Ⅱ</span><span class="motion-label">Pause</span></button>
+      </figure>
+      <nav class="destinations" aria-label="Primary destinations">
+        <a class="destination" href="https://alexklee.com"><span class="button-face">Personal Site</span></a>
+        <a class="destination" href="https://recruiters.alexklee.com"><span class="button-face">Recruiter Portal</span></a>
+      </nav>
+      </div>
+      <details class="project-disclosure" id="project-catalog">
+        <summary class="project-entry"><span class="button-face">View Projects</span></summary>
+        <div class="project-content">
+          <div class="project-toolbar" hidden>
+            <button class="return-portal" type="button"><span class="button-face">Back to portal</span></button>
+            <img src="assets/logo-a.svg?v=b32d5d24e2" alt="" width="28" height="32">
+          </div>
+          <h1 class="project-title" tabindex="-1">Projects</h1>
+          <h2>Featured Projects</h2>
+          <div class="project-grid featured-grid"><a class="project-item" href="https://kyouza.com"><span class="project-name">Kyouza</span><span class="project-description">Indie software studio</span></a>
+<a class="project-item" href="https://certaingold.com"><span class="project-name">Certain Gold</span><span class="project-description">2D extraction platformer</span></a>
+<div class="project-item"><span class="project-name">Boiler Optimizer</span><span class="project-description">Rule-based academic planning and course ranking</span></div>
+<div class="project-item"><span class="project-name">Portfolio Jeans</span><span class="project-description">Procedural portfolio generator</span></div></div>
+          <h2>Other Projects</h2>
+          <div class="project-grid"><div class="project-item"><span class="project-name">MarkovSim</span><span class="project-description">Interactive Markov chain simulation</span></div>
+<div class="project-item"><span class="project-name">StatWorkbench</span><span class="project-description">CSV analysis &amp; regression comparison</span></div>
+<div class="project-item"><span class="project-name">Boiler Optimizer Scraper</span><span class="project-description">Automated Purdue catalog scraper</span></div>
+<div class="project-item"><span class="project-name">Bottle It Up IMS</span><span class="project-description">Full-stack bottling facility management</span></div>
+<div class="project-item"><span class="project-name">MLR Crime Rate</span><span class="project-description">Socioeconomic regression analysis</span></div>
+<div class="project-item"><span class="project-name">Certain Gold Foundry</span><span class="project-description">Procedural game asset generation</span></div>
+<div class="project-item"><span class="project-name">Chexcel</span><span class="project-description">PWA budgeting app</span></div>
+<div class="project-item"><span class="project-name">kaishenfit</span><span class="project-description">Fitness coaching platform</span></div>
+<div class="project-item"><span class="project-name">ai for Kyouza</span><span class="project-description">Dual-personality AI chatbot</span></div>
+<div class="project-item"><span class="project-name">AKL OS</span><span class="project-description">Fake OS desktop interface</span></div>
+<div class="project-item"><span class="project-name">HumAndI</span><span class="project-description">Human vs AI benchmark games</span></div>
+<div class="project-item"><span class="project-name">ZeroArise</span><span class="project-description">ML life-mimicking program</span></div>
+<div class="project-item"><span class="project-name">Doc Tor</span><span class="project-description">Client-side PDF utility</span></div>
+<div class="project-item"><span class="project-name">Echo Egg</span><span class="project-description">Procedural personality quiz</span></div>
+<div class="project-item"><span class="project-name">Enza</span><span class="project-description">Cryptographic multi-source RNG</span></div>
+<div class="project-item"><span class="project-name">Re-Cord</span><span class="project-description">Browser-based screen recorder</span></div>
+<div class="project-item"><span class="project-name">GenUI</span><span class="project-description">Procedural design system generator</span></div>
+<div class="project-item"><span class="project-name">Orchestrator</span><span class="project-description">Multi-provider AI orchestration CLI</span></div>
+<div class="project-item"><span class="project-name">zagzig</span><span class="project-description">Pixel-drafted CSS framework</span></div></div>
+        </div>
+      </details>
+    </main>
+    <footer class="site-footer" aria-label="Links">
+      <a href="https://github.com/alexleeza">GitHub</a>
+      <a href="https://linkedin.com/in/alexleeza">LinkedIn</a>
+      <a href="mailto:alexklee4222@gmail.com">Email</a>
+    </footer>
   </div>
-
-  <script src="script.js"></script>
+  <script src="assets/brand/portal.js?v=59281af70d" defer></script>
+  <script src="script.js?v=df71fb8f7a" defer></script>
 </body>
 </html>

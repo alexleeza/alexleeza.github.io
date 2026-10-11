@@ -1,131 +1,46 @@
 # alexleeza.github.io
 
-Recruiter-facing resume site for Alex K. Lee. Companion to [alexklee.com](https://alexklee.com).
+A centered personal portal for Alex K. Lee. The page keeps the original content: name and professional tagline, Personal Site and Recruiter Portal links, the complete 23-project catalog, and GitHub, LinkedIn, and Email links.
 
-Single-page site with a blueprint/schematic design language. No frameworks, no build step, no external CSS. Deploys directly to GitHub Pages.
+Static HTML, CSS, and a small JavaScript animation controller. No compilation or package installation.
 
+## Files
 
-## File Overview
+- `index.html`: complete page content, including the project catalog and interactive portal. All navigation and the project disclosure work without JavaScript.
+- `data.json`: the matching compact content source. Keep its project catalog in sync with the HTML.
+- `script.js`: portal interaction, pixel transition between the entrance and projects, button attraction, 30 fps scheduling, and motion controls.
+- `styles.css`: shared warm ivory/forest palette, fonts, responsive layout, and scene animation.
+- `assets/brand/portal.js`: original 160 × 176 pixel portal renderer, with cached stonework and a small animated aperture.
+- `assets/brand/portal-idle.png`: 4.3 KB original static fallback, rendered from the same code.
+- `assets/fonts/`: the main website's local font assets and licenses.
+- `404.html`: error page using the same design system.
 
-```
-index.html     Site shell (layout, styles, renderer). Rarely needs editing.
-data.json      All resume content. This is the only file you edit.
-404.html       Custom error page.
-robots.txt     Crawler permissions.
-sitemap.xml    Search engine sitemap.
-README.md      This file.
-LICENSE         MIT license.
-```
+## Preview
 
-
-## Editing Your Resume
-
-Open `data.json` in any text editor. Every section of the site is driven by this file.
-
-### Photo
-
-Set the `photo` field to an image filename and place the image in the same directory:
-
-```json
-"photo": "headshot.jpg"
+```powershell
+python -m http.server 8124 --bind 127.0.0.1
 ```
 
-Set to `null` to show a placeholder box.
+Open http://127.0.0.1:8124.
 
-### Contact info
+## Design
 
-Each entry in the `contact` array is either a link or plain text:
+Space Grotesk Variable supplies the name and headings, Inter Variable the body, and JetBrains Mono Variable small labels. Shared colors include `#f6f5ef`, `#222923`, `#4b554d`, `#626c64`, `#2a5a42`, and `#d5dad6`.
 
-```json
-{ "label": "you@email.com", "href": "mailto:you@email.com" }
-{ "label": "linkedin.com/in/you", "href": "https://linkedin.com/in/you", "external": true }
-{ "label": "City, State" }
-```
+The portal is one original Canvas sprite: carved stone, bronze inlay, moss, runes, and green energy. The stonework is cached once; only the aperture is updated, capped at 30 frames per second. The loop stops offscreen, when the tab is hidden, when paused, or with reduced motion. A static PNG remains available without JavaScript.
 
-Entries without `href` render as plain text. Set `external` to `true` to open in a new tab.
+Hover or keyboard focus visibly charges the portal. Destination buttons resist a gentle pull toward its center while shedding pixel flecks. Their stationary hit areas keep the links easy to click. A normal click pulls the button out of its place, shrinks it, and spirals it into the portal's animated tunnel before navigating to that button's destination. Personal Site and Recruiter Portal keep their existing URLs; View Projects and the portal itself enter the project catalog. Modified clicks retain normal browser behavior. Back to portal returns to the entrance; browser history and the #projects address work too. Focus moves with the view. Reduced motion or Pause makes navigation immediate.
 
-### Skills
-
-Add an object to the `skills` array inside the appropriate capabilities column:
-
-```json
-{ "name": "New Skill", "level": 3 }
-```
-
-`level` ranges from 1 to 4 and controls the pip indicator squares.
-
-### Experience
-
-Add an object to the `entries` array under the appropriate category:
-
-```json
-{
-  "title": "Role Title",
-  "org":   "Company Name",
-  "date":  "Date Range",
-  "desc":  "What you did.",
-  "tags":  ["Tag1", "Tag2"],
-  "span":  "1yr"
-}
-```
-
-`span` is optional and adds a small duration annotation.
-
-To create a new category (e.g. VOLUNTEER), add a new object to the `experience` array:
-
-```json
-{
-  "category": "VOLUNTEER",
-  "entries": [ ... ]
-}
-```
-
-### Projects
-
-Add an object to the `projects` array:
-
-```json
-{
-  "name": "Project Name",
-  "url":  "https://github.com/...",
-  "desc": "One-line description.",
-  "tags": ["Tech1", "Tech2"]
-}
-```
-
-Set `url` to `null` if there is no public link.
-
-### Placeholders
-
-Search `data.json` for the word `placeholder` (case-insensitive) to find all values that need your real information: email, LinkedIn, GitHub, GPA, company names, and organization names.
-
-
-## Local Testing
-
-The site uses `fetch()` to load `data.json`, which does not work when opening the HTML file directly from your filesystem. To test locally, start a simple server:
-
-```
-cd alexleeza.github.io
-python3 -m http.server
-```
-
-Then open `http://localhost:8000` in your browser.
-
-
-## Deploying
-
-1. Push all files to a repository named `alexleeza.github.io`.
-2. Go to Settings, then Pages, then set the source to the main branch.
-3. The site is live at `https://alexleeza.github.io`.
-
-No build step required.
-
-
-## Contrast Mode
-
-The page defaults to soft contrast (lower luminance range, easier on the eyes). Visitors can switch to high contrast via the toggle in the top-left corner. The preference persists in localStorage.
-
+The existing destination links and native project disclosure remain usable without JavaScript. Flat pixel borders have no shadows, and the four interest areas are individually separated. No image generation service, external request, dependency, or build step is used.
 
 ## License
 
-See [LICENSE](LICENSE).
+See [LICENSE](LICENSE). Bundled font licenses are in `assets/fonts/`.
+
+## Production package
+
+Run `python scripts/package_site.py` to stage the explicit public-file allowlist in a new, empty `_site/` directory. Publish only that directory. The packager rejects missing assets, unapproved references, symlinks, and nonempty output; repository documents, scripts, and unused artwork stay out of the artifact. Remove only the rebuildable `_site/` directory before packaging again.
+
+The Pages workflow pins its direct actions to full commit hashes and separates read-only build permissions from deployment permissions. It uploads `_site/`, never the repository root. The upstream upload action still references its internal upload-artifact action by major version.
+
+Both pages restrict resources through a Content Security Policy. Fonts and artwork are local, no analytics or backend calls run, and no user input is evaluated as HTML. Animation honors reduced motion and pause controls. Production hosting must enforce HTTPS; response headers and redirects must be checked on the deployed hostname. The local preview does not certify those host settings.

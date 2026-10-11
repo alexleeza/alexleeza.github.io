@@ -15,3 +15,6 @@ Desktop.ini
 
 # Misc
 MASTERPROMPT.md
+
+# Rebuildable public deployment package
+_site/
